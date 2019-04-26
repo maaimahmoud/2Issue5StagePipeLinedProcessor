@@ -21,3 +21,16 @@ vcom Utilities\MultiStepCounter.vhd -2008
 vcom Utilities\FullSubtractor.vhd -2008 
 vcom Utilities\NbitSubtractor.vhd -2008 
 vcom Utilities\DownCounter.vhd -2008
+vcom Utilities\Mux.vhd -2008
+
+
+vcom InstructionMemory.vhd -2008
+vcom Fetch.vhd -2008
+vcom FetchDecodeBuffer.vhd -2008
+vcom Decode.vhd -2008
+vcom DataMemory.vhd -2008
+vcom Memory.vhd -2008
+vcom ExecuteMemoryBuffer.vhd -2008
+
+
+vcom MotherBoard.vhd -2008
