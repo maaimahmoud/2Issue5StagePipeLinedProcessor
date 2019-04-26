@@ -1,4 +1,4 @@
-# 2Issue5StagePipeLinedProcessor
+# Utils Module
 ## Rules:
 - For naming convention: follow these rules:
     - Entities ==> should be like "DFlipFlop"
@@ -14,7 +14,6 @@
 - Common code should be added in Utils folder.
 - Every sub team should work on his branch.
 - Don't merge on master unless your code is well tested.
-- All reserved words in Capslock ==> "PORT, ARCHITECTURE, SIGNAL...etc"
 - If you have other rules add them :D
 
 
