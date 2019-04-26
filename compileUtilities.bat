@@ -1,6 +1,9 @@
 @echo off
+vcom Utilities\Constants.vhd -2008
+vcom Utilities\DFlipFlop.vhd -2008
 vcom Utilities\Mux2.vhd -2008 
 vcom Utilities\Mux4.vhd -2008 
+vcom Utilities\Mux5.vhd -2008 
 vcom Utilities\Decoder.vhd -2008 
 vcom Utilities\FullAdder.vhd -2008 
 vcom Utilities\NBitAdder.vhd -2008 
@@ -31,6 +34,15 @@ vcom Decode.vhd -2008
 vcom DataMemory.vhd -2008
 vcom Memory.vhd -2008
 vcom ExecuteMemoryBuffer.vhd -2008
+
+
+vcom LeftShifter.vhd -2008
+vcom RightShifter.vhd -2008
+vcom ALU.vhd -2008
+vcom IDEXBuffer.vhd -2008
+vcom ExecuteStage.vhd -2008
+vcom MemWBBuffer.vhd -2008
+vcom WBStage.vhd -2008
 
 
 vcom MotherBoard.vhd -2008

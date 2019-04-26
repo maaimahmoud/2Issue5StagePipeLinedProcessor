@@ -1,0 +1,9 @@
+// memory data file (do not edit the following line - required for mem load use)
+// instance=/tb_filereg/Fr/Ram/ram
+// format=mti addressradix=d dataradix=b version=1.0 wordsperline=1
+0: $ADD$R0$R3
+1: $SUB$R2$R5
+2: $LDM$R6
+3: 0000000000000011
+4: $SHL100$R4
+5: $LDD$R2$R5
