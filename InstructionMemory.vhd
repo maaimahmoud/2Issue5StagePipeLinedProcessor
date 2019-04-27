@@ -4,12 +4,12 @@ USE IEEE.numeric_std.all;
 
 ENTITY InstructionMemory IS
 
-	Generic(addressBits: integer := 5; wordSize: integer :=32);
+	Generic(addressBits: integer := 20; wordSize: integer :=16);
 
 	PORT(
 			clk : IN STD_LOGIC;
 			we  : IN STD_LOGIC;
-			address, addressPlusOne : IN  STD_LOGIC_VECTOR(addressBits - 1 DOWNTO 0);
+			address: IN  STD_LOGIC_VECTOR(addressBits - 1 DOWNTO 0);
 			datain  : IN  STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
 			dataOut1,dataOut2 : OUT STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0)
 		);
@@ -36,7 +36,7 @@ ARCHITECTURE InstructionMemoryArch OF InstructionMemory IS
 		END PROCESS;
 
 		dataout1 <= Ram(TO_INTEGER(UNSIGNED(address)));
-        dataout2 <= Ram(TO_INTEGER(UNSIGNED(addressPlusOne)));
+        dataout2 <= Ram(TO_INTEGER(UNSIGNED(address)+1));
 		
 
 END ARCHITECTURE;

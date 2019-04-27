@@ -54,6 +54,6 @@ package Constants is
     CONSTANT flagSize: INTEGER := 3;
     CONSTANT ZFLAG: INTEGER := 0;
     CONSTANT CFLAG: INTEGER := 1;
-    CONSTANT NFLAG: INTEGER := 2;    
+    CONSTANT NFLAG: INTEGER := 2;  
 
 end package;

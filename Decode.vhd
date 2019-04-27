@@ -14,15 +14,19 @@ ENTITY Decode IS
   PORT(
         clk, reset: IN STD_LOGIC;
 
-        pc : INOUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        -- pc : INOUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
         instruction1, instruction2 : INOUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         
-        writeReg1, writeReg2 : IN STD_LOGIC_VECTOR((2**regNum)-1 DOWNTO 0);
+        writeReg1, writeReg2 : IN STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
 
         writeData1, writeData2 : IN STD_LOGIC_VECTOR(wordSize-1  DOWNTO 0);
 
+        inOperation: OUT STD_LOGIC;
+        
         outPort : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+
+        Src1, Src2, Dst1, Dst2 : OUT STD_LOGIC_VECTOR(regNum DOWNTO 0);
 
         src1Data, dst1Data, src2Data, dst2Data : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0)
 
@@ -42,8 +46,6 @@ ARCHITECTURE DecodeArch OF Decode IS
       SIGNAL myRegisters :myArray;
 
       SIGNAL writingData :myArray;
-
-      SIGNAL Src1, Src2, Dst1, Dst2 : STD_LOGIC_VECTOR(regNum DOWNTO 0);
 
       SIGNAL regEn : STD_LOGIC_VECTOR((2**regNum)-1 DOWNTO 0);
 
@@ -84,6 +86,9 @@ ARCHITECTURE DecodeArch OF Decode IS
               tristateDst2Map: ENTITY work.tristate GENERIC MAP(wordSize) PORT MAP (myRegisters(i),Dst2Decoded(i),dst2Data);
 
           END GENERATE;
+
+    inOperation <= '1' WHEN ( instruction1(15 DOWNTO 10) = "001001" OR instruction2(15 DOWNTO 10) = "001001" )
+    ELSE '0';
 
 
     outRegEn <= '1' WHEN ( instruction1(15 DOWNTO 10) = "001000" OR instruction2(15 DOWNTO 10) = "001000" )

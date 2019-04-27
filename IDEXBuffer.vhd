@@ -18,7 +18,15 @@ ENTITY IDEXBuffer IS
             RSrc1In, RDst1In,
             RSrc2In, RDst2In: in std_logic_vector(2 downto 0);
 
-            ----------------------------------------------------------
+            ------------------------------------------------
+
+            pcIn: in std_logic_vector((2*wordSize)-1 downto 0);
+
+            inPortIn1, inPortIn2: in std_logic_vector(wordSize-1 downto 0);
+
+            mux1WBSelectorIn, mux2WBSelectorIn: in std_logic_vector(1 downto 0);
+
+            -------------------------------------------------------
             EX1Out, Read1Out, Write1Out, WB1Out,
             EX2Out, Read2Out, Write2Out, WB2Out: out std_logic;
 
@@ -26,7 +34,15 @@ ENTITY IDEXBuffer IS
             RSrcValue2Out, RdstValue2Out: out std_logic_vector(wordSize-1 downto 0);
 
             RSrc1Out, RDst1Out,
-            RSrc2Out, RDst2Out: out std_logic_vector(2 downto 0)
+            RSrc2Out, RDst2Out: out std_logic_vector(2 downto 0);
+
+            ----------------------------------------------------------------
+
+            pcOut: out std_logic_vector((2*wordSize)-1 downto 0);
+
+            inPortOut1, inPortOut2: out std_logic_vector(wordSize-1 downto 0);
+
+            mux1WBSelectorOut, mux2WBSelectorOut: out std_logic_vector(1 downto 0)
         );
 
 END IDEXBuffer;
@@ -108,6 +124,39 @@ ARCHITECTURE IDEXBufferArch OF IDEXBuffer IS
         (
             RDst2In, enableRead2, notClk, rst, RDst2Out
         );
+
+        ----------------------------------------------------------------------------
+
+        -- TODO : enable pc 
+        pcMap: ENTITY work.Reg GENERIC MAP(2*wordSize) PORT MAP
+        (
+            pcIn, enableRead2, notClk, rst, pcOut
+        );
+
+        inport1Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        (
+            inPortIn1, enableRead1, notClk, rst, inPortOut1
+        );
+
+
+        inPort2Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        (
+            inPortIn2, enableRead2, notClk, rst, inPortOut2
+        );
+
+        --------------------------------------------------------------------------
+
+        wbMuxSelector1Map: ENTITY work.Reg GENERIC MAP(2) PORT MAP
+        (
+            mux1WBSelectorIn, enableRead1, notClk, rst, mux1WBSelectorOut
+        );
+
+
+        wbMuxSelector2Map: ENTITY work.Reg GENERIC MAP(2) PORT MAP
+        (
+            mux2WBSelectorIn, enableRead2, notClk, rst, mux1WBSelectorOut
+        );
+
 
         -----------------------------------------------------------------------------
 
