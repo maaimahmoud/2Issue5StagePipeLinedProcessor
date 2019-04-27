@@ -28,9 +28,9 @@ package Constants is
     CONSTANT opSHL: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "1010";
     CONSTANT opSHR: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "1011";
     CONSTANT opIN:std_logic_vector(operationSize-1 downto 0):="1100" ;
+    Constant opOUT:std_logic_vector(operationSize-1 downto 0):="1101" ;
+    constant opNOP:std_logic_vector(operationSize-1 downto 0):="1110" ;
     
-
-
 
      --Memory Instructions
      CONSTANT opPUSH: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "0000";
