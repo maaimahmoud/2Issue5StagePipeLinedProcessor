@@ -5,7 +5,7 @@ USE IEEE.STD_LOGIC_1164.all;
 package Constants is
 
     Constant opModeSize:Integer:=2;
-
+    Constant numRegister:Integer:=3;
     --opmodes
     Constant oneOperand :std_logic_vector(opModeSize-1 downto 0) :="00";
     Constant twoOperand:std_logic_vector(opModeSize-1 downto 0) :="01";
