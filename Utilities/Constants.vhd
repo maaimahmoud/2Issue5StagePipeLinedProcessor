@@ -4,6 +4,15 @@ USE IEEE.STD_LOGIC_1164.all;
 
 package Constants is
 
+    Constant opModeSize:Integer:=2;
+
+    --opmodes
+    Constant oneOperand :std_logic_vector(opModeSize-1 downto 0) :="00";
+    Constant twoOperand:std_logic_vector(opModeSize-1 downto 0) :="01";
+    Constant memoryInstructions :std_logic_vector(opModeSize-1 downto 0) :="10";
+    Constant changeOFControlInstructions :std_logic_vector(opModeSize-1 downto 0) :="11";
+    
+    
     -- alu operations
     CONSTANT operationSize: INTEGER := 4;
     CONSTANT opSETC: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "0000";
@@ -18,6 +27,27 @@ package Constants is
     CONSTANT opOR: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "1001";
     CONSTANT opSHL: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "1010";
     CONSTANT opSHR: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "1011";
+    CONSTANT opIN:std_logic_vector(operationSize-1 downto 0):="1100" ;
+    
+
+
+
+     --Memory Instructions
+     CONSTANT opPUSH: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "0000";
+     CONSTANT opPOP: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "0001";
+     CONSTANT opLDM: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "0010";
+     CONSTANT opLDD: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "0011";
+     CONSTANT opSTD: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "0100";
+ 
+ 
+     --Change of controls instructions
+     CONSTANT opJZ: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "0000";
+     CONSTANT opJN: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "0001";
+     CONSTANT opJC: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "0010";
+     CONSTANT opJMP: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "0011";
+     CONSTANT opCALL: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "0100";
+     CONSTANT opRET: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "0101";
+     CONSTANT opRTI: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0) := "0110";
 
 
     -- flags
