@@ -12,7 +12,7 @@ ENTITY WBStage IS
             ALU1, ALU2, Mem, inPort1, inPort2: in std_logic_vector(wordSize-1 downto 0);
             mux1Selector, mux2Selector: in std_logic_vector(1 downto 0);
 
-            mux1Out, mux2Out: out std_logic_vector(wordSize downto 0)
+            mux1Out, mux2Out: out std_logic_vector(wordSize-1 downto 0)
 		);
 
 END ENTITY WBStage;

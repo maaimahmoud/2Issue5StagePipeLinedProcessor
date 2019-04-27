@@ -4,7 +4,7 @@ USE IEEE.std_logic_1164.all;
 -- Mem/WB buffer Entity
 
 ENTITY MemWBBuffer IS
-    GENERIC (wordSize : integer := 16);
+    GENERIC (regNum: integer :=3 ; wordSize : integer := 16);
     PORT(
             clk, rst, enableRead1, enableRead2: in std_logic;
 
@@ -91,25 +91,25 @@ ARCHITECTURE MemWBBufferArch OF MemWBBuffer IS
 
         -------------------------------------------------------------------------------
 
-        src1Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        src1Map: ENTITY work.Reg GENERIC MAP(regNum) PORT MAP
         (
             RSrc1In, enableRead1, notClk, rst, RSrc1Out
         );
 
 
-        dst1Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        dst1Map: ENTITY work.Reg GENERIC MAP(regNum) PORT MAP
         (
             RDst1In, enableRead1, notClk, rst, RDst1Out
         );
 
 
-        src2Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        src2Map: ENTITY work.Reg GENERIC MAP(regNum) PORT MAP
         (
             RSrc2In, enableRead2, notClk, rst, RSrc2Out
         );
 
 
-        dst2Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        dst2Map: ENTITY work.Reg GENERIC MAP(regNum) PORT MAP
         (
             RDst2In, enableRead2, notClk, rst, RDst2Out
         );

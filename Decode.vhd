@@ -16,7 +16,7 @@ ENTITY Decode IS
 
         -- pc : INOUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
-        instruction1, instruction2 : INOUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        instruction1, instruction2 : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         
         writeReg1, writeReg2 : IN STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
 
@@ -26,7 +26,7 @@ ENTITY Decode IS
         
         outPort : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
-        Src1, Src2, Dst1, Dst2 : OUT STD_LOGIC_VECTOR(regNum DOWNTO 0);
+        Src1, Src2, Dst1, Dst2 : OUT STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
 
         src1Data, dst1Data, src2Data, dst2Data : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0)
 
