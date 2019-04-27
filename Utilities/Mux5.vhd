@@ -26,7 +26,7 @@ BEGIN
     Z <= A when S = "000"
     else B when S = "001"
     else C when S = "010"
-    else D when S = "011";
+    else D when S = "011"
     else E;
 
 END ARCHITECTURE;

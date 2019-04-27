@@ -12,6 +12,7 @@ ENTITY MemWBBuffer IS
             WB1In, WB2In: in std_logic;
 
             ALU1In, ALU2In, MemIn: in std_logic_vector(wordSize-1 downto 0);
+            inPortIn1, inPortIn2: in std_logic_vector(wordSize-1 downto 0);
 
             mux1WBSelectorIn, mux2WBSelectorIn: in std_logic_vector(1 downto 0);
 
@@ -22,6 +23,7 @@ ENTITY MemWBBuffer IS
             WB1Out, WB2Out: out std_logic;
 
             ALU1Out, ALU2Out, MemOut: out std_logic_vector(wordSize-1 downto 0);
+            inPortOut1, inPortOut2: out std_logic_vector(wordSize-1 downto 0);
 
             mux1WBSelectorOut, mux2WBSelectorOut: out std_logic_vector(1 downto 0);
 
@@ -113,6 +115,19 @@ ARCHITECTURE MemWBBufferArch OF MemWBBuffer IS
         );
 
         -----------------------------------------------------------------------------
+
+        inport1Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        (
+            inPortIn1, enableRead1, notClk, rst, inPortOut1
+        );
+
+
+        inPort2Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        (
+            inPortIn2, enableRead2, notClk, rst, inPortOut2
+        );
+
+        ------------------------------------------------------------------------------
 
 
 END ARCHITECTURE;

@@ -9,7 +9,7 @@ ENTITY Memory IS
 	PORT(
 			clk : IN STD_LOGIC;
             Read1, Read2, Write1,Write2: IN STD_LOGIC;
-            pc, alu1Out, alu2Out : IN  STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
+            alu1Out, alu2Out : IN  STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
             Src1Data, Src2Data: IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
             Dst1Data, Dst2Data : IN STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
 
