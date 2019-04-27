@@ -27,19 +27,30 @@ ARCHITECTURE FetchDecodeBufferArch OF FetchDecodeBuffer IS
 
 	BEGIN
 
-		PROCESS(clk) IS
-			BEGIN
-				IF rising_edge(clk) THEN  
-					IF bufferEn = '1' THEN
-						instruction1Mem <= instruction1In;
-                        instruction2Mem <= instruction2In;
-                        pcMem <= pcIn;
-					END IF;
-				END IF;
-		END PROCESS;
+		-- PROCESS(clk) IS
+		-- 	BEGIN
+		-- 		IF rising_edge(clk) THEN  
+		-- 			IF bufferEn = '1' THEN
+		-- 				instruction1 <= instruction1In;
+        --                 instruction2 <= instruction2In;
+        --                 pc <= pcIn;
+		-- 			END IF;
+		-- 		END IF;
+		-- END PROCESS;
 
-		instruction1 <= instruction1Mem;
-        instruction2 <= instruction2Mem;
-		pc <= pcMem;
+
+		-- pc <= pcMem;
+		-- instruction1 <= instruction1Mem;
+        -- instruction2 <= instruction2Mem;
+
+		instruction1Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        (
+            instruction1In, bufferEn, clk, rst, instruction1
+        );
+
+		instruction2Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        (
+            instruction2In, bufferEn, clk, rst, instruction2
+        );
 
 END ARCHITECTURE;

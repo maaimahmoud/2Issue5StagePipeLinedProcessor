@@ -9,7 +9,7 @@ ENTITY InstructionMemory IS
 	PORT(
 			clk : IN STD_LOGIC;
 			we  : IN STD_LOGIC;
-			address: IN  STD_LOGIC_VECTOR(addressBits - 1 DOWNTO 0);
+			address: IN  STD_LOGIC_VECTOR((2*wordSize) - 1 DOWNTO 0);
 			datain  : IN  STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
 			dataOut1,dataOut2 : OUT STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0)
 		);

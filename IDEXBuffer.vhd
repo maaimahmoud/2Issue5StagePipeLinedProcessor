@@ -4,7 +4,7 @@ USE IEEE.std_logic_1164.all;
 -- ID/EX buffer Entity
 
 ENTITY IDEXBuffer IS
-    GENERIC (wordSize : integer := 16);
+    GENERIC (regNum : integer := 3 ;wordSize : integer := 16);
     PORT(
             clk, rst, enableRead1, enableRead2: in std_logic;
 
@@ -16,7 +16,7 @@ ENTITY IDEXBuffer IS
             RSrcValue2In, RdstValue2In: in std_logic_vector(wordSize-1 downto 0);
 
             RSrc1In, RDst1In,
-            RSrc2In, RDst2In: in std_logic_vector(2 downto 0);
+            RSrc2In, RDst2In: in std_logic_vector(regNum-1 downto 0);
 
             ------------------------------------------------
 
@@ -34,7 +34,7 @@ ENTITY IDEXBuffer IS
             RSrcValue2Out, RdstValue2Out: out std_logic_vector(wordSize-1 downto 0);
 
             RSrc1Out, RDst1Out,
-            RSrc2Out, RDst2Out: out std_logic_vector(2 downto 0);
+            RSrc2Out, RDst2Out: out std_logic_vector(regNum-1 downto 0);
 
             ----------------------------------------------------------------
 
@@ -102,25 +102,25 @@ ARCHITECTURE IDEXBufferArch OF IDEXBuffer IS
 
         ---------------------------------------------------------------------------
 
-        src1Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        src1Map: ENTITY work.Reg GENERIC MAP(regNum) PORT MAP
         (
             RSrc1In, enableRead1, notClk, rst, RSrc1Out
         );
 
 
-        dst1Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        dst1Map: ENTITY work.Reg GENERIC MAP(regNum) PORT MAP
         (
             RDst1In, enableRead1, notClk, rst, RDst1Out
         );
 
 
-        src2Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        src2Map: ENTITY work.Reg GENERIC MAP(regNum) PORT MAP
         (
             RSrc2In, enableRead2, notClk, rst, RSrc2Out
         );
 
 
-        dst2Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        dst2Map: ENTITY work.Reg GENERIC MAP(regNum) PORT MAP
         (
             RDst2In, enableRead2, notClk, rst, RDst2Out
         );

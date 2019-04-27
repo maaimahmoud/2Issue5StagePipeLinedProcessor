@@ -9,9 +9,10 @@ ENTITY Memory IS
 	PORT(
 			clk : IN STD_LOGIC;
             Read1, Read2, Write1,Write2: IN STD_LOGIC;
+            pc : IN STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
             alu1Out, alu2Out : IN  STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
             Src1Data, Src2Data: IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-            Dst1Data, Dst2Data : IN STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
+            Dst1Data, Dst2Data : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
 			M0, M1, memoryOut : OUT STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0)
 		);
@@ -28,8 +29,9 @@ ARCHITECTURE MemoryArch OF Memory IS
     SIGNAL data: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 	
 	BEGIN
+        address(addressBits-1 DOWNTO wordSize) <= (OTHERS => '0');
 
-        address <= Src1Data WHEN Read1 = '1'
+        address(wordSize-1 DOWNTO 0) <= Src1Data WHEN Read1 = '1'
         ELSE Src2Data WHEN Read2 = '1'
         ELSE Dst1Data WHEN Write1 = '1'
         ELSE Dst2Data;
