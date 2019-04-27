@@ -13,13 +13,9 @@ vcom Utilities\Counter.vhd -2008
 vcom Utilities\TriState.vhd -2008 
 vcom Utilities\TwosComplement.vhd -2008 
 vcom Utilities\ShiftRegister.vhd -2008 
-vcom Utilities\ALUs\BoothStep.vhd -2008 
-vcom Utilities\ModifiedBoothStep.vhd -2008 
 vcom Utilities\Types.vhd -2008 
 vcom Utilities\Mux.vhd -2008 
-vcom Utilities\BinaryMux.vhd -2008 
-vcom Utilities\ALUs\Mul8x16.vhd -2008 
-vcom Utilities\TransitionDetector.vhd -2008 
+vcom Utilities\BinaryMux.vhd -2008  
 vcom Utilities\MultiStepCounter.vhd -2008 
 vcom Utilities\FullSubtractor.vhd -2008 
 vcom Utilities\NbitSubtractor.vhd -2008 

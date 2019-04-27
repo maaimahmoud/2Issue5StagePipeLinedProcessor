@@ -4,15 +4,15 @@ USE IEEE.numeric_std.all;
 
 ENTITY FetchDecodeBuffer IS
 
-	Generic(wordSize: integer :=32);
+	Generic(wordSize: integer :=16);
 
 	PORT(
-			clk : IN STD_LOGIC;
+			clk, reset: IN STD_LOGIC;
 			bufferEn  : IN STD_LOGIC;
 			pcIn : IN STD_LOGIC_VECTOR((2*wordSize-1) DOWNTO 0);
             instruction1In, instruction2In : IN  STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
 			pc : OUT STD_LOGIC_VECTOR((2*wordSize-1) DOWNTO 0);
-            instruction1,instruction2 : OUT STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0)
+            instruction1Out,instruction2Out : OUT STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0)
 		);
 
 END ENTITY FetchDecodeBuffer;
@@ -45,12 +45,12 @@ ARCHITECTURE FetchDecodeBufferArch OF FetchDecodeBuffer IS
 
 		instruction1Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
         (
-            instruction1In, bufferEn, clk, rst, instruction1
+            instruction1In, bufferEn, clk, reset, instruction1Out
         );
 
 		instruction2Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
         (
-            instruction2In, bufferEn, clk, rst, instruction2
+            instruction2In, bufferEn, clk, reset, instruction2Out
         );
 
 END ARCHITECTURE;

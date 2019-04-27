@@ -16,7 +16,7 @@ ENTITY Decode IS
 
         -- pc : INOUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
-        instruction1, instruction2 : INOUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        instruction1, instruction2 : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         
         writeReg1, writeReg2 : IN STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
 

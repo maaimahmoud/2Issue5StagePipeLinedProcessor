@@ -104,19 +104,19 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             M0 => M0 , M1 => M1 ,
 
-            dataOut1 =>fetchInstruction1, dataOut2 =>fetchInstruction2,
+            dataOut1 => fetchInstruction1, dataOut2 => fetchInstruction2,
             
             pc => pcFetchOut
         );
     -- ###########################################################################################
     -- Fetch/Decode Buffer
         FetchDecodeBufferMap: ENTITY work.FetchDecodeBuffer GENERIC MAP (wordSize) PORT MAP (
-            clk => notClk,
+            clk => notClk, reset => reset,
 			bufferEn  => fetchDecodeBufferEn,
 			pcIn => pcFetchOut,
             instruction1In =>fetchInstruction1 , instruction2In => fetchInstruction2,
 			pc => pcFetDecodeBufOut,
-            instruction1 => instruction1FetDecodeBufOut ,instruction2 => instruction2FetDecodeBufOut
+            instruction1Out => instruction1FetDecodeBufOut ,instruction2Out => instruction2FetDecodeBufOut
         );
     -- ###########################################################################################
     -- Decode Stage

@@ -79,7 +79,7 @@ ARCHITECTURE FetchArch OF Fetch IS
     instructionMemMap: ENTITY work.InstructionMemory GENERIC MAP (addressBits, wordSize) PORT MAP (
         clk =>  clk ,
         we =>  '0',
-        address => pc ,
+        address => pc(addressBits-1 downto 0) ,
         datain  =>  (OTHERS => '0' ),
         dataOut1 => dataOut1,
         dataOut2 => dataOut2
