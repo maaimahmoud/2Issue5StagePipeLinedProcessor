@@ -159,7 +159,7 @@ ARCHITECTURE IDEXBufferArch OF IDEXBuffer IS
 
         wbMuxSelector2Map: ENTITY work.Reg GENERIC MAP(2) PORT MAP
         (
-            mux2WBSelectorIn, enableRead2, notClk, rst, mux1WBSelectorOut
+            mux2WBSelectorIn, enableRead2, notClk, rst, mux2WBSelectorOut
         );
 
         -----------------------------------------------------------------------------

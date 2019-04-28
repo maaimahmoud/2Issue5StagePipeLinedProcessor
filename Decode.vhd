@@ -78,6 +78,7 @@ ARCHITECTURE DecodeArch OF Decode IS
 
     regEn <= write1Decoded OR write2Decoded;
 
+    -- TODO : problem , it does not write in writing data array
     writingData(TO_INTEGER(UNSIGNED(writeReg1))) <= writeData1;
     writingData(TO_INTEGER(UNSIGNED(writeReg2))) <= writeData2;
 
