@@ -57,7 +57,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
 
     -- Execute Parameters
-        SIGNAL MEM1In, MEM2In, WB1In, WB2In: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        -- SIGNAL MEM1In, MEM2In, WB1In, WB2In: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL mux1SelectorEX, mux2SelectorEX, mux3SelectorEX, mux4SelectorEX: STD_LOGIC_VECTOR(2 DOWNTO 0);
         SIGNAL alu1Operation, alu2Operation: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);
         SIGNAL ALU1Out, ALU2Out: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
