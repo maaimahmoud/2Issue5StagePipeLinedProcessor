@@ -20,17 +20,18 @@ Entity NOPInsertionUnit is
 
 port(
         Rdst1,Rsrc2,Rdst2:in std_logic_vector(numRegister-1 downto 0) ;
-        instructionType1,instructionType2 :in std_logic_vector(opModeSize-1 downto 0) ;
+      --  instructionType1,instructionType2 :in std_logic_vector(opModeSize-1 downto 0) ;
         instruction1OpCode,instruction2OpCode:in std_logic_vector(operationSize-1 downto 0) ;
         insertNOP:out std_logic
 );
 end entity NOPInsertionUnit;
 
 architecture NOPInsertionUnitArch of NOPInsertionUnit is 
-
+signal instructionType1,instructionType2 : std_logic_vector(opModeSize-1 downto 0);
 begin
 insertNOP <='1' When (Rdst1=Rsrc2 or Rdst1=Rdst2) or 
-
+instructionType1<=instruction1OpCode(operationSize-1 downto opCodeSize);
+instructionType2<=instruction2OpCode(operationSize-1 downto opCodeSize);
 --check if the 1st instruction will change the carry flags and the 2nd instruction will use the flags to branch
 ((instructionType1=twoOperand or
 ((instructionType1=oneOperand and instruction1OpCode/=opOUT and instruction1OpCode/=opIN and instruction1OpCode/=opNOP)
