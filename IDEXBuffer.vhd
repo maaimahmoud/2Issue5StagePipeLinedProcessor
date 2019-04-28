@@ -1,5 +1,6 @@
 LIBRARY IEEE;
 USE IEEE.std_logic_1164.all;
+use work.Constants.all;
 
 -- ID/EX buffer Entity
 
@@ -9,6 +10,8 @@ ENTITY IDEXBuffer IS
             clk, rst, enableRead1, enableRead2: in std_logic;
 
             ------------------------------------------------
+            alu1OperationIn, alu2OperationIn : in std_logic_vector(operationSize-1 downto 0);
+
             EX1In, Read1In, Write1In, WB1In,
             EX2In, Read2In, Write2In, WB2In: in std_logic;
 
@@ -27,6 +30,8 @@ ENTITY IDEXBuffer IS
             mux1WBSelectorIn, mux2WBSelectorIn: in std_logic_vector(1 downto 0);
 
             -------------------------------------------------------
+            alu1Operation, alu2Operation : out std_logic_vector(operationSize-1 downto 0);
+
             EX1Out, Read1Out, Write1Out, WB1Out,
             EX2Out, Read2Out, Write2Out, WB2Out: out std_logic;
 
@@ -157,7 +162,17 @@ ARCHITECTURE IDEXBufferArch OF IDEXBuffer IS
             mux2WBSelectorIn, enableRead2, notClk, rst, mux1WBSelectorOut
         );
 
+        -----------------------------------------------------------------------------
+        
+        alu1OperationMap: ENTITY work.Reg GENERIC MAP(operationSize) PORT MAP
+        (
+            alu1OperationIn, enableRead1, notClk, rst, alu1Operation
+        );
 
+        alu2OperationMap: ENTITY work.Reg GENERIC MAP(operationSize) PORT MAP
+        (
+            alu2OperationIn, enableRead2, notClk, rst, alu2Operation
+        );
         -----------------------------------------------------------------------------
 
         EX1Out <= control1Out(0);

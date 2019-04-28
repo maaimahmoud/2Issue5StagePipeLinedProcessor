@@ -47,15 +47,15 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
         );
 
         mux2Map: ENTITY work.Mux5 GENERIC MAP(wordSize) PORT MAP (
-            RDstV1, MEM1In, MEM2In, WB1In, WB2In, mux1Selector, alu1Op2
+            RDstV1, MEM1In, MEM2In, WB1In, WB2In, mux2Selector, alu1Op2
         );
 
         mux3Map: ENTITY work.Mux5 GENERIC MAP(wordSize) PORT MAP (
-            RSrcV2, MEM1In, MEM2In, WB1In, WB2In, mux1Selector, alu2Op1
+            RSrcV2, MEM1In, MEM2In, WB1In, WB2In, mux3Selector, alu2Op1
         );
 
         mux4Map: ENTITY work.Mux5 GENERIC MAP(wordSize) PORT MAP (
-            RDstV2, MEM1In, MEM2In, WB1In, WB2In, mux1Selector, alu2Op2
+            RDstV2, MEM1In, MEM2In, WB1In, WB2In, mux4Selector, alu2Op2
         );
 
         -----------------------------------------------------------------------------

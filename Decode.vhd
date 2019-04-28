@@ -3,7 +3,7 @@ USE IEEE.std_logic_1164.all;
 use IEEE.math_real.all;
 LIBRARY work;
 USE IEEE.numeric_std.all;
-
+use work.Constants.all;
 
 -- Register File Entity
 
@@ -14,13 +14,15 @@ ENTITY Decode IS
   PORT(
         clk, reset: IN STD_LOGIC;
 
-        -- pc : INOUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-
         instruction1, instruction2 : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         
         writeReg1, writeReg2 : IN STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
 
         writeData1, writeData2 : IN STD_LOGIC_VECTOR(wordSize-1  DOWNTO 0);
+
+        ---------------------------------------------
+
+        alu1Operation, alu2Operation : OUT STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);
 
         inOperation: OUT STD_LOGIC;
         
@@ -55,8 +57,12 @@ ARCHITECTURE DecodeArch OF Decode IS
 
   BEGIN
 
+    alu1Operation <= instruction1(15 DOWNTO 10);
+
     Src1 <= instruction1(9 DOWNTO 7);
     Dst1 <= instruction1(6 DOWNTO 4);
+
+    alu2Operation <= instruction2(15 DOWNTO 10);
 
     Src2 <= instruction2(9 DOWNTO 7);
     Dst2 <= instruction2(6 DOWNTO 4);

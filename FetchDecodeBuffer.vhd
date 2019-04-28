@@ -21,8 +21,8 @@ END ENTITY FetchDecodeBuffer;
 
 ARCHITECTURE FetchDecodeBufferArch OF FetchDecodeBuffer IS
 
-    SIGNAL pcMem : STD_LOGIC_VECTOR((2*wordSize-1) DOWNTO 0);
-    SIGNAL instruction1Mem, instruction2Mem : STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
+    -- SIGNAL pcMem : STD_LOGIC_VECTOR((2*wordSize-1) DOWNTO 0);
+    -- SIGNAL instruction1Mem, instruction2Mem : STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
 	
 
 	BEGIN
@@ -51,6 +51,11 @@ ARCHITECTURE FetchDecodeBufferArch OF FetchDecodeBuffer IS
 		instruction2Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
         (
             instruction2In, bufferEn, clk, reset, instruction2Out
+        );
+
+		pcMap: ENTITY work.Reg GENERIC MAP((2*wordSize)) PORT MAP
+        (
+            pcIn, bufferEn, clk, reset, pc
         );
 
 END ARCHITECTURE;

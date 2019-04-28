@@ -39,6 +39,6 @@ vcom IDEXBuffer.vhd -2008
 vcom ExecuteStage.vhd -2008
 vcom MemWBBuffer.vhd -2008
 vcom WBStage.vhd -2008
-
+vcom ControlUnit.vhd -2008
 
 vcom MotherBoard.vhd -2008

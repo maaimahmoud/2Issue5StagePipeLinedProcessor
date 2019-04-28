@@ -40,18 +40,19 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
 
     -- Decode Parameters
-        SIGNAL inOperation: STD_LOGIC;       
+        SIGNAL inOperation: STD_LOGIC;  
+        SIGNAL alu1OperationDecodeOut, alu2OperationDecodeOut: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);     
 
 
     -- Decode/Execute Parameters
-        SIGNAL enableRead1, enableRead2, EX1InIDEX, Read1InIDEX, Write1InIDEX, WB1InIDEX, EX2InIDEX, Read2InIDEX, Write2InIDEX, WB2InIDEX: STD_LOGIC;
+        SIGNAL enableRead1IDEX, enableRead2IDEX, EX1InIDEX, Read1InIDEX, Write1InIDEX, WB1InIDEX, EX2InIDEX, Read2InIDEX, Write2InIDEX, WB2InIDEX: STD_LOGIC;
         SIGNAL EX1OutIDEX, Read1OutIDEX, Write1OutIDEX, WB1OutIDEX, EX2OutIDEX, Read2OutIDEX, Write2OutIDEX, WB2OutIDEX: STD_LOGIC;
         SIGNAL RSrcValue1InIDEX, RdstValue1InIDEX, RSrcValue2InIDEX, RdstValue2InIDEX: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL RSrcValue1OutIDEX, RdstValue1OutIDEX, RSrcValue2OutIDEX, RdstValue2OutIDEX: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL RSrc1InIDEX, RDst1InIDEX, RSrc2InIDEX, RDst2InIDEX: STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
         SIGNAL RSrc1OutIDEX, RDst1OutIDEX, RSrc2OutIDEX, RDst2OutIDEX: STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
         SIGNAL pcOutIDEX: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
-        SIGNAL inPortIn1IDEX, inPortIn2IDEX, inPortOut1IDEX, inPortOut2IDEX: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        SIGNAL inPortOut1IDEX, inPortOut2IDEX: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL mux1WBSelectorInIDEX, mux2WBSelectorInIDEX, mux1WBSelectorOutIDEX, mux2WBSelectorOutIDEX: std_logic_vector(1 downto 0);
 
 
@@ -74,8 +75,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         
 
     -- Memory/WriteBack Parameters
-        SIGNAL WB1InMEMWB, WB2InMEMWB, WB1OutMEMWB, WB2OutMEMWB: STD_LOGIC;
-        SIGNAL ALU1InMEMWB, ALU2InMEMWB, MemInMEMWB, ALU1OutMEMWB, ALU2OutMEMWB, MemOutMEMWB: std_logic_vector(wordSize-1 downto 0);
+        SIGNAL enableRead1MEMWB, enableRead2MEMWB, WB1InMEMWB, WB2InMEMWB, WB1OutMEMWB, WB2OutMEMWB: STD_LOGIC;
+        SIGNAL MemInMEMWB, ALU1OutMEMWB, ALU2OutMEMWB, MemOutMEMWB: std_logic_vector(wordSize-1 downto 0);
         SIGNAL mux1WBSelectorIn, mux2WBSelectorIn, mux1WBSelectorOut, mux2WBSelectorOut: std_logic_vector(1 downto 0);
         SIGNAL RSrc1InMemWB, RDst1InMemWB, RSrc2InMemWB, RDst2InMemWB, RSrc1OutMemWB, RDst1OutMemWB, RSrc2OutMemWB, RDst2OutMemWB: std_logic_vector(2 downto 0);
         SIGNAL inPortIn1MemWB, inPortIn2MemWB, inPortOut1IDEXMemWB, inPortOut2IDEXMemWB: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
@@ -97,7 +98,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     -- Fetch Stage
         fetchMap: ENTITY work.Fetch GENERIC MAP (addressBits, wordSize, pcInputsNum) PORT MAP (
             clk => clk , reset => reset,
-            pcEn => pcEn,
+            pcEn => pcEn, -- TODO: control unit
             pcSrcSelector => pcSrcSelector,     -- TODO: control unit 
 
             stackOutput => stackOutput , branchAddress => branchAddress,-- : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);  -- TODO
@@ -123,13 +124,13 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         DecodeMap: ENTITY work.Decode GENERIC MAP( regNum, wordSize ) PORT MAP (
             clk => clk , reset => reset,
 
-            -- pc => pcFetDecodeBufOut,
-
             instruction1 => instruction1FetDecodeBufOut, instruction2 => instruction2FetDecodeBufOut,
             
             writeReg1 => RDst1OutMemWB, writeReg2 =>  RDst2OutMemWB,
 
             writeData1 => WBOut1, writeData2 => WBOut2,
+            ----------------------------------------------
+            alu1Operation => alu1OperationDecodeOut, alu2Operation => alu2OperationDecodeOut,
 
             inOperation => inOperation,
 
@@ -145,10 +146,12 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     --Decode/execute buffer
 
         IDEXBufferMap: ENTITY work.IDEXBuffer GENERIC MAP(regNum, wordSize) PORT MAP(
-            clk, reset, enableRead1, enableRead2,
+            clk, reset, enableRead1IDEX, enableRead2IDEX,
 
-            EX1InIDEX, Read1InIDEX, Write1InIDEX, WB1InIDEX,
-            EX2InIDEX, Read2InIDEX, Write2InIDEX, WB2InIDEX,
+            alu1OperationDecodeOut, alu2OperationDecodeOut,
+
+            EX1InIDEX, Read1InIDEX, Write1InIDEX, WB1InIDEX, -- TODO : Control unit
+            EX2InIDEX, Read2InIDEX, Write2InIDEX, WB2InIDEX, -- TODO : Control unit
 
             RSrcValue1InIDEX, RdstValue1InIDEX,
             RSrcValue2InIDEX, RdstValue2InIDEX,
@@ -159,7 +162,9 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             pcFetDecodeBufOut,
             inPort, inPort,
 
-            mux1WBSelectorInIDEX, mux2WBSelectorInIDEX,
+            mux1WBSelectorInIDEX, mux2WBSelectorInIDEX, -- TODO from control unit
+            ----------------------------------------------
+            alu1Operation, alu2Operation,
 
             EX1OutIDEX, Read1OutIDEX, Write1OutIDEX, WB1OutIDEX,
             EX2OutIDEX, Read2OutIDEX, Write2OutIDEX, WB2OutIDEX,
@@ -187,9 +192,9 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             alu1ExMemBufOut, alu2ExMemBufOut, WBOut1, WBOut2,
 
             mux1SelectorEX, mux2SelectorEX,
-            mux3SelectorEX, mux4SelectorEX,
+            mux3SelectorEX, mux4SelectorEX, -- TODO select mux inputs control unit
 
-            alu1Operation, alu2Operation,   -- TODO from opcode
+            alu1Operation, alu2Operation,
 
             flagOut,    -- TODO FLAG register
 
@@ -203,7 +208,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     -- ###########################################################################################
     -- Execute/Memory Buffer
         ExecuteMemoryBufferMap: ENTITY work.ExecuteMemoryBuffer GENERIC MAP (regNum, addressBits, wordSize) PORT MAP(
-            clk => notClk,
+            clk => notClk, reset => reset,
             bufferEn1 => ExecuteMemoryBuffer1En, bufferEn2 =>ExecuteMemoryBuffer2En,
 
             -- inputs from Execute Stage
@@ -216,7 +221,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             
             Src1In => RSrc1OutIDEX, Src2In => RSrc2OutIDEX, Dst1In => RDst1OutIDEX, Dst2In => RDst2OutIDEX,
             Src1DataIn => RSrcValue1OutIDEX, Src2DataIn => RSrcValue2OutIDEX, Dst1DataIn => RdstValue1OutIDEX, Dst2DataIn => RdstValue2OutIDEX,
-            mux1WBSelectorIn => mux1WBSelectorInIDEX , mux2WBSelectorIn =>  mux2WBSelectorInIDEX,
+            mux1WBSelectorIn => mux1WBSelectorOutIDEX , mux2WBSelectorIn =>  mux2WBSelectorOutIDEX,
 
             -- outputs to Memory Stage
             Read1 =>Read1ExMemBufOut , Read2 => Read2ExMemBufOut , Write1 =>Write1ExMemBufOut ,Write2 =>Write2ExMemBufOut ,
@@ -236,7 +241,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         MemoryMap: ENTITY work.Memory GENERIC MAP ( regNum, addressBits, wordSize  ) PORT MAP(
             clk => clk,
             Read1 =>Read1ExMemBufOut , Read2 =>Read2ExMemBufOut , Write1 =>Write1ExMemBufOut ,Write2 => Write2ExMemBufOut,
-            pc => pcExMemBufOut , alu1Out => alu1ExMemBufOut , alu2Out => alu2ExMemBufOut,
+            pc => pcExMemBufOut , alu1Out => alu1ExMemBufOut , alu2Out => alu2ExMemBufOut, -- TODO check if it's neccessary to pass alu1, alu2
             Src1Data => Src1DataExMemBufOut, Src2Data => Src2DataExMemBufOut,
             Dst1Data => Dst1DataExMemBufOut, Dst2Data => Dst2DataExMemBufOut,
 
@@ -249,7 +254,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     --Memory/WriteBack Buffer
 
         MEMWBMap: ENTITY work.MemWBBuffer GENERIC MAP (regNum, wordSize) PORT MAP(
-            clk, reset, enableRead1, enableRead2,
+            clk, reset, enableRead1MEMWB, enableRead2MEMWB,
 
             WB1InMEMWB, WB2InMEMWB,
 
