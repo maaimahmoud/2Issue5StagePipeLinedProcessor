@@ -537,6 +537,84 @@ ARCHITECTURE DecodeTestArch OF DecodeTest IS
 
             -------------------------------------------------------------------------
 
+
+            reset <= '0';
+            instruction1 <= "0110101101000010";
+            instruction2 <= "0111011110101010";
+            wb1 <= '0';
+            wb2 <= '0';
+            writeReg1 <= "011";
+            writeReg2 <= "111"; 
+            writeData1 <= x"1234";
+            writeData2 <= x"5678"; 
+
+            alu1OperationExpected <= "01101";
+            alu2OperationExpected <= "01110";
+
+            inOperationExpected <= '0';
+
+            outPortExpected <= x"5678";
+
+            Src1Expected <= "011";
+            Src2Expected <= "111";
+            Dst1Expected <= "010";
+            Dst2Expected <= "101";
+
+            src1DataExpected <= x"1334";
+            dst1DataExpected <= x"0002";
+            src2DataExpected <= x"5778";
+            dst2DataExpected <= x"000A";
+
+
+            WAIT FOR CLK_period;  
+            
+            ASSERT(alu1OperationExpected = alu1Operation)        
+            REPORT "shift amount alu1 Error"
+            SEVERITY ERROR;
+
+            ASSERT(inOperationExpected = inOperation)        
+            REPORT "shift amount in Error"
+            SEVERITY ERROR;
+
+
+            ASSERT(outPortExpected = outPort)        
+            REPORT "shift amount out port Error"
+            SEVERITY ERROR;
+
+            ASSERT(Src1Expected = Src1)        
+            REPORT "shift amount src1 Error"
+            SEVERITY ERROR;
+
+            ASSERT(Src2Expected = Src2)        
+            REPORT "shift amount src2 Error"
+            SEVERITY ERROR;
+
+            ASSERT(Dst1Expected = Dst1)        
+            REPORT "shift amount dst1 Error"
+            SEVERITY ERROR;
+
+            ASSERT(Dst2Expected = Dst2)        
+            REPORT "shift amount dst2 Error"
+            SEVERITY ERROR;
+
+            ASSERT(src1DataExpected = src1Data)        
+            REPORT "shift amount src1 data Error"
+            SEVERITY ERROR;
+
+            ASSERT(dst1DataExpected = dst1Data)        
+            REPORT "shift amount dst1 data Error"
+            SEVERITY ERROR;
+
+            ASSERT(src2DataExpected = src2Data)        
+            REPORT "shift amount src2 Error"
+            SEVERITY ERROR;
+
+            ASSERT(dst2DataExpected = dst2Data)        
+            REPORT "shift amount dst2 Error"
+            SEVERITY ERROR;
+
+            -------------------------------------------------------------------------
+
         
 
                
