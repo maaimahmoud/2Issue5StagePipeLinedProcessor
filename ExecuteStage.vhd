@@ -19,7 +19,7 @@ ENTITY ExecuteStage IS
 
             opCode1, opCode2: in std_logic_vector(operationSize-1 downto 0);
 
-            flagIn: in std_logic_vector(flagSize-1 downto 0);
+            -- flagIn: in std_logic_vector(flagSize-1 downto 0);
 
             EX1, EX2: in std_logic;
 

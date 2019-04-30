@@ -77,12 +77,14 @@ ARCHITECTURE ALUArch of ALU is
 
         -----------------------------------------------------------------------------
 
-        flagOut(ZFlag) <= '1' when changeFlag = '1' and result = "0000000000000000"
+        flagOut(ZFlag) <= '1' when changeFlag = '1' and result = "0000000000000000" and not (operation = opSETC or operation = opCLRC)
         else '0' when changeFlag = '1'
         else flagIn(ZFlag);
 
         flagOut(CFlag) <= carryOutShifterRight when changeFlag = '1' and operation = opSHR
         else carryOutShifterLeft when changeFlag = '1' and operation = opSHL
+        else '1' when changeFlag = '1' and operation = opSETC
+        else '0' when changeFlag = '1' and operation = opCLRC
         else flagIn(CFlag);
 
         flagOut(NFlag) <= '1' when changeFlag = '1' and  result(wordSize-1) = '1'
