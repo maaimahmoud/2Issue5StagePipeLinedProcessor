@@ -13,8 +13,8 @@ Entity ControlUnit IS
     readFromMemory:OUT std_logic;
     writeToMemory:OUT std_logic;
     WB:OUT std_logic;
-    Branch:OUT std_logic;
-    enableOut:OUT std_logic;
+    -- Branch:OUT std_logic;
+    -- enableOut:OUT std_logic;
     incSP:OUT std_logic;
     decSP:OUT std_logic;
     loadImmediate:OUT std_logic
@@ -43,12 +43,11 @@ begin
     WB <='1' when (opMode=memoryInstructions AND (opcode=opLDD or opcode=opPop ))OR(opMode=twoOperand)Or(opMode=oneOperand and (opcode=opINC or opcode=opDEC or opCode=opNOT or opCode=opIN)) 
     else '0';
     
-    Branch<='1' when (opMode=changeOFControlInstructions )
-    --AND (opcode=opJZ or opcode=opJN or opcode=opJC or opcode=opJMP or opCode=opCall))
-    else '0';
+    -- Branch<='1' when (opMode=changeOFControlInstructions ) --AND (opcode=opJZ or opcode=opJN or opcode=opJC or opcode=opJMP or opCode=opCall))
+    -- else '0';
 
-    enableOut<='1' WHEN opcode=opOUT
-    else '0';
+    -- enableOut<='1' WHEN opcode=opOUT
+    -- else '0';
     incSP<='1' when opCode=opPOP or opCode=opRET or opCode=opRTI
     else '0';
     decSP<='1' when opCode=opPUSH or opCode=opCALL 

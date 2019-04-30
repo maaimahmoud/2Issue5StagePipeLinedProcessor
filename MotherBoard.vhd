@@ -72,7 +72,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL Dst1DataExMemBufOut, Dst2DataExMemBufOut : STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
     -- Memory Parameters
-        
+        SIGNAL incSP1, decSP1, incSP2, decSP2 : STD_LOGIC;
 
     -- Memory/WriteBack Parameters
         SIGNAL enableRead1MEMWB, enableRead2MEMWB, WB1InMEMWB, WB2InMEMWB, WB1OutMEMWB, WB2OutMEMWB: STD_LOGIC;
@@ -92,6 +92,36 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 	BEGIN
     
         notClk <= NOT clk;
+
+
+    -- ##########################################################################################
+    -- control unit
+        control1Map: ENTITY work.ControlUnit PORT MAP(
+            opCode => instruction1FetDecodeBufOut(wordSize-1 DOWNTO wordSize-operationSize),
+            Execute => EX1InIDEX,
+            readFromMemory => Read1InIDEX,
+            writeToMemory => Write1InIDEX,
+            WB => WB1InIDEX,
+            -- Branch => ,
+            -- enableOut => ,
+            incSP => incSP1,
+            decSP => decSP1,
+            loadImmediate => 
+
+        );
+
+        control2Map: ENTITY work.ControlUnit PORT MAP(
+            opCode => instruction2FetDecodeBufOut(wordSize-1 DOWNTO wordSize-operationSize),
+            Execute => EX2InIDEX,
+            readFromMemory => Read2InIDEX,
+            writeToMemory => Write2InIDEX,
+            WB => WB2InIDEX,
+            -- Branch => ,
+            -- enableOut => ,
+            incSP => incSP2,
+            decSP => decSP2,
+            loadImmediate =>
+        );
 
 
     -- ###########################################################################################
@@ -125,6 +155,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             clk => clk , reset => reset,
 
             instruction1 => instruction1FetDecodeBufOut, instruction2 => instruction2FetDecodeBufOut,
+
+            wb1 => WB1OutMEMWB, wb2 => WB1OutMEMWB,
             
             writeReg1 => RDst1OutMemWB, writeReg2 =>  RDst2OutMemWB,
 
@@ -138,8 +170,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             Src1 => RSrc1InIDEX, Src2 => RSrc2InIDEX, Dst1 => RDst1InIDEX, Dst2 => RDst2InIDEX,
 
-            src1Data => RSrcValue1InIDEX , dst1Data => RdstValue1InIDEX, 
-            src2Data => RSrcValue2InIDEX, dst2Data => RdstValue2InIDEX-- : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0)
+            src1Data => RSrcValue1InIDEX , dst1DataFinal => RdstValue1InIDEX, 
+            src2Data => RSrcValue2InIDEX, dst2DataFinal => RdstValue2InIDEX-- : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0)
         );
 
     -- ###########################################################################################
@@ -239,13 +271,15 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     -- ###########################################################################################
     --Memory Stage
         MemoryMap: ENTITY work.Memory GENERIC MAP ( regNum, addressBits, wordSize  ) PORT MAP(
-            clk => clk,
+            clk => clk, reset => reset,
             Read1 =>Read1ExMemBufOut , Read2 =>Read2ExMemBufOut , Write1 =>Write1ExMemBufOut ,Write2 => Write2ExMemBufOut,
             pc => pcExMemBufOut , alu1Out => alu1ExMemBufOut , alu2Out => alu2ExMemBufOut, -- TODO check if it's neccessary to pass alu1, alu2
             Src1Data => Src1DataExMemBufOut, Src2Data => Src2DataExMemBufOut,
             Dst1Data => Dst1DataExMemBufOut, Dst2Data => Dst2DataExMemBufOut,
+            incSP1 => incSP1, decSP1 => decSP1 , incSP2 => incSP2 , decSP2 => decSP2, 
 
-			M0 => M0, M1 => M1,
+            M0 => M0, M1 => M1,
+            
             memoryOut=> MemInMEMWB
 
         );
