@@ -18,6 +18,7 @@ USE work.Constants.all;
 -----7-if the instructions in 1st  and 2nd pipe are memory instructions
 -----8-if the instruction in 2nd pipe is LDM 
 -----9-if the instruction in the 1st pipe is RET or RTI
+-----10-if the two instructions are OUT 
 ----------------------------------------------------------------------------------------------------------
 Entity NOPInsertionUnit is 
 
@@ -68,6 +69,9 @@ or(instructionType1=memoryInstructions and instructionType2=memoryInstructions)
 or (instruction2OpCode=opLDM)
 
 or (instruction2OpCode=opRET or instruction2OpCode=opRTI)
+
+or(instruction1OpCode=opOUT and instruction2OpCode=opOut)
 else '0';
+
 
 end architecture   ; 
