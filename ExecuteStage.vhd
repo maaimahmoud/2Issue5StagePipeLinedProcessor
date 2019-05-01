@@ -38,7 +38,9 @@ END ENTITY ExecuteStage;
 ARCHITECTURE ExecuteStageArch of ExecuteStage is
 
     SIGNAL alu1Op1, alu1Op2, alu2Op1, alu2Op2: std_logic_vector(wordSize-1 downto 0);
-    SIGNAL flag1Out, flag2Out: std_logic_vector(flagSize-1 downto 0);
+    
+    SIGNAL flagInput, flag1Out, flag2Out: std_logic_vector(flagSize-1 downto 0);
+    SIGNAL flagEn: STD_LOGIC;
 
     BEGIN
 
@@ -78,9 +80,17 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
 
         -----------------------------------------------------------------------------
 
-        flagOut <= flag2Out when EX1 = '1' and EX2 = '1'
+
+        flagInput <= flag2Out when EX1 = '1' and EX2 = '1'
         else flag2Out when EX1 = '0' and EX2 = '1'
-        else flag1Out when EX1 = '1' and EX2 = '0'
-        else flagIn;
+        else flag1Out;
+
+        flagEn <= EX1 OR EX2;
+
+        flagRegMap: ENTITY work.Reg GENERIC MAP(flagSize) PORT MAP(
+            D =>  flagInput,
+            en => flagEn, clk => clk , rst => reset ,
+            Q => flagOut
+        );
 
 END ARCHITECTURE;
