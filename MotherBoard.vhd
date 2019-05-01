@@ -109,7 +109,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             pcEn => pcEn, -- TODO: control unit
             pcSrcSelector => pcSrcSelector,     -- TODO: control unit 
 
-            stackOutput => stackOutput , branchAddress => branchAddress,-- : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);  -- TODO
+            stackOutput => stackOutput , branchAddress => branchAddress,-- : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);  -- TODO:
 
             M0 => M0 , M1 => M1 ,
 
@@ -176,26 +176,44 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             pcSelector =>  pcSrcSelector
 
         );
-        
-        control2Map: ENTITY work.ControlUnit PORT MAP(
-            interrupt =>  INTERRUPT,
-            reset => reset ,
-            insertNOP =>  insertNOP,
 
-            -----------------------------
+    opCode1,opCode2:IN std_logic_vector(operationSize-1 downto 0) ;
+    interrupt:IN std_logic;
+    reset:IN std_logic;
+    insertNOP:IN std_logic;
 
-            opCode => instruction2FetDecodeBufOut(wordSize-1 DOWNTO wordSize-operationSize),
-            Execute => EX2InIDEX,
-            readFromMemory => Read2InIDEX,
-            writeToMemory => Write2InIDEX,
-            WB => WB2InIDEX,
-            incSP => incSP2,
-            decSP => decSP2,
-            loadImmediate => loadImmediate2,
+    ----------------------------------
 
-            wbMuxSelector => mux2WBSelectorInIDEX ,
-            pcSelector =>  pcSrcSelector
-        );
+    Execute1,Execute2:OUT std_logic;
+    readFromMemory1,readFromMemory2:OUT std_logic;
+    wrtieToMemory1,wrtieToMemory2:OUT std_logic;
+    WB1,WB2:OUT std_logic;
+    Branch1,Branch2:OUT std_logic;
+    enableOut:OUT std_logic;
+    incSP1,incSP2:OUT std_logic;
+    decSP1,decSP2:OUT std_logic;
+    wbMuxSelector1,wbMuxSelector2:OUT std_logic_vector(1 downto 0) ;
+    pcSelector:OUT std_logic_vector(2 downto 0) 
+
+        -- control2Map: ENTITY work.ControlUnit PORT MAP(
+        --     interrupt =>  INTERRUPT,
+        --     reset => reset ,
+        --     insertNOP =>  insertNOP,
+
+        --     -----------------------------
+
+        --     opCode => instruction2FetDecodeBufOut(wordSize-1 DOWNTO wordSize-operationSize),
+        --     Execute => EX2InIDEX,
+        --     readFromMemory => Read2InIDEX,
+        --     writeToMemory => Write2InIDEX,
+        --     WB => WB2InIDEX,
+        --     incSP => incSP2,
+        --     decSP => decSP2,
+        --     loadImmediate => loadImmediate2,
+
+        --     wbMuxSelector => mux2WBSelectorInIDEX ,
+        --     pcSelector =>  pcSrcSelector
+        -- );
 
         insertNOPMAP: ENTITY work.NOPInsertionUnit PORT MAP (
             Rdst1 => RDst1InIDEX, Rsrc2 => RSrc2InIDEX, Rdst2 =>  RDst2InIDEX,
