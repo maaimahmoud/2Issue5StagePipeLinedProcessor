@@ -16,6 +16,7 @@ USE work.Constants.all;
 -----[TOBE DELETED]5-if the instruction in the 1st pipe is LDM and 2nd pipe and the instruction in the 2nd pipe depends on that destination register
 -----6-if the instruction in the 1st pipe is IN and instruction in 2nd pipe uses this register (note we will insert NOP once then forwarding will be used)
 -----7-if the instruction in 1st pipe is PUSH and POP and instruction in 2nd pipe is push or pop
+-----8-if the instruction in 2nd pipe is LDM 
 ----------------------------------------------------------------------------------------------------------
 Entity NOPInsertionUnit is 
 
@@ -60,6 +61,7 @@ or(instructionType1=oneOperand and instruction1OpCode=opIN and (Rdst1=Rsrc2 or R
 --check if 1st instruction is push or pop and the 2nd instruction is also push or pop
 or((instruction1OpCode=opPush or instruction1OpCode=opPop) and(instruction2OpCode=opPush or instruction2OpCode=opPop))
 
+or (instruction2OpCode=opLDM)
 else '0';
 
 end architecture   ; 
