@@ -6,7 +6,7 @@ use work.Constants.all;
 
 ENTITY ExecuteStage IS
 
-	Generic(wordSize:integer :=16);
+	Generic(wordSize:integer :=16,addressSize:=20);
 	PORT(
             clk, reset: STD_LOGIC;
 
@@ -22,16 +22,20 @@ ENTITY ExecuteStage IS
             opCode1, opCode2: in std_logic_vector(operationSize-1 downto 0);
 
             EX1, EX2: in std_logic;
-
+            
+            
             ------------------------------------------------------
 
             ALU1Out, ALU2Out: out std_logic_vector(wordSize-1 downto 0);
 
             flagRegOut: out std_logic_vector(flagSize-1 downto 0);
 
+            ---------------------------------------------------------
             Branch1,Branch2: in std_logic;
             
-            isBranch:out std_logic
+            isBranch:out std_logic;
+
+            BranchAddress:out std_logic_vector(addressSize-1 downto 0) ;
 		);
 END ENTITY ExecuteStage;
 
@@ -44,6 +48,7 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
     
     SIGNAL flagInput, flagOut, flag1Out, flag2Out: std_logic_vector(flagSize-1 downto 0);
     SIGNAL flagEn: STD_LOGIC;
+    Signal isBranch1,isBranch2:STD_logic;
 
     BEGIN
 
@@ -101,13 +106,14 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
 
         -----------------------------------------------------------------------------------------
         -----check if branch is taken
-        isBranch<='1' when (Branch1 = '1' and (
+        isBranch1<='1' when (Branch1 = '1' and (
                     opCode1=opJmp or opCode1=opCall 
                     or (opCode1=opJZ and flagOut(ZFLAG)='1') 
                     or (opCode1=opJN and flagOut(NFLAG)='1') 
                     or (opCode1=opJC and flagOut(CFLAG)='1')
             ) )
-        else '1' when ( Branch2 = '1' and (
+        else '0';    
+        isBranch2<= '1' when ( Branch2 = '1' and (
                     opCode2 = opJmp  or opCode2=opCall 
                     or (opCode2=opJZ and flagOut(ZFLAG)='1') 
                     or (opCode2=opJN and flagOut(NFLAG)='1') 
@@ -115,6 +121,9 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
             )
         )
         else '0';
-
-
+    ---------------calculate the branch address
+    BranchAddress<=(RDstV1) when isBranch1='1'
+    else RDstV2 when isBranch2='1';
+    isBranch<= isBranch1 or isBranch2;
+ 
 END ARCHITECTURE;

@@ -19,6 +19,7 @@ port(
     incSP1,incSP2:OUT std_logic;
     decSP1,decSP2:OUT std_logic;
     wbMuxSelector1,wbMuxSelector2:OUT std_logic_vector(1 downto 0) ;
+    outPortPipe:OUT std_logic; --0:take the data from 1st pipe ,1:take the data from 2nd pipe
     pcSelector:OUT std_logic_vector(2 downto 0) 
 );
 End Entity ControlUnit;
@@ -44,4 +45,6 @@ begin
      else "010" when ( opCode1=opRET or opCode1=opRTI)
      else "001";
     enableOut<='1' when (opCode1=opOUT or opCode2=opOut);
+    outPortPipe<='1' when opCode1=opOut
+    else '0';
 end ControlUnitArch ; -- ControlUnitArch
