@@ -6,7 +6,6 @@ LIBRARY work;
 USE work.Constants.all;
 
 Entity ControlUnit IS 
-
     PORT(
     opCode:IN std_logic_vector(operationSize-1 downto 0) ;
     interrupt:IN std_logic;

@@ -25,7 +25,7 @@ END ENTITY Memory;
 
 ARCHITECTURE MemoryArch OF Memory IS
 
-    SIGNAL we: STD_LOGIC;
+    SIGNAL we, addressSelection: STD_LOGIC;
 
     SIGNAL address, operationAddress: STD_LOGIC_VECTOR(addressBits-1 DOWNTO 0);
     SIGNAL data: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
@@ -48,10 +48,12 @@ ARCHITECTURE MemoryArch OF Memory IS
 
         we <= Write1 OR Write2;
 
-        memoryInputMuxMap: ENTITY work.Mux2 GENERIC MAP((2*wordSize)) PORT MAP(
-            A => sp, B =>  operationAddress,
-			S => ,
-			C =>spIn
+        addressSelection <= incSP1 OR incSP2 OR decSP1 OR decSP2;
+
+        memoryInputMuxMap: ENTITY work.Mux2 GENERIC MAP(addressBits) PORT MAP(
+            A => operationAddress, B => sp(addressBits-1 DOWNTO 0) ,
+			S => addressSelection,
+			C => address
         );
 
         dataMemoryMap: ENTITY work.DataMemory GENERIC MAP(addressBits, wordSize) PORT MAP(

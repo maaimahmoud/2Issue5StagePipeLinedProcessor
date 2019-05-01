@@ -27,8 +27,12 @@ port(
 );
 end entity NOPInsertionUnit;
 
+------------------------------------------------------------------
+
 architecture NOPInsertionUnitArch of NOPInsertionUnit is 
-signal instructionType1,instructionType2 : std_logic_vector(opModeSize-1 downto 0);
+
+    signal instructionType1,instructionType2 : std_logic_vector(opModeSize-1 downto 0);
+
 begin
   instructionType1<=instruction1OpCode(operationSize-1 downto opCodeSize);
   instructionType2<=instruction2OpCode(operationSize-1 downto opCodeSize);

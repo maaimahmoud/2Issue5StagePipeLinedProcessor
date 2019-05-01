@@ -28,7 +28,7 @@ ENTITY MemWBBuffer IS
             mux1WBSelectorOut, mux2WBSelectorOut: out std_logic_vector(1 downto 0);
 
             RSrc1Out, RDst1Out,
-            RSrc2Out, RDst2Out: out std_logic_vector(2 downto 0)
+            RSrc2Out, RDst2Out: out std_logic_vector(regNum-1 downto 0)
         );
 
 END MemWBBuffer;

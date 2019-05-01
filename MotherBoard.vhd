@@ -9,7 +9,7 @@ ENTITY MotherBoard IS
 	Generic(regNum: integer := 3; addressBits: integer := 20; wordSize: integer :=16; pcInputsNum: integer := 6);
 
 	PORT(
-            clk, reset, INTEREPT : IN STD_LOGIC;
+            clk, reset, INTERRUPT : IN STD_LOGIC;
 
             inPort : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
             
@@ -25,6 +25,11 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     -- General Parameters
         SIGNAL M0, M1 : STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL notClk: STD_LOGIC;
+
+    -- Control Unit Parameters
+        SIGNAL insertNOP: STD_LOGIC;
+        SIGNAL loadImmediate1, loadImmediate2: STD_LOGIC;
+
 
     -- Fetch Parameters
         SIGNAL pcEn: STD_LOGIC;
@@ -62,6 +67,9 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL alu1Operation, alu2Operation: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);
         SIGNAL ALU1Out, ALU2Out: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
+        SIGNAL branch1, branch2: STD_LOGIC;
+        SIGNAL isBranch: STD_LOGIC;
+
 
     -- Execute/Memory Parameters
         SIGNAL ExecuteMemoryBuffer1En, ExecuteMemoryBuffer2En: STD_LOGIC;
@@ -86,43 +94,12 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
     
     -- flag register
-        SIGNAL flagIn, flagOut: std_logic_vector(flagSize-1 downto 0);
+        SIGNAL flagOut: std_logic_vector(flagSize-1 downto 0); -- flagIn,
 
 
 	BEGIN
     
         notClk <= NOT clk;
-
-
-    -- ##########################################################################################
-    -- control unit
-        control1Map: ENTITY work.ControlUnit PORT MAP(
-            opCode => instruction1FetDecodeBufOut(wordSize-1 DOWNTO wordSize-operationSize),
-            Execute => EX1InIDEX,
-            readFromMemory => Read1InIDEX,
-            writeToMemory => Write1InIDEX,
-            WB => WB1InIDEX,
-            -- Branch => ,
-            -- enableOut => ,
-            incSP => incSP1,
-            decSP => decSP1,
-            loadImmediate => 
-
-        );
-
-        control2Map: ENTITY work.ControlUnit PORT MAP(
-            opCode => instruction2FetDecodeBufOut(wordSize-1 DOWNTO wordSize-operationSize),
-            Execute => EX2InIDEX,
-            readFromMemory => Read2InIDEX,
-            writeToMemory => Write2InIDEX,
-            WB => WB2InIDEX,
-            -- Branch => ,
-            -- enableOut => ,
-            incSP => incSP2,
-            decSP => decSP2,
-            loadImmediate =>
-        );
-
 
     -- ###########################################################################################
     -- Fetch Stage
@@ -174,6 +151,55 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             src2Data => RSrcValue2InIDEX, dst2DataFinal => RdstValue2InIDEX-- : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0)
         );
 
+ -- ##########################################################################################
+    -- control unit
+        control1Map: ENTITY work.ControlUnit PORT MAP(
+            interrupt => INTERRUPT ,
+            reset =>  reset,
+            insertNOP => insertNOP ,
+
+            -------------------------------------
+
+            opCode => instruction1FetDecodeBufOut(wordSize-1 DOWNTO wordSize-operationSize),
+            Execute => EX1InIDEX,
+            readFromMemory => Read1InIDEX,
+            writeToMemory => Write1InIDEX,
+            WB => WB1InIDEX,
+            incSP => incSP1,
+            decSP => decSP1,
+            loadImmediate => loadImmediate1,
+
+            wbMuxSelector => mux1WBSelectorInIDEX ,
+            pcSelector =>  pcSrcSelector
+
+        );
+
+        control2Map: ENTITY work.ControlUnit PORT MAP(
+            interrupt =>  INTERRUPT,
+            reset => reset ,
+            insertNOP =>  insertNOP,
+
+            -----------------------------
+
+            opCode => instruction2FetDecodeBufOut(wordSize-1 DOWNTO wordSize-operationSize),
+            Execute => EX2InIDEX,
+            readFromMemory => Read2InIDEX,
+            writeToMemory => Write2InIDEX,
+            WB => WB2InIDEX,
+            incSP => incSP2,
+            decSP => decSP2,
+            loadImmediate => loadImmediate2,
+
+            wbMuxSelector => mux2WBSelectorInIDEX ,
+            pcSelector =>  pcSrcSelector
+        );
+
+        insertNOPMAP: ENTITY work.NOPInsertionUnit PORT MAP (
+            Rdst1 => RDst1InIDEX, Rsrc2 => RSrc2InIDEX, Rdst2 =>  RDst2InIDEX,
+            instruction1OpCode => alu1OperationDecodeOut,instruction2OpCode => alu2OperationDecodeOut,
+            insertNOP  => insertNOP
+        );
+
     -- ###########################################################################################
     --Decode/execute buffer
 
@@ -216,8 +242,23 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
     -- ###########################################################################################
     -- Execute Stage
+        forwardUnitMap: ENTITY work.ForwardingUnit PORT MAP(
+            Rdst1IEIM => RDst1InMemWB, Rdst2IEIM => RDst2InMemWB,
+            Rdst1IMWB => RDst1OutMemWB, Rdst2IMWB => RDst2OutMemWB,
+            Rdst1 => RDst1OutIDEX, Rdst2 => RDst2OutIDEX,
+            Rsrc1 =>RSrc1OutIDEX , Rsrc2 => RSrc2OutIDEX ,--: in std_logic_vector(numRegister-1 downto 0) ;
+
+            ---------------------------------
+            out1 => mux1SelectorEX,
+            out2 => mux2SelectorEX,
+            out3 => mux3SelectorEX,
+            out4 => mux4SelectorEX
+        );
+
 
         ExecuteMap: ENTITY work.ExecuteStage GENERIC MAP(wordSize) PORT MAP(
+            clk, reset,
+
             RSrcValue1InIDEX, RdstValue1InIDEX,
             RSrcValue2InIDEX, RdstValue2InIDEX,
 
@@ -228,14 +269,17 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             alu1Operation, alu2Operation,
 
-            flagOut,    -- TODO FLAG register
-
             EX1OutIDEX, EX2OutIDEX,
 
             ALU1Out, ALU2Out,
 
-            flagIn
+            flagOut,
+
+            branch1, branch2,
+
+            isBranch
         );
+
 
     -- ###########################################################################################
     -- Execute/Memory Buffer
