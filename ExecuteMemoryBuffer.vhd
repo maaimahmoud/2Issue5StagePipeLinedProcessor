@@ -149,7 +149,7 @@ ARCHITECTURE ExecuteMemoryBufferArch OF ExecuteMemoryBuffer IS
 
         immediateValueRegMap: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
         (
-            immediateValueIn, enableRead1, notClk, rst, immediateValue
+            immediateValueIn, bufferEn1, clk, reset, immediateValue
         );
 
         MEM1 <= Read1 OR Write1;

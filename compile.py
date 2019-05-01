@@ -1,5 +1,5 @@
 import os
-out = os.popen('compileUtilities.bat').read()
+out = os.popen('compile.bat').read()
 res = ""
 lines = out.splitlines(True)
 for line in lines:

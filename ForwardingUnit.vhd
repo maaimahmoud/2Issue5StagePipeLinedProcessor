@@ -13,9 +13,10 @@ USE work.constants.ALL;
 ENTITY ForwardingUnit IS
     Port(
             MEM1, MEM2,
+            WB1, WB2: STD_LOGIC;
+
             Rdst1IEIM,Rdst2IEIM,
             
-            WB1, WB2,
             Rdst1IMWB,Rdst2IMWB,
             
             Rdst1,Rdst2,

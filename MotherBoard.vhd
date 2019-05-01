@@ -100,7 +100,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL flagOut: std_logic_vector(flagSize-1 downto 0); -- flagIn,
 
     -- Out Register Parameters
-        SIGNAL outRegEn: STD_LOGIC_VECTOR;
+        SIGNAL outRegEn: STD_LOGIC;
         SIGNAL outRegInput: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
 
@@ -252,8 +252,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     -- Execute Stage
         forwardUnitMap: ENTITY work.ForwardingUnit PORT MAP(
             MEM1 => MEM1, MEM2 => MEM2,
-            Rdst1IEIM => RDst1InMemWB, Rdst2IEIM => RDst2InMemWB,
             WB1 => WB1OutMEMWB, WB2 => WB2OutMEMWB,
+            Rdst1IEIM => RDst1InMemWB, Rdst2IEIM => RDst2InMemWB,
             Rdst1IMWB => RDst1OutMemWB, Rdst2IMWB => RDst2OutMemWB,
             Rdst1 => RDst1OutIDEX, Rdst2 => RDst2OutIDEX,
             Rsrc1 =>RSrc1OutIDEX , Rsrc2 => RSrc2OutIDEX ,--: in std_logic_vector(numRegister-1 downto 0) ;
