@@ -9,7 +9,7 @@ ENTITY WBStage IS
 
 	Generic(wordSize:integer :=16);
 	PORT(
-            ALU1, ALU2, Mem, inPort1, inPort2: in std_logic_vector(wordSize-1 downto 0);
+            ALU1, ALU2, Mem, inPort1, inPort2, immediateValue: in std_logic_vector(wordSize-1 downto 0);
             mux1Selector, mux2Selector: in std_logic_vector(1 downto 0);
 
             mux1Out, mux2Out: out std_logic_vector(wordSize-1 downto 0)
@@ -27,7 +27,7 @@ ARCHITECTURE WBStageArch of WBStage is
     BEGIN
 
         mux1Map: ENTITY work.Mux4 GENERIC MAP(wordSize) PORT MAP (
-            ALU1, Mem, inPort1, ALU1, mux1Selector, mux1Out
+            ALU1, Mem, inPort1, immediateValue, mux1Selector, mux1Out
         );
 
         mux2Map: ENTITY work.Mux4 GENERIC MAP(wordSize) PORT MAP (

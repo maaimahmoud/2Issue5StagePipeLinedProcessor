@@ -66,7 +66,7 @@ ARCHITECTURE MemoryArch OF Memory IS
                 dataout => memoryOut
             );
 
-
+        -- TODO: organize plus before execute or execute before minus
         adderOneMap: ENTITY work.NBitAdder GENERIC MAP( (2*wordSize) ) PORT MAP (
             a => sp,
             b => ( 1=>'1', OTHERS=>'0'),

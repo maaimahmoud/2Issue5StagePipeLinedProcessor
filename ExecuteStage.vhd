@@ -23,6 +23,8 @@ ENTITY ExecuteStage IS
 
             EX1, EX2: in std_logic;
 
+            ------------------------------------------------------
+
             ALU1Out, ALU2Out: out std_logic_vector(wordSize-1 downto 0);
 
             flagRegOut: out std_logic_vector(flagSize-1 downto 0);

@@ -29,6 +29,7 @@ ENTITY IDEXBuffer IS
 
             mux1WBSelectorIn, mux2WBSelectorIn: in std_logic_vector(1 downto 0);
 
+            immediateValueIn: in std_logic_vector(wordSize-1 downto 0);
             -------------------------------------------------------
             alu1Operation, alu2Operation : out std_logic_vector(operationSize-1 downto 0);
 
@@ -47,7 +48,9 @@ ENTITY IDEXBuffer IS
 
             inPortOut1, inPortOut2: out std_logic_vector(wordSize-1 downto 0);
 
-            mux1WBSelectorOut, mux2WBSelectorOut: out std_logic_vector(1 downto 0)
+            mux1WBSelectorOut, mux2WBSelectorOut: out std_logic_vector(1 downto 0);
+
+            immediateValue: out std_logic_vector(wordSize-1 downto 0)
         );
 
 END IDEXBuffer;
@@ -186,5 +189,10 @@ ARCHITECTURE IDEXBufferArch OF IDEXBuffer IS
         WB2Out <= control2Out(3);
         
         -----------------------------------------------------------------------------
+
+        immediateValueRegMap: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        (
+            immediateValueIn, enableRead1, notClk, rst, immediateValue
+        );
 
 END ARCHITECTURE;

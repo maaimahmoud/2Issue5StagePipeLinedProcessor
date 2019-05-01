@@ -19,6 +19,7 @@ ENTITY MemWBBuffer IS
             RSrc1In, RDst1In,
             RSrc2In, RDst2In: in std_logic_vector(2 downto 0);
 
+            immediateValueIn: in std_logic_vector(wordSize-1 downto 0);
             ----------------------------------------------------------
             WB1Out, WB2Out: out std_logic;
 
@@ -28,7 +29,9 @@ ENTITY MemWBBuffer IS
             mux1WBSelectorOut, mux2WBSelectorOut: out std_logic_vector(1 downto 0);
 
             RSrc1Out, RDst1Out,
-            RSrc2Out, RDst2Out: out std_logic_vector(regNum-1 downto 0)
+            RSrc2Out, RDst2Out: out std_logic_vector(regNum-1 downto 0);
+
+            immediateValue: out std_logic_vector(wordSize-1 downto 0)
         );
 
 END MemWBBuffer;
@@ -129,5 +132,9 @@ ARCHITECTURE MemWBBufferArch OF MemWBBuffer IS
 
         ------------------------------------------------------------------------------
 
+        immediateValueRegMap: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP
+        (
+            immediateValueIn, enableRead1, notClk, rst, immediateValue
+        );
 
 END ARCHITECTURE;

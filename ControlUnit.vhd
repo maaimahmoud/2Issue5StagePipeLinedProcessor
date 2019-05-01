@@ -7,21 +7,22 @@ USE work.Constants.all;
 
 Entity ControlUnit IS 
     PORT(
-    opCode:IN std_logic_vector(operationSize-1 downto 0) ;
-    interrupt:IN std_logic;
-    reset:IN std_logic;
-    insertNOP:IN std_logic;
-    Execute :OUT std_logic;
-    readFromMemory:OUT std_logic;
-    writeToMemory:OUT std_logic;
-    WB:OUT std_logic;
-    Branch:OUT std_logic;
-    enableOut:OUT std_logic;
-    incSP:OUT std_logic;
-    decSP:OUT std_logic;
-    loadImmediate:OUT std_logic;
-    wbMuxSelector:OUT std_logic_vector(1 downto 0);
-    pcSelector:OUT std_logic_vector(2 downto 0) 
+        opCode:IN std_logic_vector(operationSize-1 downto 0) ;
+        interrupt:IN std_logic;
+        reset:IN std_logic;
+        insertNOP:IN std_logic;
+        --------------------------------------
+        Execute :OUT std_logic;
+        readFromMemory:OUT std_logic;
+        writeToMemory:OUT std_logic;
+        WB:OUT std_logic;
+        Branch:OUT std_logic;
+        enableOut:OUT std_logic;
+        incSP:OUT std_logic;
+        decSP:OUT std_logic;
+        loadImmediate:OUT std_logic;
+        wbMuxSelector:OUT std_logic_vector(1 downto 0);
+        pcSelector:OUT std_logic_vector(2 downto 0) 
     );  
 END Entity ControlUnit;
 

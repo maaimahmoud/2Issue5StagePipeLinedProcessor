@@ -31,8 +31,9 @@ ENTITY Decode IS
 
         Src1, Src2, Dst1, Dst2 : OUT STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
 
-        src1Data, dst1DataFinal, src2Data, dst2DataFinal : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0)
+        src1Data, dst1DataFinal, src2Data, dst2DataFinal : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
+        immediateValue : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0)
       );
 
 END Decode;
@@ -137,5 +138,7 @@ ARCHITECTURE DecodeArch OF Decode IS
 
     dst2DataFinal <= shiftAmount2 when instruction2(15 DOWNTO 11) = opSHL or instruction2(15 DOWNTO 11) = opSHR
     else dst2Data;
+
+    immediateValue <= instruction2;
 
   END DecodeArch;
