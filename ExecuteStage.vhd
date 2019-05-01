@@ -8,6 +8,8 @@ ENTITY ExecuteStage IS
 
 	Generic(wordSize:integer :=16);
 	PORT(
+            clk, reset: STD_LOGIC;
+
             RSrcV1, RDstV1,
             RSrcV2, RDstV2,
 
@@ -19,13 +21,11 @@ ENTITY ExecuteStage IS
 
             opCode1, opCode2: in std_logic_vector(operationSize-1 downto 0);
 
-            -- flagIn: in std_logic_vector(flagSize-1 downto 0);
-
             EX1, EX2: in std_logic;
 
             ALU1Out, ALU2Out: out std_logic_vector(wordSize-1 downto 0);
 
-            flagOut: out std_logic_vector(flagSize-1 downto 0);
+            flagRegOut: out std_logic_vector(flagSize-1 downto 0);
 
             Branch1,Branch2: in std_logic;
             
@@ -40,7 +40,7 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
 
     SIGNAL alu1Op1, alu1Op2, alu2Op1, alu2Op2: std_logic_vector(wordSize-1 downto 0);
     
-    SIGNAL flagInput, flag1Out, flag2Out: std_logic_vector(flagSize-1 downto 0);
+    SIGNAL flagInput, flagOut, flag1Out, flag2Out: std_logic_vector(flagSize-1 downto 0);
     SIGNAL flagEn: STD_LOGIC;
 
     BEGIN
@@ -65,7 +65,7 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
 
         alu1Map: ENTITY work.ALU GENERIC MAP(wordSize) PORT MAP(
             alu1Op1, alu1Op2, 
-            opCode1, flagIn,
+            opCode1, flagOut,
             EX1, 
             ALU1Out,
             flag1Out
@@ -74,7 +74,7 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
 
         alu2Map: ENTITY work.ALU GENERIC MAP(wordSize) PORT MAP(
             alu2Op1, alu2Op2, 
-            opCode2, flagIn,
+            opCode2, flagOut,
             EX2, 
             ALU2Out,
             flag2Out
@@ -95,20 +95,22 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
             Q => flagOut
         );
 
+        flagRegOut <= flagOut;
+
         -----------------------------------------------------------------------------------------
         -----check if branch is taken
-        isBranch<='1' when (Branch1 and (
-                opCode1=opJmp or opCode1=opCall 
-                or (opCode1=opJZ and flagOut(ZFLAG)='1') 
-                or (opCode1=opJN and flagOut(NFLAG)='1') 
-                or (opCode1=opJC and flagOut(CFLAG)='1')
-        )
-        )or(
-            Branch2 and (
-                opCode2=opJmp or opCode2=opCall 
-                or (opCode2=opJZ and flagOut(ZFLAG)='1') 
-                or (opCode2=opJN and flagOut(NFLAG)='1') 
-                or (opCode2=opJC and flagOut(CFLAG)='1')   
+        isBranch<='1' when (Branch1 = '1' and (
+                    opCode1=opJmp or opCode1=opCall 
+                    or (opCode1=opJZ and flagOut(ZFLAG)='1') 
+                    or (opCode1=opJN and flagOut(NFLAG)='1') 
+                    or (opCode1=opJC and flagOut(CFLAG)='1')
+            ) )
+        else '1' when ( Branch2 = '1' and (
+                    opCode2 = opJmp  or opCode2=opCall 
+                    or (opCode2=opJZ and flagOut(ZFLAG)='1') 
+                    or (opCode2=opJN and flagOut(NFLAG)='1') 
+                    or (opCode2=opJC and flagOut(CFLAG)='1')   
+            )
         )
         else '0';
 
