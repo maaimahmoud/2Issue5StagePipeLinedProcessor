@@ -26,18 +26,18 @@ End Entity ControlUnit;
 
 architecture ControlUnitArch of ControlUnit is
 
-    signal loadImmediate1,loadImmediate2:STD_LOGIC;
-    signal wbMuxSelctorSignal:std_logic_vector(1 downto 0) ;
+    --signal loadImmediate1,loadImmediate2:STD_LOGIC;
+    --signal wbMuxSelctorSignal:std_logic_vector(1 downto 0) ;
      
 begin
     firstPipe:Entity work.OnePipeControlUnit PORT MAP(
-        opCode1,Execute1,readFromMemory1,wrtieToMemory1,WB1,Branch1,incSP1,decSP1,loadImmediate1,wbMuxSelctorSignal
+        opCode1,Execute1,readFromMemory1,wrtieToMemory1,WB1,Branch1,incSP1,decSP1,wbMuxSelector1
     );
     seconedPipe:Entity work.OnePipeControlUnit PORT MAP(
-        opCode2,Execute2,readFromMemory2,wrtieToMemory2,WB2,Branch2,incSP2,decSP2,loadImmediate2,wbMuxSelector2
+        opCode2,Execute2,readFromMemory2,wrtieToMemory2,WB2,Branch2,incSP2,decSP2,wbMuxSelector2
     );
 
-    firstPipeWBMuxSelector:Entity work.mux2 Generic map(2) port map(wbMuxSelctorSignal,"11",loadImmediate1,wbMuxSelector1);
+    --firstPipeWBMuxSelector:Entity work.mux2 Generic map(2) port map(wbMuxSelctorSignal,"11",loadImmediate1,wbMuxSelector1);
      --PC selector is an input to The Mux that selects the pc 
      pcSelector<="100" when reset='1'
      else "101" when interrupt='1'
