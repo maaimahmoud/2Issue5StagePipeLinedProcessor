@@ -29,6 +29,7 @@ ENTITY ExecuteMemoryBuffer IS
             Src1, Src2, Dst1, Dst2 : OUT STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
             Src1Data, Src2Data, Dst1Data, Dst2Data : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
             mux1WBSelector, mux2WBSelector: OUT STD_LOGIC_VECTOR(1 downto 0);
+            MEM1, MEM2: OUT STD_LOGIC;
             immediateValue: OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0)
 		);
 
@@ -150,4 +151,8 @@ ARCHITECTURE ExecuteMemoryBufferArch OF ExecuteMemoryBuffer IS
         (
             immediateValueIn, enableRead1, notClk, rst, immediateValue
         );
+
+        MEM1 <= Read1 OR Write1;
+
+        MEM1 <= Read2 OR Write2;
 END ARCHITECTURE;

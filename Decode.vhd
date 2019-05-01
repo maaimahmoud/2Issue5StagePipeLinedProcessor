@@ -55,10 +55,6 @@ ARCHITECTURE DecodeArch OF Decode IS
 
       SIGNAL dst1Data, dst2Data, shiftAmount1, shiftAmount2: std_logic_vector(wordSize-1 downto 0) ;
 
-      SIGNAL outRegInput : STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-      SIGNAL outRegSelect, outRegEn : STD_LOGIC;
-
-
   BEGIN
 
     alu1Operation <= instruction1(15 DOWNTO 11);
@@ -112,26 +108,6 @@ ARCHITECTURE DecodeArch OF Decode IS
 
     inOperation <= '1' WHEN ( instruction1(15 DOWNTO 11) = opIN OR instruction2(15 DOWNTO 11) = opIN )
     ELSE '0';
-
-
-    outRegEn <= '1' WHEN ( instruction1(15 DOWNTO 11) = opOUT OR instruction2(15 DOWNTO 11) = opOUT )
-    ELSE '0';
-    
-    outRegSelect <= '0' WHEN ( instruction1(15 DOWNTO 11) = opOUT )
-    ELSE '1';
-
-    outMuxMap: ENTITY work.mux2 GENERIC MAP(wordSize) PORT MAP(
-      A => dst1Data, B => dst2Data ,
-      S => outRegSelect,
-      C => outRegInput
-    );
-
-    outRegMap: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP (
-      D => outRegInput,
-      en => outRegEn, clk => clk, rst =>reset ,
-      Q => outPort
-    );
-
 
     dst1DataFinal <= shiftAmount1 when instruction1(15 DOWNTO 11) = opSHL or instruction1(15 DOWNTO 11) = opSHR
     else dst1Data; 
