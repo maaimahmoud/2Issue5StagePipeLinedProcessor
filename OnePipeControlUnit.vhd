@@ -37,7 +37,7 @@ begin
     --OR(opMode=memoryInstructions AND(opcode=opPUSH or opCode=opPOP)) 
     else '0';
     
-    readFromMemory <='1' when(opMode=memoryInstructions AND(opCode=opLDM or opCode=opLDD or opCode=opPop ))
+    readFromMemory <='1' when(opMode=memoryInstructions AND(opCode=opLDD or opCode=opPop ))
     else '0';
     
     writeToMemory <='1' when (opMode=memoryInstructions AND (opCode=opSTD OR opCode=opPUSH))

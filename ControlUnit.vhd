@@ -44,7 +44,8 @@ begin
      else "000" when insertNOP='1'
      else "010" when ( opCode1=opRET or opCode1=opRTI)
      else "001";
-    enableOut<='1' when (opCode1=opOUT or opCode2=opOut);
+    enableOut<='1' when (opCode1=opOUT or opCode2=opOut)
+    else '0';
     outPortPipe<='1' when opCode1=opOut
     else '0';
 end ControlUnitArch ; -- ControlUnitArch
