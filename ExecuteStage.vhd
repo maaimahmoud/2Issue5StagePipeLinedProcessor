@@ -6,7 +6,7 @@ use work.Constants.all;
 
 ENTITY ExecuteStage IS
 
-	Generic(wordSize:integer :=16,addressSize:=20);
+	Generic(wordSize:integer :=16 ; addressSize: integer:=20);
 	PORT(
             clk, reset: STD_LOGIC;
 
@@ -35,7 +35,7 @@ ENTITY ExecuteStage IS
             
             isBranch:out std_logic;
 
-            BranchAddress:out std_logic_vector(addressSize-1 downto 0) ;
+            BranchAddress:out std_logic_vector(addressSize-1 downto 0) 
 		);
 END ENTITY ExecuteStage;
 

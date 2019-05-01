@@ -1,7 +1,7 @@
 vsim -gui work.MotherBoard
 add wave sim:/MotherBoard/*
 
-force -freeze sim:/motherboard/clk 0 0, 1 {100 ps} -r 200
+force -freeze sim:/motherboard/clk 0 0, 1 {50 ps} -r 100
 
 mem load -i ./RAMs/InstructionMemory.mem -format mti /motherboard/fetchMap/instructionMemMap/Ram
 mem load -i ./RAMs/DataMemory.mem -format mti /motherboard/MemoryMap/dataMemoryMap/Ram
@@ -34,24 +34,30 @@ force -freeze sim:/motherboard/mux2WBSelectorInIDEX 00 0
 ####################################
 # Hazard detection unit
 
-force -freeze sim:/motherboard/pcEn 0 0
 
 force -freeze sim:/motherboard/fetchDecodeBufferEn 1 0
 run
-force -freeze sim:/motherboard/fetchDecodeBufferEn 0 0
+
+force -freeze sim:/motherboard/pcEn 1 0
+#force -freeze sim:/motherboard/fetchDecodeBufferEn 0 0
 
 force -freeze sim:/motherboard/enableRead1IDEX 1 0
 force -freeze sim:/motherboard/enableRead2IDEX 1 0
-#run
+run
 #force -freeze sim:/motherboard/enableRead1IDEX 0 0
 #force -freeze sim:/motherboard/enableRead2IDEX 0 0
 
 force -freeze sim:/motherboard/ExecuteMemoryBuffer1En 1 0
 force -freeze sim:/motherboard/ExecuteMemoryBuffer2En 1 0
-#run
+run
 #force -freeze sim:/motherboard/ExecuteMemoryBuffer1En 0 0
 #force -freeze sim:/motherboard/ExecuteMemoryBuffer2En 0 0
 
 force -freeze sim:/motherboard/enableRead1MEMWB 1 0
 force -freeze sim:/motherboard/enableRead2MEMWB 1 0
+run
+
+#force -freeze sim:/motherboard/enableRead1MEMWB 0 0
+#force -freeze sim:/motherboard/enableRead2MEMWB 0 0
+
 run
