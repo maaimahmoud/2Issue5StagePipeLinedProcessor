@@ -122,8 +122,10 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
         )
         else '0';
     ---------------calculate the branch address
-    BranchAddress<=(RDstV1) when isBranch1='1'
+    BranchAddress(wordSize-1 downto 0) <=(RDstV1) when isBranch1='1'
     else RDstV2 when isBranch2='1';
+
+    BranchAddress(addressSize-1 downto wordSize) <= (others => '0');
     isBranch<= isBranch1 or isBranch2;
  
 END ARCHITECTURE;
