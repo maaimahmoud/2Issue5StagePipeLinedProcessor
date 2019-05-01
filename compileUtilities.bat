@@ -41,5 +41,6 @@ vcom MemWBBuffer.vhd -2008
 vcom WBStage.vhd -2008
 vcom ControlUnit.vhd -2008
 vcom NOPInsertionUnit.vhd -2008
+vcom ForwardingUnit.vhd -2008
 
 vcom MotherBoard.vhd -2008

@@ -50,10 +50,10 @@ ARCHITECTURE MemoryArch OF Memory IS
 
         addressSelection <= incSP1 OR incSP2 OR decSP1 OR decSP2;
 
-        memoryInputMuxMap: ENTITY work.Mux2 GENERIC MAP((2*wordSize)) PORT MAP(
-            A => operationAddress, B => sp ,
+        memoryInputMuxMap: ENTITY work.Mux2 GENERIC MAP(addressBits) PORT MAP(
+            A => operationAddress, B => sp(addressBits-1 DOWNTO 0) ,
 			S => addressSelection,
-			C =>spIn
+			C => address
         );
 
         dataMemoryMap: ENTITY work.DataMemory GENERIC MAP(addressBits, wordSize) PORT MAP(

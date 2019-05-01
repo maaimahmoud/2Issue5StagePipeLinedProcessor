@@ -101,60 +101,6 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     
         notClk <= NOT clk;
 
-
-    -- ##########################################################################################
-    -- control unit
-        control1Map: ENTITY work.ControlUnit PORT MAP(
-            interrupt => INTERRUPT ,
-            reset =>  reset,
-            insertNOP => insertNOP ,
-
-            -------------------------------------
-
-            opCode => instruction1FetDecodeBufOut(wordSize-1 DOWNTO wordSize-operationSize),
-            Execute => EX1InIDEX,
-            readFromMemory => Read1InIDEX,
-            writeToMemory => Write1InIDEX,
-            WB => WB1InIDEX,
-            -- Branch => ,
-            -- enableOut => ,
-            incSP => incSP1,
-            decSP => decSP1,
-            loadImmediate => loadImmediate1,
-
-            wbMuxSelector => mux1WBSelectorInIDEX ,
-            pcSelector =>  pcSrcSelector
-
-        );
-
-        control2Map: ENTITY work.ControlUnit PORT MAP(
-            interrupt =>  INTERRUPT,
-            reset => reset ,
-            insertNOP =>  insertNOP,
-
-            -----------------------------
-
-            opCode => instruction2FetDecodeBufOut(wordSize-1 DOWNTO wordSize-operationSize),
-            Execute => EX2InIDEX,
-            readFromMemory => Read2InIDEX,
-            writeToMemory => Write2InIDEX,
-            WB => WB2InIDEX,
-            -- Branch => ,
-            -- enableOut => ,
-            incSP => incSP2,
-            decSP => decSP2,
-            loadImmediate => loadImmediate2,
-
-            wbMuxSelector => mux2WBSelectorInIDEX ,
-            pcSelector =>  pcSrcSelector
-        );
-
-        insertNOPMAP: ENTITY work.NOPInsertionUnit PORT MAP (
-            Rdst1 => RDst1InIDEX, Rsrc2 => RSrc2InIDEX, Rdst2 =>  RDst2InIDEX,
-            instruction1OpCode => alu1OperationDecodeOut,instruction2OpCode => alu2OperationDecodeOut,
-            insertNOP  => insertNOP
-        );
-
     -- ###########################################################################################
     -- Fetch Stage
         fetchMap: ENTITY work.Fetch GENERIC MAP (addressBits, wordSize, pcInputsNum) PORT MAP (
@@ -205,6 +151,55 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             src2Data => RSrcValue2InIDEX, dst2DataFinal => RdstValue2InIDEX-- : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0)
         );
 
+ -- ##########################################################################################
+    -- control unit
+        control1Map: ENTITY work.ControlUnit PORT MAP(
+            interrupt => INTERRUPT ,
+            reset =>  reset,
+            insertNOP => insertNOP ,
+
+            -------------------------------------
+
+            opCode => instruction1FetDecodeBufOut(wordSize-1 DOWNTO wordSize-operationSize),
+            Execute => EX1InIDEX,
+            readFromMemory => Read1InIDEX,
+            writeToMemory => Write1InIDEX,
+            WB => WB1InIDEX,
+            incSP => incSP1,
+            decSP => decSP1,
+            loadImmediate => loadImmediate1,
+
+            wbMuxSelector => mux1WBSelectorInIDEX ,
+            pcSelector =>  pcSrcSelector
+
+        );
+
+        control2Map: ENTITY work.ControlUnit PORT MAP(
+            interrupt =>  INTERRUPT,
+            reset => reset ,
+            insertNOP =>  insertNOP,
+
+            -----------------------------
+
+            opCode => instruction2FetDecodeBufOut(wordSize-1 DOWNTO wordSize-operationSize),
+            Execute => EX2InIDEX,
+            readFromMemory => Read2InIDEX,
+            writeToMemory => Write2InIDEX,
+            WB => WB2InIDEX,
+            incSP => incSP2,
+            decSP => decSP2,
+            loadImmediate => loadImmediate2,
+
+            wbMuxSelector => mux2WBSelectorInIDEX ,
+            pcSelector =>  pcSrcSelector
+        );
+
+        insertNOPMAP: ENTITY work.NOPInsertionUnit PORT MAP (
+            Rdst1 => RDst1InIDEX, Rsrc2 => RSrc2InIDEX, Rdst2 =>  RDst2InIDEX,
+            instruction1OpCode => alu1OperationDecodeOut,instruction2OpCode => alu2OperationDecodeOut,
+            insertNOP  => insertNOP
+        );
+
     -- ###########################################################################################
     --Decode/execute buffer
 
@@ -247,6 +242,19 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
     -- ###########################################################################################
     -- Execute Stage
+        forwardUnitMap: ENTITY work.ForwardingUnit PORT MAP(
+            Rdst1IEIM => RDst1InMemWB, Rdst2IEIM => RDst2InMemWB,
+            Rdst1IMWB => RDst1OutMemWB, Rdst2IMWB => RDst2OutMemWB,
+            Rdst1 => RDst1OutIDEX, Rdst2 => RDst2OutIDEX,
+            Rsrc1 =>RSrc1OutIDEX , Rsrc2 => RSrc2OutIDEX ,--: in std_logic_vector(numRegister-1 downto 0) ;
+
+            ---------------------------------
+            out1 => mux1SelectorEX,
+            out2 => mux2SelectorEX,
+            out3 => mux3SelectorEX,
+            out4 => mux4SelectorEX
+        );
+
 
         ExecuteMap: ENTITY work.ExecuteStage GENERIC MAP(wordSize) PORT MAP(
             clk, reset,
@@ -271,6 +279,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             isBranch
         );
+
 
     -- ###########################################################################################
     -- Execute/Memory Buffer

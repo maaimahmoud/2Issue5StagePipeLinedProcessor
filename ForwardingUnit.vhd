@@ -12,7 +12,13 @@ USE work.constants.ALL;
 
 Entity ForwardingUnit is
     Port(
-            Rdst1IEIM,Rdst2IEIM,Rdst1IMWB,Rdst2IMWB,Rdst1,Rdst2,Rsrc1,Rsrc2: in std_logic_vector(numRegister-1 downto 0) ;
+            Rdst1IEIM,Rdst2IEIM,
+            Rdst1IMWB,Rdst2IMWB,
+            Rdst1,Rdst2,
+            Rsrc1,Rsrc2: in std_logic_vector(numRegister-1 downto 0) ;
+
+            -----------------------------------------
+            
             out1: OUT std_logic_vector(2 downto 0) ;
             out2: OUT std_logic_vector(2 downto 0) ;
             out3: OUT std_logic_vector(2 downto 0) ;
