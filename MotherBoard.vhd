@@ -100,7 +100,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL flagOut: std_logic_vector(flagSize-1 downto 0); -- flagIn,
 
     -- Out Register Parameters
-        SIGNAL outRegEn: STD_LOGIC;
+        SIGNAL outRegEn, outRegSelect: STD_LOGIC;
         SIGNAL outRegInput: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
 
