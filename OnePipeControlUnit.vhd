@@ -19,7 +19,7 @@ Entity OnePipeControlUnit IS
     --enableOut:OUT std_logic;
     incSP:OUT std_logic;
     decSP:OUT std_logic;
-    loadImmediate:OUT std_logic;
+    --loadImmediate:OUT std_logic;
     wbMuxSelector:OUT std_logic_vector(1 downto 0)
     --pcSelector:OUT std_logic_vector(2 downto 0) 
     );  
@@ -56,13 +56,14 @@ begin
     else '0';
     decSP<='1' when opCode=opPUSH or opCode=opCALL 
     else '0';
-    loadImmediate<='1' when opCode=opLDM
-    else '0';
+    --loadImmediate<='1' when opCode=opLDM
+    --else '0';
     --this selector will be 00 at ALU operation or 01 at load instruction or 10 at in instruction
     --11 means don't select(No WB in this instruction)
     wbMuxSelector<="00" when (Execute='1' and opCode/=opNOP and opCode/=opSETC and opcode/=opCLRC ) 
     else "01" when readFromMemory='1'
-    else "10" when opCode=opIN;
+    else "10" when opCode=opIN
+    else "11" when opCode=opLDM;
 
    
 
