@@ -40,7 +40,7 @@ begin
   ((Rdst1=Rdst2)and (instructionType2=oneOperand and instruction1OpCode/=opNOP and instruction1OpCode/=opSETC and instruction1OpCode/=opCLRC  and instruction1OpCode/=opIN )
     and (instructionType2=twoOperand and instruction2OpCode/=opMOV)
   )
-
+  or
   --check if the 1st instruction will change the carry flags and the 2nd instruction will use the flags to branch
   ((instructionType1=twoOperand or
 ((instructionType1=oneOperand and instruction1OpCode/=opOUT and instruction1OpCode/=opIN and instruction1OpCode/=opNOP)
@@ -58,7 +58,7 @@ or(instructionType1=memoryInstructions and instruction1OpCode=opLDM and (Rdst1=R
 --check if the instruction in the 1st pipe is IN and instruction in 2nd pipe uses that register
 or(instructionType1=oneOperand and instruction1OpCode=opIN and (Rdst1=Rsrc2 or Rdst1=Rdst2))
 --check if 1st instruction is push or pop and the 2nd instruction is also push or pop
-or(instruction1OpCode=opPush or instruction1OpCode=opPop) and(instruction2OpCode=opPush or instruction2OpCode=opPop)
+or((instruction1OpCode=opPush or instruction1OpCode=opPop) and(instruction2OpCode=opPush or instruction2OpCode=opPop))
 
 else '0';
 
