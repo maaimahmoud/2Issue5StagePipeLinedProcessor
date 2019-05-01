@@ -43,12 +43,19 @@ ARCHITECTURE MemoryArch OF Memory IS
         ELSE Dst2Data;
 
 
-        data <= Src1Data WHEN Read1 = '1'
+        data <= Src1Data WHEN Write1 = '1'
         ELSE Src2Data;
 
         we <= Write1 OR Write2;
 
         addressSelection <= incSP1 OR incSP2 OR decSP1 OR decSP2;
+
+        operationAddress(wordSize-1 DOWNTO 0) <= Src1Data WHEN Read1 = '1'
+        ELSE Src2Data WHEN Read2 = '1'
+        ELSE Dst1Data WHEN Write1 = '1'
+        ELSE Dst2Data;
+
+        operationAddress(addressBits-1 DOWNTO wordSize) <= (OTHERS => '0');
 
         memoryInputMuxMap: ENTITY work.Mux2 GENERIC MAP(addressBits) PORT MAP(
             A => operationAddress, B => sp(addressBits-1 DOWNTO 0) ,

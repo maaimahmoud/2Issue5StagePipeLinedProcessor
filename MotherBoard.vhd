@@ -181,6 +181,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
                 incSP1 => incSP1,incSP2 => incSP2,
                 decSP1 => decSP1,decSP2 => decSP2,
                 wbMuxSelector1 => mux1WBSelectorInIDEX,wbMuxSelector2 => mux2WBSelectorInIDEX,
+                outPortPipe => outRegSelect,
                 pcSelector => pcSrcSelector
 
         );
