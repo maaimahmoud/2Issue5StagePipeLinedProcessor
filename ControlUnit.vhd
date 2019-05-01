@@ -17,7 +17,12 @@ Entity ControlUnit IS
     -- enableOut:OUT std_logic;
     incSP:OUT std_logic;
     decSP:OUT std_logic;
-    loadImmediate:OUT std_logic
+    loadImmediate:OUT std_logic;
+    wbMuxSelector:OUT std_logic_vector(1 downto 0);
+    interrupt:IN std_logic;
+    reset:IN std_logic;
+    insertNOP:IN std_logic;
+    pcSelector:OUT std_logic_vector(2 downto 0) ;
     );  
 END Entity ControlUnit;
 
@@ -54,5 +59,20 @@ begin
     else '0';
     loadImmediate<='1' when opCode=opLDM
     else '0';
+    --this selector will be 00 at ALU operation or 01 at load instruction or 10 at in instruction
+    --11 means don't select(No WB in this instruction)
+    wbMuxSelector<="00" when Execute='1'
+    else "01" when readFromMemory='1'
+    else "10" when opCode=opIN
+    else "11";
+
+    --PC selector is an input to The Mux that selects the pc 
+    pcSelector<="100" when reset='1'
+    else "101" when interrupt='1'
+    else "000" when insertNOP='1'
+    else "010" when ( opCode=opRET or opCode=opRTI)
+    else "001";
+
+
 
 end architecture ;   
