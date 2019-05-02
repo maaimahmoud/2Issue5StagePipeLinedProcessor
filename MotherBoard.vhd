@@ -104,7 +104,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL outRegInput: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
 
-	BEGIN
+    BEGIN
     
         notClk <= NOT clk;
 
@@ -160,8 +160,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             immediateValue => immediateValueDecodeOut
         );
 
-
- -- ##########################################################################################
+   
+        -- ##########################################################################################
     -- control unit
         controlUnitMap: ENTITY work.ControlUnit PORT MAP(
 

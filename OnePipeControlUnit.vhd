@@ -8,20 +8,15 @@ USE work.Constants.all;
 Entity OnePipeControlUnit IS 
     PORT(
     opCode:IN std_logic_vector(operationSize-1 downto 0) ;
-    --interrupt:IN std_logic;
-   -- reset:IN std_logic;
-   -- insertNOP:IN std_logic;
+    STALL:IN std_logic;
     Execute :OUT std_logic;
     readFromMemory:OUT std_logic;
     writeToMemory:OUT std_logic;
     WB:OUT std_logic;
     Branch:OUT std_logic;
-    --enableOut:OUT std_logic;
     incSP:OUT std_logic;
     decSP:OUT std_logic;
-    --loadImmediate:OUT std_logic;
     wbMuxSelector:OUT std_logic_vector(1 downto 0)
-    --pcSelector:OUT std_logic_vector(2 downto 0) 
     );  
 END Entity OnePipeControlUnit;
 
@@ -32,29 +27,35 @@ begin
     --Execute =1 at all 2 operands operations
     --(opCode=opMOV OR opCode=opADD or opCode=opSUB or opCode=opAND or opCode=opOR OR opCode=opSHL or opCode=opSHR)AND
     opMode<=opCode(operationSize-1 downto opCodeSize);
-	Execute <='1' when ((opCode=opNOT OR opCode=opINC OR opCode=opDEC or opCode=opSETC or opCode=opCLRC)AND opMode=oneOperand)
-    OR ( opMode=twoOperand)
+    Execute <='1' when (((opCode=opNOT OR opCode=opINC OR opCode=opDEC or opCode=opSETC or opCode=opCLRC)
+    AND opMode=oneOperand)
+    OR ( opMode=twoOperand))and stall='0'
     --OR(opMode=memoryInstructions AND(opcode=opPUSH or opCode=opPOP)) 
     else '0';
     
-    readFromMemory <='1' when(opMode=memoryInstructions AND(opCode=opLDD or opCode=opPop ))
+    readFromMemory <='1' when(opMode=memoryInstructions AND(opCode=opLDD or opCode=opPop )) 
+    and stall='0'
     else '0';
     
-    writeToMemory <='1' when (opMode=memoryInstructions AND (opCode=opSTD OR opCode=opPUSH))
+    writeToMemory <='1' when (opMode=memoryInstructions 
+    AND (opCode=opSTD OR opCode=opPUSH))
+    and stall='0'
     else '0';
     
     --i will wb all the 2 operand instructions 
-    WB <='1' when (opcode=opLDD or opcode=opPop or opCode=opLDM or opCode=opLDD )OR(opMode=twoOperand)Or(opcode=opINC or opcode=opDEC or opCode=opNOT or opCode=opIN)
+    WB <='1' when ((opcode=opLDD or opcode=opPop or opCode=opLDM or opCode=opLDD )
+    OR(opMode=twoOperand)Or(opcode=opINC or opcode=opDEC or opCode=opNOT or opCode=opIN)) 
+    and stall='0'
     else '0';
     
-    Branch<='1' when (opMode=changeOFControlInstructions ) --AND (opcode=opJZ or opcode=opJN or opcode=opJC or opcode=opJMP or opCode=opCall))
+    Branch<='1' when (opMode=changeOFControlInstructions and stall='0') --AND (opcode=opJZ or opcode=opJN or opcode=opJC or opcode=opJMP or opCode=opCall))
     else '0';
 
     --enableOut<='1' WHEN opcode=opOUT
     --else '0';
-    incSP<='1' when opCode=opPOP or opCode=opRET or opCode=opRTI
+    incSP<='1' when opCode=opPOP --or opCode=opRET or opCode=opRTI
     else '0';
-    decSP<='1' when opCode=opPUSH or opCode=opCALL 
+    decSP<='1' when opCode=opPUSH --or opCode=opCALL 
     else '0';
     --loadImmediate<='1' when opCode=opLDM
     --else '0';
