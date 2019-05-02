@@ -28,72 +28,99 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
     -- Control Unit Parameters
         SIGNAL insertNOP: STD_LOGIC;
-        SIGNAL loadImmediate1, loadImmediate2: STD_LOGIC;
-
-    SIGNAL immediateValueOutMEMWB,immediateValueOutIEMEM, immediateValueIDEX,immediateValueDecodeOut: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        SIGNAL control_incSP1, control_decSP1, control_incSP2, control_decSP2: STD_LOGIC;
+        SIGNAL control_EX1, control_Read1, control_Write1, control_WB1, control_EX2, control_Read2, control_Write2, control_WB2: STD_LOGIC;
+        SIGNAL control_WB1Selector, control_WB2Selector: STD_LOGIC_VECTOR(1 DOWNTO 0);
 
     -- Fetch Parameters
         SIGNAL pcEn: STD_LOGIC;
         SIGNAL pcSrcSelector: STD_LOGIC_VECTOR( integer(ceil(log2(real(pcInputsNum))))-1 DOWNTO 0);
-        SIGNAL pcFetchOut: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
-        SIGNAL fetchInstruction1, fetchInstruction2: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        SIGNAL fetch_pc: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+        SIGNAL fetch_instruction1, fetch_instruction2: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL stackOutput, branchAddress: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
 
     -- Fetch/Decode Buffer
-        SIGNAL fetchDecodeBufferEn: STD_LOGIC;
-        SIGNAL pcFetDecodeBufOut: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
-        SIGNAL instruction1FetDecodeBufOut, instruction2FetDecodeBufOut: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        SIGNAL fetchDecode_En: STD_LOGIC;
+        SIGNAL fetchDecode_pc: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+        SIGNAL fetchDecode_instruction1, fetchDecode_instruction2: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
 
     -- Decode Parameters
-        SIGNAL inOperation: STD_LOGIC;  
-        SIGNAL alu1OperationDecodeOut, alu2OperationDecodeOut: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);     
-
+        SIGNAL Decode_alu1Op: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);    
+        SIGNAL Decode_RSrc1, Decode_RDst1: STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
+        SIGNAL Decode_RSrc1Val, Decode_RDst1Val: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        
+        SIGNAL Decode_alu2Op: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0); 
+        SIGNAL Decode_RSrc2, Decode_RDst2: STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
+        SIGNAL Decode_RSrc2Val, Decode_RDst2Val: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        
+        SIGNAL Decode_ImmVal: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
     -- Decode/Execute Parameters
-        SIGNAL enableRead1IDEX, enableRead2IDEX, EX1InIDEX, Read1InIDEX, Write1InIDEX, WB1InIDEX, EX2InIDEX, Read2InIDEX, Write2InIDEX, WB2InIDEX: STD_LOGIC;
-        SIGNAL EX1OutIDEX, Read1OutIDEX, Write1OutIDEX, WB1OutIDEX, EX2OutIDEX, Read2OutIDEX, Write2OutIDEX, WB2OutIDEX: STD_LOGIC;
-        SIGNAL RSrcValue1InIDEX, RdstValue1InIDEX, RSrcValue2InIDEX, RdstValue2InIDEX: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-        SIGNAL RSrcValue1OutIDEX, RdstValue1OutIDEX, RSrcValue2OutIDEX, RdstValue2OutIDEX: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-        SIGNAL RSrc1InIDEX, RDst1InIDEX, RSrc2InIDEX, RDst2InIDEX: STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
-        SIGNAL RSrc1OutIDEX, RDst1OutIDEX, RSrc2OutIDEX, RDst2OutIDEX: STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
-        SIGNAL pcOutIDEX: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
-        SIGNAL inPortOut1IDEX, inPortOut2IDEX: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-        SIGNAL mux1WBSelectorInIDEX, mux2WBSelectorInIDEX, mux1WBSelectorOutIDEX, mux2WBSelectorOutIDEX: std_logic_vector(1 downto 0);
+        SIGNAL decodeExecute_En1, decodeExecute_En2:STD_LOGIC;
+        SIGNAL decodeExecute_incSP1, decodeExecute_incSP2, decodeExecute_decSP1, decodeExecute_decSP2:STD_LOGIC;
 
+        SIGNAL decodeExecute_WB1Selector, decodeExecute_WB2Selector: std_logic_vector(1 downto 0);
+        SIGNAL decodeExecute_EX1, decodeExecute_Read1, decodeExecute_Write1, decodeExecute_WB1, decodeExecute_EX2, decodeExecute_Read2, decodeExecute_Write2, decodeExecute_WB2: STD_LOGIC;
+        SIGNAL decodeExecute_RSrc1Val, decodeExecute_RDst1Val, decodeExecute_RSrc2Val, decodeExecute_RDst2Val: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        SIGNAL decodeExecute_RSrc1, decodeExecute_RDst1, decodeExecute_RSrc2, decodeExecute_RDst2: STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
+        SIGNAL decodeExecute_pc: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+        SIGNAL decodeExecute_inPort1Val, decodeExecute_inPort2Val: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        SIGNAL decodeExecute_ImmVal: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        SIGNAL decodeExecute_alu1Op, decodeExecute_alu2Op: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);
+        
 
     -- Execute Parameters
         -- SIGNAL MEM1In, MEM2In, WB1In, WB2In: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-        SIGNAL mux1SelectorEX, mux2SelectorEX, mux3SelectorEX, mux4SelectorEX: STD_LOGIC_VECTOR(2 DOWNTO 0);
-        SIGNAL alu1Operation, alu2Operation: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);
-        SIGNAL ALU1Out, ALU2Out: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        SIGNAL execute_Mux1Selector, execute_Mux2Selector, execute_Mux3Selector, execute_Mux4Selector: STD_LOGIC_VECTOR(2 DOWNTO 0);
+        SIGNAL execute_alu1Out, execute_alu2Out: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
         SIGNAL branch1, branch2: STD_LOGIC;
         SIGNAL isBranch: STD_LOGIC;
 
 
     -- Execute/Memory Parameters
-        SIGNAL ExecuteMemoryBuffer1En, ExecuteMemoryBuffer2En: STD_LOGIC;
-        SIGNAL Read1ExMemBufOut , Read2ExMemBufOut , Write1ExMemBufOut ,Write2ExMemBufOut : STD_LOGIC;
-        SIGNAL pcExMemBufOut: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
-        SIGNAL alu1ExMemBufOut, alu2ExMemBufOut :STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
-        SIGNAL Src1DataExMemBufOut, Src2DataExMemBufOut : STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-        SIGNAL Dst1DataExMemBufOut, Dst2DataExMemBufOut : STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-        SIGNAL MEM1, MEM2: STD_LOGIC;
+        SIGNAL executeMem_En1, executeMem_En2: STD_LOGIC;
+
+        SIGNAL executeMem_pc: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+        SIGNAL executeMem_ImmVal: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+
+        SIGNAL executeMem_MEM1, executeMem_Read1, executeMem_Write1,executeMem_WB1:STD_LOGIC;
+        SIGNAL executeMem_WB1Selector: std_logic_vector(1 downto 0); 
+        SIGNAL executeMem_RSrc1, executeMem_RDst1: STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
+        SIGNAL executeMem_RSrc1Val, executeMem_RDst1Val, executeMem_alu1Out, executeMem_inPort1Val: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        SIGNAL executeMem_incSP1, executeMem_decSP1: STD_LOGIC;
+        
+
+        SIGNAL executeMem_MEM2, executeMem_Read2 ,executeMem_Write2, executeMem_WB2: STD_LOGIC;
+        SIGNAL executeMem_WB2Selector: std_logic_vector(1 downto 0);
+        SIGNAL executeMem_RSrc2, executeMem_RDst2: STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
+        SIGNAL executeMem_RSrc2Val, executeMem_RDst2Val, executeMem_alu2Out, executeMem_inPort2Val : STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        SIGNAL executeMem_incSP2, executeMem_decSP2: STD_LOGIC;
+
 
     -- Memory Parameters
-        SIGNAL incSP1, decSP1, incSP2, decSP2 : STD_LOGIC;
+        SIGNAL mem_memoryOut: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
     -- Memory/WriteBack Parameters
-        SIGNAL enableRead1MEMWB, enableRead2MEMWB, WB1InMEMWB, WB2InMEMWB, WB1OutMEMWB, WB2OutMEMWB: STD_LOGIC;
-        SIGNAL MemInMEMWB, ALU1OutMEMWB, ALU2OutMEMWB, MemOutMEMWB: std_logic_vector(wordSize-1 downto 0);
-        SIGNAL mux1WBSelectorIn, mux2WBSelectorIn, mux1WBSelectorOut, mux2WBSelectorOut: std_logic_vector(1 downto 0);
-        SIGNAL RSrc1InMemWB, RDst1InMemWB, RSrc2InMemWB, RDst2InMemWB, RSrc1OutMemWB, RDst1OutMemWB, RSrc2OutMemWB, RDst2OutMemWB: std_logic_vector(2 downto 0);
-        SIGNAL inPortIn1MemWB, inPortIn2MemWB, inPortOut1IDEXMemWB, inPortOut2IDEXMemWB: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-        -- SIGNAL WB1, WB2:STD_LOGIC;
+        SIGNAL memWB_En1, memWB_En2: STD_LOGIC;
 
+
+        SIGNAL memWB_WB1: STD_LOGIC;
+        SIGNAL memWB_WB1Selector: std_logic_vector(1 downto 0);
+        SIGNAL memWB_RSrc1, memWB_RDst1:STD_LOGIC_VECTOR(2 DOWNTO 0);
+        SIGNAL memWB_alu1Out, memWB_inPortVal1: std_logic_vector(wordSize-1 downto 0);
+
+        SIGNAL memWB_WB2: STD_LOGIC;
+        SIGNAL memWB_WB2Selector: std_logic_vector(1 downto 0);
+        SIGNAL memWB_RSrc2, memWB_RDst2: std_logic_vector(2 downto 0);
+        SIGNAL memWB_alu2Out, memWB_inPortVal2: std_logic_vector(wordSize-1 downto 0);
+
+        SIGNAL memWB_MemoryOut: std_logic_vector(wordSize-1 downto 0);
+        SIGNAL memWB_ImmVal: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        
     -- WriteBack Parameters
-        SIGNAL WBOut1, WBOut2: std_logic_vector(wordSize-1 downto 0);
+        SIGNAL WB_WB1Val, WB_WB2Val: std_logic_vector(wordSize-1 downto 0);
 
     
     -- flag register
@@ -119,45 +146,41 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             M0 => M0 , M1 => M1 ,
 
-            dataOut1 => fetchInstruction1, dataOut2 => fetchInstruction2,
+            dataOut1 => fetch_instruction1, dataOut2 => fetch_instruction2,
             
-            pc => pcFetchOut
+            pc => fetch_pc
         );
     -- ###########################################################################################
     -- Fetch/Decode Buffer
         FetchDecodeBufferMap: ENTITY work.FetchDecodeBuffer GENERIC MAP (wordSize) PORT MAP (
             clk => notClk, reset => reset,
-			bufferEn  => fetchDecodeBufferEn,
-			pcIn => pcFetchOut,
-            instruction1In =>fetchInstruction1 , instruction2In => fetchInstruction2,
-			pc => pcFetDecodeBufOut,
-            instruction1Out => instruction1FetDecodeBufOut ,instruction2Out => instruction2FetDecodeBufOut
+			bufferEn  => fetchDecode_En,
+			pcIn => fetch_pc,
+            instruction1In =>fetch_instruction1 , instruction2In => fetch_instruction2,
+			pc => fetchDecode_pc,
+            instruction1Out => fetchDecode_instruction1 ,instruction2Out => fetchDecode_instruction2
         );
     -- ###########################################################################################
     -- Decode Stage
         DecodeMap: ENTITY work.Decode GENERIC MAP( regNum, wordSize ) PORT MAP (
             clk => clk , reset => reset,
 
-            instruction1 => instruction1FetDecodeBufOut, instruction2 => instruction2FetDecodeBufOut,
+            instruction1 => fetchDecode_instruction1, instruction2 => fetchDecode_instruction2,
 
-            wb1 => WB1OutMEMWB, wb2 => WB1OutMEMWB,
+            wb1 => memWB_WB1, wb2 => memWB_WB2,
             
-            writeReg1 => RDst1OutMemWB, writeReg2 =>  RDst2OutMemWB,
+            writeReg1 => memWB_RDst1, writeReg2 =>  memWB_RDst2,
 
-            writeData1 => WBOut1, writeData2 => WBOut2,
+            writeData1 => WB_WB1Val, writeData2 => WB_WB2Val,
             ----------------------------------------------
-            alu1Operation => alu1OperationDecodeOut, alu2Operation => alu2OperationDecodeOut,
+            alu1Operation => Decode_alu1Op, alu2Operation => Decode_alu2Op,
 
-            inOperation => inOperation,
+            Src1 => Decode_RSrc1, Src2 => Decode_RSrc2, Dst1 => Decode_RDst1, Dst2 => Decode_RDst2,
 
-            outPort => outPort,
+            src1Data => Decode_RSrc1Val , dst1DataFinal => Decode_RDst1Val, 
+            src2Data => Decode_RSrc2Val, dst2DataFinal => Decode_RDst2Val, -- : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0)
 
-            Src1 => RSrc1InIDEX, Src2 => RSrc2InIDEX, Dst1 => RDst1InIDEX, Dst2 => RDst2InIDEX,
-
-            src1Data => RSrcValue1InIDEX , dst1DataFinal => RdstValue1InIDEX, 
-            src2Data => RSrcValue2InIDEX, dst2DataFinal => RdstValue2InIDEX, -- : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0)
-
-            immediateValue => immediateValueDecodeOut
+            immediateValue => Decode_ImmVal
         );
 
 
@@ -165,37 +188,37 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     -- control unit
         controlUnitMap: ENTITY work.ControlUnit PORT MAP(
 
-                opCode1 =>instruction1FetDecodeBufOut(wordSize-1 DOWNTO wordSize-operationSize) ,
-                opCode2 => instruction2FetDecodeBufOut(wordSize-1 DOWNTO wordSize-operationSize),
+                opCode1 =>fetchDecode_instruction1(wordSize-1 DOWNTO wordSize-operationSize) ,
+                opCode2 => fetchDecode_instruction2(wordSize-1 DOWNTO wordSize-operationSize),
                 interrupt => INTERRUPT,
                 reset => reset,
                 insertNOP => insertNOP,
                 ------------------------------------------------
 
-                Execute1 => EX1InIDEX,Execute2 => EX2InIDEX,
-                readFromMemory1 => Read1InIDEX,readFromMemory2 => Read2InIDEX,
-                wrtieToMemory1 => Write1InIDEX,wrtieToMemory2 => Write2InIDEX,
-                WB1 => WB1InIDEX ,WB2 => WB2InIDEX,
+                Execute1 => control_EX1,Execute2 => control_EX2,
+                readFromMemory1 => control_Read1,readFromMemory2 => control_Read2,
+                wrtieToMemory1 => control_Write1,wrtieToMemory2 => control_Write2,
+                WB1 => control_WB1 ,WB2 => control_WB2,
                 Branch1 => branch1,Branch2 => branch2,
                 enableOut => outRegEn,
-                incSP1 => incSP1,incSP2 => incSP2,
-                decSP1 => decSP1,decSP2 => decSP2,
-                wbMuxSelector1 => mux1WBSelectorInIDEX,wbMuxSelector2 => mux2WBSelectorInIDEX,
+                incSP1 => control_incSP1,incSP2 => control_incSP2,
+                decSP1 => control_decSP1,decSP2 => control_decSP2,
+                wbMuxSelector1 => control_WB1Selector,wbMuxSelector2 => control_WB2Selector,
                 outPortPipe => outRegSelect,
                 pcSelector => pcSrcSelector
 
         );
 
         insertNOPMAP: ENTITY work.NOPInsertionUnit PORT MAP (
-            Rdst1 => RDst1InIDEX, Rsrc2 => RSrc2InIDEX, Rdst2 =>  RDst2InIDEX,
-            instruction1OpCode => alu1OperationDecodeOut,instruction2OpCode => alu2OperationDecodeOut,
+            Rdst1 => Decode_RDst1, Rsrc2 => Decode_RSrc2, Rdst2 =>  Decode_RDst2,
+            instruction1OpCode => Decode_alu1Op, instruction2OpCode => Decode_alu2Op,
             insertNOP  => insertNOP -- TODO: use this output signal
         );
 
         
         -- Out Register
         outMuxMap: ENTITY work.mux2 GENERIC MAP(wordSize) PORT MAP(
-            A => RdstValue1InIDEX, B =>  RdstValue2InIDEX,
+            A => Decode_RDst1Val, B =>  Decode_RDst2Val,
             S => outRegSelect,
             C => outRegInput
         );
@@ -209,80 +232,88 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     --Decode/execute buffer
 
         IDEXBufferMap: ENTITY work.IDEXBuffer GENERIC MAP(regNum, wordSize) PORT MAP(
-            clk, reset, enableRead1IDEX, enableRead2IDEX,
+            clk, reset, decodeExecute_En1, decodeExecute_En2,
 
-            alu1OperationDecodeOut, alu2OperationDecodeOut,
+            Decode_alu1Op, Decode_alu2Op,
 
-            EX1InIDEX, Read1InIDEX, Write1InIDEX, WB1InIDEX, -- TODO: Control unit
-            EX2InIDEX, Read2InIDEX, Write2InIDEX, WB2InIDEX, -- TODO: Control unit
+            control_EX1, control_Read1, control_Write1, control_WB1, -- TODO: Control unit
+            control_EX2, control_Read2, control_Write2, control_WB2, -- TODO: Control unit
 
-            RSrcValue1InIDEX, RdstValue1InIDEX,
-            RSrcValue2InIDEX, RdstValue2InIDEX,
+            Decode_RSrc1Val, Decode_RDst1Val,
+            Decode_RSrc2Val, Decode_RDst2Val,
 
-            RSrc1InIDEX, RDst1InIDEX,
-            RSrc2InIDEX, RDst2InIDEX,
+            Decode_RSrc1, Decode_RDst1,
+            Decode_RSrc2, Decode_RDst2,
 
-            pcFetDecodeBufOut,
+            fetchDecode_pc,
             inPort, inPort,
 
-            mux1WBSelectorInIDEX, mux2WBSelectorInIDEX, -- TODO: from control unit
+            control_WB1Selector, control_WB2Selector, -- TODO: from control 
+            
+            control_incSP1, control_incSP2,
+            control_decSP1, control_decSP2,
 
-            immediateValueDecodeOut,
+            Decode_ImmVal,
             ----------------------------------------------
-            alu1Operation, alu2Operation,
+            decodeExecute_alu1Op, decodeExecute_alu2Op,
 
-            EX1OutIDEX, Read1OutIDEX, Write1OutIDEX, WB1OutIDEX,
-            EX2OutIDEX, Read2OutIDEX, Write2OutIDEX, WB2OutIDEX,
+            decodeExecute_EX1, decodeExecute_Read1, decodeExecute_Write1, decodeExecute_WB1,
+            decodeExecute_EX2, decodeExecute_Read2, decodeExecute_Write2, decodeExecute_WB2,
 
-            RSrcValue1OutIDEX, RdstValue1OutIDEX,
-            RSrcValue2OutIDEX, RdstValue2OutIDEX,
+            decodeExecute_RSrc1Val, decodeExecute_RDst1Val,
+            decodeExecute_RSrc2Val, decodeExecute_RDst2Val,
 
 
-            RSrc1OutIDEX, RDst1OutIDEX,
-            RSrc2OutIDEX, RDst2OutIDEX,
+            decodeExecute_RSrc1, decodeExecute_RDst1,
+            decodeExecute_RSrc2, decodeExecute_RDst2,
 
-            pcOutIDEX,
-            inPortOut1IDEX, inPortOut2IDEX,
+            decodeExecute_pc,
+            decodeExecute_inPort1Val, decodeExecute_inPort2Val,
 
-            mux1WBSelectorOutIDEX, mux2WBSelectorOutIDEX,
+            decodeExecute_WB1Selector, decodeExecute_WB2Selector,
 
-            immediateValueIDEX
+            decodeExecute_incSP1, decodeExecute_incSP2,
+            decodeExecute_decSP1, decodeExecute_decSP2,
+
+            decodeExecute_ImmVal
         );
 
     -- ###########################################################################################
     -- Execute Stage
         forwardUnitMap: ENTITY work.ForwardingUnit PORT MAP(
-            MEM1 => MEM1, MEM2 => MEM2,
-            WB1 => WB1OutMEMWB, WB2 => WB2OutMEMWB,
-            Rdst1IEIM => RDst1InMemWB, Rdst2IEIM => RDst2InMemWB,
-            Rdst1IMWB => RDst1OutMemWB, Rdst2IMWB => RDst2OutMemWB,
-            Rdst1 => RDst1OutIDEX, Rdst2 => RDst2OutIDEX,
-            Rsrc1 =>RSrc1OutIDEX , Rsrc2 => RSrc2OutIDEX ,--: in std_logic_vector(numRegister-1 downto 0) ;
+            MEM1 => executeMem_MEM1, MEM2 => executeMem_MEM2,
+            WB1 => memWB_WB1, WB2 => memWB_WB2,
+            Rdst1IEIM => executeMem_RDst1, Rdst2IEIM => executeMem_RDst2,
+            Rdst1IMWB => memWB_RDst1, Rdst2IMWB => memWB_RDst2,
+            Rdst1 => decodeExecute_RDst1, Rdst2 => decodeExecute_RDst2,
+            Rsrc1 =>decodeExecute_RSrc1 , Rsrc2 => decodeExecute_RSrc2 ,--: in std_logic_vector(numRegister-1 downto 0) ;
 
             ---------------------------------
-            out1 => mux1SelectorEX,
-            out2 => mux2SelectorEX,
-            out3 => mux3SelectorEX,
-            out4 => mux4SelectorEX
+            out1 => execute_Mux1Selector,
+            out2 => execute_Mux2Selector,
+            out3 => execute_Mux3Selector,
+            out4 => execute_Mux4Selector
         );
 
 
         ExecuteMap: ENTITY work.ExecuteStage GENERIC MAP(wordSize) PORT MAP(
             clk, reset,
 
-            RSrcValue1OutIDEX, RdstValue1OutIDEX,
-            RSrcValue2OutIDEX, RdstValue2OutIDEX,
+            decodeExecute_RSrc1Val, decodeExecute_RDst1Val,
+            decodeExecute_RSrc2Val, decodeExecute_RDst2Val,
 
-            alu1ExMemBufOut, alu2ExMemBufOut, WBOut1, WBOut2,
+            executeMem_alu1Out, executeMem_alu2Out, WB_WB1Val, WB_WB2Val,
 
-            mux1SelectorEX, mux2SelectorEX,
-            mux3SelectorEX, mux4SelectorEX, -- TODO select mux inputs control unit
+            execute_Mux1Selector, execute_Mux2Selector,
+            execute_Mux3Selector, execute_Mux4Selector, -- TODO select mux inputs control unit
 
-            alu1Operation, alu2Operation,
+            decodeExecute_alu1Op, decodeExecute_alu2Op,
 
-            EX1OutIDEX, EX2OutIDEX,
+            decodeExecute_EX1, decodeExecute_EX2,
 
-            ALU1Out, ALU2Out,
+            --------------------------------------------
+
+            execute_alu1Out, execute_alu2Out,
 
             flagOut,
 
@@ -296,53 +327,64 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     -- Execute/Memory Buffer
         ExecuteMemoryBufferMap: ENTITY work.ExecuteMemoryBuffer GENERIC MAP (regNum, addressBits, wordSize) PORT MAP(
             clk => notClk, reset => reset,
-            bufferEn1 => ExecuteMemoryBuffer1En, bufferEn2 =>ExecuteMemoryBuffer2En,
+            bufferEn1 => executeMem_En1, bufferEn2 =>executeMem_En2,
 
             -- inputs from Execute Stage
-            Read1In => Read1OutIDEX, Read2In => Read2OutIDEX, Write1In => Write1OutIDEX, Write2In =>  Write2OutIDEX,--: IN STD_LOGIC;
-            WB1In =>  WB1OutIDEX, WB2In =>  WB2OutIDEX,
-            inPort1In => inPortOut1IDEX,  inPort2In => inPortOut2IDEX,
+            Read1In => decodeExecute_Read1, Read2In => decodeExecute_Read2, Write1In => decodeExecute_Write1, Write2In =>  decodeExecute_Write2,--: IN STD_LOGIC;
+            WB1In =>  decodeExecute_WB1, WB2In =>  decodeExecute_WB2,
+            inPort1In => decodeExecute_inPort1Val,  inPort2In => decodeExecute_inPort2Val,
 
-            pcIn => pcOutIDEX, 
-            alu1OutIn => ALU1Out, alu2OutIn => ALU2Out,
+            pcIn => decodeExecute_pc, 
+            alu1OutIn => execute_alu1Out, alu2OutIn => execute_alu2Out,
             
-            Src1In => RSrc1OutIDEX, Src2In => RSrc2OutIDEX, Dst1In => RDst1OutIDEX, Dst2In => RDst2OutIDEX,
-            Src1DataIn => RSrcValue1OutIDEX, Src2DataIn => RSrcValue2OutIDEX, Dst1DataIn => RdstValue1OutIDEX, Dst2DataIn => RdstValue2OutIDEX,
-            mux1WBSelectorIn => mux1WBSelectorOutIDEX , mux2WBSelectorIn =>  mux2WBSelectorOutIDEX,
+            Src1In => decodeExecute_RSrc1, Src2In => decodeExecute_RSrc2, Dst1In => decodeExecute_RDst1, Dst2In => decodeExecute_RDst2,
+            Src1DataIn => decodeExecute_RSrc1Val, Src2DataIn => decodeExecute_RSrc2Val, Dst1DataIn => decodeExecute_RDst1Val, Dst2DataIn => decodeExecute_RDst2Val,
+            mux1WBSelectorIn => decodeExecute_WB1Selector , mux2WBSelectorIn =>  decodeExecute_WB2Selector,
 
-            immediateValueIn => immediateValueIDEX,
+            incSP1In => decodeExecute_incSP1, incSP2In => decodeExecute_incSP2,
+            decSP1In => decodeExecute_decSP1, decSP2In => decodeExecute_decSP2,
+
+            immediateValueIn => decodeExecute_ImmVal,
+            -------------------------------------------------------
             -- outputs to Memory Stage
-            Read1 =>Read1ExMemBufOut , Read2 => Read2ExMemBufOut , Write1 =>Write1ExMemBufOut ,Write2 =>Write2ExMemBufOut ,
-            WB1 => WB1InMEMWB, WB2 =>  WB2InMEMWB ,
-            inPort1 => inPortIn1MemWB,  inPort2 => inPortIn2MemWB,
+            Read1 =>executeMem_Read1 , Read2 => executeMem_Read2 , Write1 =>executeMem_Write1 ,Write2 =>executeMem_Write2 ,
+            WB1 => executeMem_WB1, WB2 =>  executeMem_WB2 ,
+            inPort1 => executeMem_inPort1Val,  inPort2 => executeMem_inPort2Val,
 
-            pc => pcExMemBufOut , alu1Out => alu1ExMemBufOut , alu2Out => alu2ExMemBufOut,
+            pc => executeMem_pc , alu1Out => executeMem_alu1Out , alu2Out => executeMem_alu2Out,
 
-            Src1 => RSrc1InMemWB, Src2 => RSrc2InMemWB, Dst1 => RDst1InMemWB, Dst2 => RDst2InMemWB,
+            Src1 => executeMem_RSrc1, Src2 => executeMem_RSrc2, Dst1 => executeMem_RDst1, Dst2 => executeMem_RDst2,
 
-            Src1Data => Src1DataExMemBufOut, Src2Data => Src2DataExMemBufOut,
-            Dst1Data => Dst1DataExMemBufOut, Dst2Data => Dst2DataExMemBufOut,
-            mux1WBSelector =>  mux1WBSelectorIn, mux2WBSelector => mux2WBSelectorIn,
+            Src1Data => executeMem_RSrc1Val, Src2Data => executeMem_RSrc2Val,
+            Dst1Data => executeMem_RDst1Val, Dst2Data => executeMem_RDst2Val,
 
-            MEM1 => MEM1, MEM2 =>  MEM2,
+            mux1WBSelector =>  executeMem_WB1Selector, mux2WBSelector => executeMem_WB2Selector,
 
-            immediateValue => immediateValueOutIEMEM
+            MEM1 => executeMem_MEM1, MEM2 =>  executeMem_MEM2,
+
+            incSP1 => executeMem_incSP1, incSP2 => executeMem_incSP2,
+            decSP1 => executeMem_decSP1, decSP2 => executeMem_decSP2,
+
+
+            immediateValue => executeMem_ImmVal
         );
     -- ###########################################################################################
     --Memory Stage
         MemoryMap: ENTITY work.Memory GENERIC MAP ( regNum, addressBits, wordSize  ) PORT MAP(
             clk => clk, reset => reset,
 
-            Read1 =>Read1ExMemBufOut , Read2 =>Read2ExMemBufOut , Write1 =>Write1ExMemBufOut ,Write2 => Write2ExMemBufOut,
-            pc => pcExMemBufOut , alu1Out => alu1ExMemBufOut , alu2Out => alu2ExMemBufOut, -- TODO: check if it's neccessary to pass alu1, alu2
+            Read1 => executeMem_Read1 , Read2 => executeMem_Read2 , Write1 => executeMem_Write1 ,Write2 => executeMem_Write2,
+            pc => executeMem_pc , alu1Out => executeMem_alu1Out , alu2Out => executeMem_alu2Out, -- TODO: check if it's neccessary to pass alu1, alu2
 
-            Src1Data => Src1DataExMemBufOut, Src2Data => Src2DataExMemBufOut,
-            Dst1Data => Dst1DataExMemBufOut, Dst2Data => Dst2DataExMemBufOut,
-            incSP1 => incSP1, decSP1 => decSP1 , incSP2 => incSP2 , decSP2 => decSP2, 
+            Src1Data => executeMem_RSrc1Val, Src2Data => executeMem_RSrc2Val,
+            Dst1Data => executeMem_RDst1Val, Dst2Data => executeMem_RDst2Val,
+            
+            incSP1 => executeMem_incSP1, decSP1 => executeMem_decSP1 ,
+            incSP2 => executeMem_incSP2 , decSP2 => executeMem_decSP2, 
             --------------------------------------
             M0 => M0, M1 => M1,
             
-            memoryOut=> MemInMEMWB
+            memoryOut=> mem_memoryOut
 
         );
     
@@ -350,33 +392,33 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     --Memory/WriteBack Buffer
 
         MEMWBMap: ENTITY work.MemWBBuffer GENERIC MAP (regNum, wordSize) PORT MAP(
-            clk, reset, enableRead1MEMWB, enableRead2MEMWB,
+            clk, reset, memWB_En1, memWB_En2,
 
-            WB1InMEMWB, WB2InMEMWB,
+            executeMem_WB1, executeMem_WB2,
 
-            alu1ExMemBufOut, alu2ExMemBufOut, MemInMEMWB,
+            executeMem_alu1Out, executeMem_alu2Out, mem_memoryOut,
 
-            inPortIn1MemWB, inPortIn2MemWB,
+            executeMem_inPort1Val, executeMem_inPort2Val,
 
-            mux1WBSelectorIn, mux2WBSelectorIn,
+            executeMem_WB1Selector, executeMem_WB2Selector,
 
-            RSrc1InMemWB, RDst1InMemWB, RSrc2InMemWB, RDst2InMemWB,
+            executeMem_RSrc1, executeMem_RDst1, executeMem_RSrc2, executeMem_RDst2,
 
-            immediateValueOutIEMEM,
+            executeMem_ImmVal,
 
             ----------------------------------------
 
-            WB1OutMEMWB, WB2OutMEMWB,
+            memWB_WB1, memWB_WB2,
 
-            ALU1OutMEMWB, ALU2OutMEMWB, MemOutMEMWB,
+            memWB_alu1Out, memWB_alu2Out, memWB_MemoryOut,
 
-            inPortOut1IDEXMemWB, inPortOut2IDEXMemWB,
+            memWB_inPortVal1, memWB_inPortVal2,
 
-            mux1WBSelectorOut, mux2WBSelectorOut,
+            memWB_WB1Selector, memWB_WB2Selector,
 
-            RSrc1OutMemWB, RDst1OutMemWB, RSrc2OutMemWB, RDst2OutMemWB,
+            memWB_RSrc1, memWB_RDst1, memWB_RSrc2, memWB_RDst2,
 
-            immediateValueOutMEMWB
+            memWB_ImmVal
 
         );
 
@@ -385,13 +427,13 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
         WBStageMap: ENTITY work.WBStage Generic map (wordSize) PORT MAP (
                 
-                ALU1OutMEMWB, ALU2OutMEMWB, MemOutMEMWB, 
+                memWB_alu1Out, memWB_alu2Out, memWB_MemoryOut, 
                 
-                inPortOut1IDEXMemWB, inPortOut2IDEXMemWB, immediateValueOutMEMWB,
+                memWB_inPortVal1, memWB_inPortVal2, memWB_ImmVal,
                 
-                mux1WBSelectorOut, mux2WBSelectorOut,
+                memWB_WB1Selector, memWB_WB2Selector,
     
-                WBOut1, WBOut2 --: std_logic_vector(wordSize downto 0)
+                WB_WB1Val, WB_WB2Val --: std_logic_vector(wordSize downto 0)
             );
 
 

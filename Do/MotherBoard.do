@@ -22,10 +22,10 @@ force -freeze sim:/motherboard/inPort 0000000000000000 0
 
 #force -freeze sim:/motherboard/fetchMap/pcInMuxMap/selectionLines 000 0
 
-#force -freeze sim:/motherboard/mux1SelectorEX 000 0
-#force -freeze sim:/motherboard/mux2SelectorEX 000 0
-#force -freeze sim:/motherboard/mux3SelectorEX 000 0
-#force -freeze sim:/motherboard/mux4SelectorEX 000 0
+#force -freeze sim:/motherboard/execute_Mux1Selector 000 0
+#force -freeze sim:/motherboard/execute_Mux2Selector 000 0
+#force -freeze sim:/motherboard/execute_Mux3Selector 000 0
+#force -freeze sim:/motherboard/execute_Mux4Selector 000 0
 #force -freeze sim:/motherboard/mux1WBSelectorInIDEX 00 0
 #force -freeze sim:/motherboard/mux2WBSelectorInIDEX 00 0
 
@@ -35,29 +35,29 @@ force -freeze sim:/motherboard/inPort 0000000000000000 0
 # Hazard detection unit
 
 
-force -freeze sim:/motherboard/fetchDecodeBufferEn 1 0
+force -freeze sim:/motherboard/fetchDecode_En 1 0
 run
 
 force -freeze sim:/motherboard/pcEn 1 0
-#force -freeze sim:/motherboard/fetchDecodeBufferEn 0 0
+#force -freeze sim:/motherboard/fetchDecode_En 0 0
 
-force -freeze sim:/motherboard/enableRead1IDEX 1 0
-force -freeze sim:/motherboard/enableRead2IDEX 1 0
+force -freeze sim:/motherboard/decodeExecute_En1 1 0
+force -freeze sim:/motherboard/decodeExecute_En2 1 0
 run
-#force -freeze sim:/motherboard/enableRead1IDEX 0 0
-#force -freeze sim:/motherboard/enableRead2IDEX 0 0
+#force -freeze sim:/motherboard/decodeExecute_En1 0 0
+#force -freeze sim:/motherboard/decodeExecute_En2 0 0
 
-force -freeze sim:/motherboard/ExecuteMemoryBuffer1En 1 0
-force -freeze sim:/motherboard/ExecuteMemoryBuffer2En 1 0
+force -freeze sim:/motherboard/executeMem_En1 1 0
+force -freeze sim:/motherboard/executeMem_En2 1 0
 run
-#force -freeze sim:/motherboard/ExecuteMemoryBuffer1En 0 0
-#force -freeze sim:/motherboard/ExecuteMemoryBuffer2En 0 0
+#force -freeze sim:/motherboard/executeMem_En1 0 0
+#force -freeze sim:/motherboard/executeMem_En2 0 0
 
-force -freeze sim:/motherboard/enableRead1MEMWB 1 0
-force -freeze sim:/motherboard/enableRead2MEMWB 1 0
+force -freeze sim:/motherboard/memWB_En1 1 0
+force -freeze sim:/motherboard/memWB_En2 1 0
 run
 
-#force -freeze sim:/motherboard/enableRead1MEMWB 0 0
-#force -freeze sim:/motherboard/enableRead2MEMWB 0 0
+#force -freeze sim:/motherboard/memWB_En1 0 0
+#force -freeze sim:/motherboard/memWB_En2 0 0
 
 run

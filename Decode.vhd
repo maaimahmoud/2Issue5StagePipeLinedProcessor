@@ -25,9 +25,7 @@ ENTITY Decode IS
 
         alu1Operation, alu2Operation : OUT STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);
 
-        inOperation: OUT STD_LOGIC;
-        
-        outPort : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        -- inOperation: OUT STD_LOGIC;
 
         Src1, Src2, Dst1, Dst2 : OUT STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
 
@@ -106,8 +104,8 @@ ARCHITECTURE DecodeArch OF Decode IS
 
       END GENERATE;
 
-    inOperation <= '1' WHEN ( instruction1(15 DOWNTO 11) = opIN OR instruction2(15 DOWNTO 11) = opIN )
-    ELSE '0';
+    -- inOperation <= '1' WHEN ( instruction1(15 DOWNTO 11) = opIN OR instruction2(15 DOWNTO 11) = opIN )
+    -- ELSE '0';
 
     dst1DataFinal <= shiftAmount1 when instruction1(15 DOWNTO 11) = opSHL or instruction1(15 DOWNTO 11) = opSHR
     else dst1Data; 
