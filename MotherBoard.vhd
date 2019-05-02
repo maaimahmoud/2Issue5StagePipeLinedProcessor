@@ -307,6 +307,9 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             executeMem_alu1Out, executeMem_alu2Out, WB_WB1Val, WB_WB2Val, -- for forwarding
 
+            executeMem_WB1Selector, -- for immediate Value Check
+            executeMem_ImmVal,
+
             execute_Mux1Selector, execute_Mux2Selector,
             execute_Mux3Selector, execute_Mux4Selector, -- TODO select mux inputs control unit
 
