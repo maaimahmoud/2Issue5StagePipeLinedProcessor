@@ -22,12 +22,12 @@ force -freeze sim:/motherboard/inPort 0000000000000000 0
 
 #force -freeze sim:/motherboard/fetchMap/pcInMuxMap/selectionLines 000 0
 
-force -freeze sim:/motherboard/mux1SelectorEX 000 0
-force -freeze sim:/motherboard/mux2SelectorEX 000 0
-force -freeze sim:/motherboard/mux3SelectorEX 000 0
-force -freeze sim:/motherboard/mux4SelectorEX 000 0
-force -freeze sim:/motherboard/mux1WBSelectorInIDEX 00 0
-force -freeze sim:/motherboard/mux2WBSelectorInIDEX 00 0
+#force -freeze sim:/motherboard/mux1SelectorEX 000 0
+#force -freeze sim:/motherboard/mux2SelectorEX 000 0
+#force -freeze sim:/motherboard/mux3SelectorEX 000 0
+#force -freeze sim:/motherboard/mux4SelectorEX 000 0
+#force -freeze sim:/motherboard/mux1WBSelectorInIDEX 00 0
+#force -freeze sim:/motherboard/mux2WBSelectorInIDEX 00 0
 
 #run
 

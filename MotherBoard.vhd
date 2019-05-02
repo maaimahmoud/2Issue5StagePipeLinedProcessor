@@ -90,7 +90,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL mux1WBSelectorIn, mux2WBSelectorIn, mux1WBSelectorOut, mux2WBSelectorOut: std_logic_vector(1 downto 0);
         SIGNAL RSrc1InMemWB, RDst1InMemWB, RSrc2InMemWB, RDst2InMemWB, RSrc1OutMemWB, RDst1OutMemWB, RSrc2OutMemWB, RDst2OutMemWB: std_logic_vector(2 downto 0);
         SIGNAL inPortIn1MemWB, inPortIn2MemWB, inPortOut1IDEXMemWB, inPortOut2IDEXMemWB: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-        SIGNAL WB1, WB2:STD_LOGIC;
+        -- SIGNAL WB1, WB2:STD_LOGIC;
 
     -- WriteBack Parameters
         SIGNAL WBOut1, WBOut2: std_logic_vector(wordSize-1 downto 0);
@@ -270,8 +270,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         ExecuteMap: ENTITY work.ExecuteStage GENERIC MAP(wordSize) PORT MAP(
             clk, reset,
 
-            RSrcValue1InIDEX, RdstValue1InIDEX,
-            RSrcValue2InIDEX, RdstValue2InIDEX,
+            RSrcValue1OutIDEX, RdstValue1OutIDEX,
+            RSrcValue2OutIDEX, RdstValue2OutIDEX,
 
             alu1ExMemBufOut, alu2ExMemBufOut, WBOut1, WBOut2,
 
