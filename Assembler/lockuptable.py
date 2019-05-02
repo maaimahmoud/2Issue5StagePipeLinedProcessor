@@ -6,6 +6,7 @@ def getMachineCode(param):
 
         'INC': '00100',
         'DEC': '00101',
+        'NOT': '00101', # TODO: edit its machine code
 
         'OUT': '00110',
         'IN': '00111',
@@ -50,65 +51,69 @@ def getMachineCode(param):
         'R6': '110',
         'R7': '111',
 
+        '': '',
     }.get(param)
-    if(not mc):
+    if(mc == None):
         raise Exception(
             f"Not valid param: {param}, can't find its machine code")
     return mc
 
 
-# def getMachineCode(param):
-#     mc = {
-#         'NOP': '$NOP',
-#         'SETC': '$SETC',
-#         'CLRC': '$CLRC',
+def getMachineCode_test(param):
+    mc = {
+        'NOP': '$NOP',
+        'SETC': '$SETC',
+        'CLRC': '$CLRC',
 
-#         'INC': '$INC',
-#         'DEC': '$DEC',
+        'INC': '$INC',
+        'DEC': '$DEC',
+        'NOT': '$NOT',
 
-#         'OUT': '$OUT'	,
-#         'IN': '$IN'	,
-
-
-#         'MOV': '$MOV',
-#         'ADD': '$ADD',
-#         'SUB': '$SUB',
-#         'AND': '$AND',
-#         'OR': '$OR'	,
-#         'SHL': '$SHL',
-#         'SHR': '$SHR',
+        'OUT': '$OUT'	,
+        'IN': '$IN'	,
 
 
-#         'PUSH': '$PUSH',
-#         'POP': '$POP' 	,
-
-#         'LDM': '$LDM'	,
-
-#         'LDD': '$LDD' 	,
-#         'STD': '$STD' 	,
-
-
-#         'JZ': '$JZ',
-#         'JN': '$JN',
-#         'JC': '$JC',
-
-#         'JMP': '$JMP',
-
-#         'CALL': '$CALL',
-
-#         'RET': '$RET'	,
-#         'RTI': '$RTI'	,
+        'MOV': '$MOV',
+        'ADD': '$ADD',
+        'SUB': '$SUB',
+        'AND': '$AND',
+        'OR': '$OR'	,
+        'SHL': '$SHL',
+        'SHR': '$SHR',
 
 
-#         'R0': '$R0'	,
-#         'R1': '$R1'	,
-#         'R2': '$R2'	,
-#         'R3': '$R3'	,
-#         'R4': '$R4'	,
-#         'R5': '$R5'	,
-#         'R6': '$R6'	,
-#         'R7': '$R7',
-#     }.get(param)
-#     if(not mc):
-#         raise Exception(f"Not valid param: {param}, can't find its machine code")
-#     return mc
+        'PUSH': '$PUSH',
+        'POP': '$POP' 	,
+
+        'LDM': '$LDM'	,
+
+        'LDD': '$LDD' 	,
+        'STD': '$STD' 	,
+
+
+        'JZ': '$JZ',
+        'JN': '$JN',
+        'JC': '$JC',
+
+        'JMP': '$JMP',
+
+        'CALL': '$CALL',
+
+        'RET': '$RET'	,
+        'RTI': '$RTI'	,
+
+
+        'R0': '$R0'	,
+        'R1': '$R1'	,
+        'R2': '$R2'	,
+        'R3': '$R3'	,
+        'R4': '$R4'	,
+        'R5': '$R5'	,
+        'R6': '$R6'	,
+        'R7': '$R7',
+
+        '': '',
+    }.get(param)
+    if(mc == None):
+        raise Exception(f"Not valid param: {param}, can't find its machine code")
+    return mc
