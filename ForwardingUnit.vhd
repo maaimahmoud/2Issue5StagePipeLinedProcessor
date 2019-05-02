@@ -34,29 +34,29 @@ ARCHITECTURE ForwardingUnitArch of ForwardingUnit is
 
 BEGIN
 
-    out1<="100" when (Rsrc1=Rdst1IEIM AND MEM1 = '1')
-    else "101" when (Rsrc1=Rdst2IEIM AND MEM2 = '1')
-    else "110" when (Rsrc1=Rdst1IMWB AND WB1 = '1')
-    else "111"when (Rsrc1=Rdst2IMWB AND WB2 = '1')
+    out1<="001" when (Rsrc1=Rdst1IEIM AND MEM1 = '1')
+    else "010" when (Rsrc1=Rdst2IEIM AND MEM2 = '1')
+    else "011" when (Rsrc1=Rdst1IMWB AND WB1 = '1')
+    else "100"when (Rsrc1=Rdst2IMWB AND WB2 = '1')
     else "000";
  
-    out2<="100" when ( Rdst1=Rdst1IEIM AND MEM1='1' )
-    else "101" when ( Rdst1=Rdst2IEIM AND MEM2='1' )
-    else "110" when ( Rdst1=Rdst1IMWB AND WB1='1' )
-    else "111"when ( Rdst1=Rdst2IMWB AND WB2='1' )
+    out2<="001" when ( Rdst1=Rdst1IEIM AND MEM1='1' )
+    else "010" when ( Rdst1=Rdst2IEIM AND MEM2='1' )
+    else "011" when ( Rdst1=Rdst1IMWB AND WB1='1' )
+    else "100"when ( Rdst1=Rdst2IMWB AND WB2='1' )
     else "000";
 
 
-    out3<="100" when ( Rsrc2=Rdst1IEIM AND MEM1='1' )
-    else "101" when ( Rsrc2=Rdst2IEIM AND MEM2='1' )
-    else "110" when ( Rsrc2=Rdst1IMWB AND WB1='1' )
-    else "111"when ( Rsrc2=Rdst2IMWB AND WB2='1' )
+    out3<="001" when ( Rsrc2=Rdst1IEIM AND MEM1='1' )
+    else "010" when ( Rsrc2=Rdst2IEIM AND MEM2='1' )
+    else "011" when ( Rsrc2=Rdst1IMWB AND WB1='1' )
+    else "100"when ( Rsrc2=Rdst2IMWB AND WB2='1' )
     else "000";
 
-    out4<="100" when ( Rdst2=Rdst1IEIM AND MEM1='1' )
-    else "101" when ( Rdst2=Rdst2IEIM AND MEM2='1' )
-    else "110" when ( Rdst2=Rdst1IMWB AND WB1='1' )
-    else "111"when ( Rdst2=Rdst2IMWB AND WB2='1' )
+    out4<="001" when ( Rdst2=Rdst1IEIM AND MEM1='1' )
+    else "010" when ( Rdst2=Rdst2IEIM AND MEM2='1' )
+    else "011" when ( Rdst2=Rdst1IMWB AND WB1='1' )
+    else "100"when ( Rdst2=Rdst2IMWB AND WB2='1' )
     else "000";
 
 END ForwardingUnitArch ; -- ForwardingUnitArch

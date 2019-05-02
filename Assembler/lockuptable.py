@@ -1,63 +1,65 @@
-# def getMachineCode(param):
-#     mc = {
-#         'NOP': '0000000010000000',
-#         'SETC': '0000000010000000',
-#         'CLRC': '0000000010000000',
-
-#         'INC': '0000001010',
-#         'DEC': '0000001011',
-
-#         'OUT': '0000001010',
-#         'IN': '0000001011',
-
-
-#         'MOV': '0001',
-#         'ADD': '0010',
-#         'SUB': '0100',
-#         'AND': '0110',
-#         'OR': '0111',
-#         'SHL': '0111',
-#         'SHR': '0111',
-
-
-#         'PUSH': '00001000',
-#         'POP': '00001001',
-
-#         'LDM': '00001010',
-
-#         'LDD': '00001011',
-#         'STD': '00001100',
-
-
-#         'JZ': '00001101',
-#         'JN': '00001110',
-#         'JC': '0000000001000000',
-
-#         'JMP': '0000000011000000',
-
-#         'CALL': '0000000100000000',
-
-#         'RET': '000',
-#         'RTI': '001',
-
-
-#         'R0': '000',
-#         'R1': '001',
-#         'R2': '010',
-#         'R3': '011',
-#         'R4': '100',
-#         'R5': '101',
-#         'R6': '110',
-#         'R7': '111',
-
-#     }.get(param)
-#     if(not mc):
-#         raise Exception(
-#             f"Not valid param: {param}, can't find its machine code")
-#     return mc
-
-
 def getMachineCode(param):
+    mc = {
+        'NOP': '0000000010000000',
+        'SETC': '0000000010000000',
+        'CLRC': '0000000010000000',
+
+        'INC': '00100',
+        'DEC': '00101',
+        'NOT': '00101', # TODO: edit its machine code
+
+        'OUT': '00110',
+        'IN': '00111',
+
+
+        'MOV': '01000',
+        'ADD': '01001',
+        'SUB': '01010',
+        'AND': '01011',
+        'OR': '01100',
+        'SHL': '01101',
+        'SHR': '01110',
+
+
+        'PUSH': '10000',
+        'POP': '10001',
+
+        'LDM': '10010',
+
+        'LDD': '10011',
+        'STD': '10100',
+
+
+        'JZ': '11000',
+        'JN': '11001',
+        'JC': '11010',
+
+        'JMP': '11011',
+
+        'CALL': '0000000100000000',
+
+        'RET': '000',
+        'RTI': '001',
+
+
+        'R0': '000',
+        'R1': '001',
+        'R2': '010',
+        'R3': '011',
+        'R4': '100',
+        'R5': '101',
+        'R6': '110',
+        'R7': '111',
+
+        '': '',
+    }.get(param)
+    if(mc == None):
+        raise Exception(
+            f"Not valid param: {param}, can't find its machine code")
+    return mc
+
+
+def getMachineCode_test(param):
     mc = {
         'NOP': '$NOP',
         'SETC': '$SETC',
@@ -65,6 +67,7 @@ def getMachineCode(param):
 
         'INC': '$INC',
         'DEC': '$DEC',
+        'NOT': '$NOT',
 
         'OUT': '$OUT'	,
         'IN': '$IN'	,
@@ -108,7 +111,9 @@ def getMachineCode(param):
         'R5': '$R5'	,
         'R6': '$R6'	,
         'R7': '$R7',
+
+        '': '',
     }.get(param)
-    if(not mc):
+    if(mc == None):
         raise Exception(f"Not valid param: {param}, can't find its machine code")
     return mc

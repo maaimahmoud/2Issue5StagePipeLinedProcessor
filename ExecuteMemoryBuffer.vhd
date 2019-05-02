@@ -18,6 +18,10 @@ ENTITY ExecuteMemoryBuffer IS
             Src1In, Src2In, Dst1In, Dst2In : IN STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
             Src1DataIn, Src2DataIn, Dst1DataIn, Dst2DataIn : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
             mux1WBSelectorIn, mux2WBSelectorIn: IN STD_LOGIC_VECTOR(1 downto 0);
+            
+            incSP1In , incSP2In,
+            decSP1In , decSP2In: IN STD_LOGIC;
+      
             immediateValueIn: IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
             ----------------------------------------------------------------------------
@@ -30,6 +34,10 @@ ENTITY ExecuteMemoryBuffer IS
             Src1Data, Src2Data, Dst1Data, Dst2Data : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
             mux1WBSelector, mux2WBSelector: OUT STD_LOGIC_VECTOR(1 downto 0);
             MEM1, MEM2: OUT STD_LOGIC;
+
+            incSP1 , incSP2,
+            decSP1 , decSP2: OUT STD_LOGIC;
+
             immediateValue: OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0)
 		);
 
@@ -151,6 +159,31 @@ ARCHITECTURE ExecuteMemoryBufferArch OF ExecuteMemoryBuffer IS
         (
             immediateValueIn, bufferEn1, clk, reset, immediateValue
         );
+
+
+        -----------------------------------------------------------------------------
+
+        incSP1Map: ENTITY work.DFlipFlop PORT MAP
+        (
+            incSP1In, bufferEn1, clk, reset, incSP1
+        );
+
+        decSP1Map: ENTITY work.DFlipFlop PORT MAP
+        (
+            decSP1In, bufferEn1, clk, reset, decSP1
+        );
+
+
+        incSP2Map: ENTITY work.DFlipFlop PORT MAP
+        (
+            incSP2In, bufferEn2, clk, reset, incSP2
+        );
+
+        decSP2Map: ENTITY work.DFlipFlop PORT MAP
+        (
+            decSP2In, bufferEn2, clk, reset, decSP2
+        );
+
 
         MEM1 <= Read1 OR Write1;
 

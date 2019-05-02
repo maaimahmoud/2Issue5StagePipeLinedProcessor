@@ -1,13 +1,14 @@
 from assembler import Assembler
 from msadapter import MSAdapter
-
+import sys
 if __name__ == "__main__":
+    fileName = sys.argv[1] if len(sys.argv) >= 2 else 'program'
     piplinedProcessorAsm = Assembler()
-    mcCode = piplinedProcessorAsm.assembleFromFile('program')
+    mcCode = piplinedProcessorAsm.assembleFromFile(fileName)
     
     # write the machine code
-    mcFile = open('program.mc', 'w')
+    mcFile = open(f'{fileName}.mc', 'w')
     mcFile.write(mcCode)
 
     # adapt the code to work with model sim ram importing
-    MSAdapter().adaptToFile(mcCode, 'program')
+    MSAdapter().adaptToFile(mcCode, fileName)

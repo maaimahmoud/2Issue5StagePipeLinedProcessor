@@ -15,7 +15,7 @@ class Helper:
 
     @classmethod
     def splitInstruction(cls, instruction):
-        operation, operand1, operand2 = instruction, None, None
+        operation, operand1, operand2 = instruction, '', ''
         commaIndex = instruction.find(',')
         spaceIndex = instruction.find(' ')
         if(spaceIndex != -1 ):
@@ -92,6 +92,7 @@ class Assembler:
         parser = self._defaultParser
         if operation in self.mapper:
             parser = getattr(self, self.mapper.get(operation))
+        print(instruction, "=>", operation, operand1, operand2, "will be parsed with", parser.__name__)
         assembled = parser(operation, operand1, operand2)
         return assembled
 
