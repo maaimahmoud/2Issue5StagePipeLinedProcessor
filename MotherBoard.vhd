@@ -281,10 +281,13 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     -- ###########################################################################################
     -- Execute Stage
         forwardUnitMap: ENTITY work.ForwardingUnit PORT MAP(
-            MEM1 => executeMem_MEM1, MEM2 => executeMem_MEM2,
+            MEM1 => executeMem_WB1, MEM2 => executeMem_WB2,
+
             WB1 => memWB_WB1, WB2 => memWB_WB2,
+            
             Rdst1IEIM => executeMem_RDst1, Rdst2IEIM => executeMem_RDst2,
             Rdst1IMWB => memWB_RDst1, Rdst2IMWB => memWB_RDst2,
+            
             Rdst1 => decodeExecute_RDst1, Rdst2 => decodeExecute_RDst2,
             Rsrc1 =>decodeExecute_RSrc1 , Rsrc2 => decodeExecute_RSrc2 ,--: in std_logic_vector(numRegister-1 downto 0) ;
 
@@ -302,7 +305,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             decodeExecute_RSrc1Val, decodeExecute_RDst1Val,
             decodeExecute_RSrc2Val, decodeExecute_RDst2Val,
 
-            executeMem_alu1Out, executeMem_alu2Out, WB_WB1Val, WB_WB2Val,
+            executeMem_alu1Out, executeMem_alu2Out, WB_WB1Val, WB_WB2Val, -- for forwarding
 
             execute_Mux1Selector, execute_Mux2Selector,
             execute_Mux3Selector, execute_Mux4Selector, -- TODO select mux inputs control unit

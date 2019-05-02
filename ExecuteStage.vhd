@@ -66,7 +66,7 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
 
         mux4Map: ENTITY work.Mux5 GENERIC MAP(wordSize) PORT MAP (
             RDstV2, MEM1In, MEM2In, WB1In, WB2In, mux4Selector, alu2Op2
-        );
+        ); 
 
         -----------------------------------------------------------------------------
 
