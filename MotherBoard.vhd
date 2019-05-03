@@ -9,7 +9,7 @@ ENTITY MotherBoard IS
 	Generic(regNum: integer := 3; addressBits: integer := 20; wordSize: integer :=16; pcInputsNum: integer := 6);
 
 	PORT(
-            clk, reset, INTERRUPT : IN STD_LOGIC;
+            clk, reset, resetBuffers, INTERRUPT : IN STD_LOGIC;
 
             inPort : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
             
@@ -150,10 +150,10 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     -- Fetch Stage
         fetchMap: ENTITY work.Fetch GENERIC MAP (addressBits, wordSize, pcInputsNum) PORT MAP (
             clk => clk , reset => reset,
-            pcEn => pcEn, -- TODO: control unit
-            pcSrcSelector => pcSrcSelector,     -- TODO: control unit 
+            pcEn => pcEn,
+            pcSrcSelector => pcSrcSelector,
 
-            stackOutput => stackOutput , branchAddress => branchAddress,-- : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);  -- TODO:
+            stackOutput => mem_memoryOut , branchAddress => branchAddress, -- TODO: Get calculated branch address
 
             -- M0 => M0 , M1 => M1 ,
 
@@ -164,7 +164,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     -- ###########################################################################################
     -- Fetch/Decode Buffer
         FetchDecodeBufferMap: ENTITY work.FetchDecodeBuffer GENERIC MAP (wordSize) PORT MAP (
-            clk => notClk, reset => '0',
+            clk => notClk, reset => resetBuffers,
 			bufferEn  => fetchDecode_En,
 			pcIn => fetch_pc,
             instruction1In =>fetch_instruction1 , instruction2In => fetch_instruction2,
@@ -227,7 +227,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         insertNOPMAP: ENTITY work.NOPInsertionUnit PORT MAP (
             Rdst1 => Decode_RDst1, Rsrc2 => Decode_RSrc2, Rdst2 =>  Decode_RDst2,
             instruction1OpCode => Decode_alu1Op, instruction2OpCode => Decode_alu2Op,
-            insertNOP  => insertNOP -- TODO: use this output signal
+            insertNOP  => insertNOP
         );
 
         
@@ -247,12 +247,12 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     --Decode/execute buffer
 
         IDEXBufferMap: ENTITY work.IDEXBuffer GENERIC MAP(regNum, wordSize) PORT MAP(
-            clk, '0', decodeExecute_En1, decodeExecute_En2,
+            clk, resetBuffers, decodeExecute_En1, decodeExecute_En2,
 
             Decode_alu1Op, Decode_alu2Op,
 
-            control_EX1, control_Read1, control_Write1, control_WB1, -- TODO: Control unit
-            control_EX2, control_Read2, control_Write2, control_WB2, -- TODO: Control unit
+            control_EX1, control_Read1, control_Write1, control_WB1, -- Control unit
+            control_EX2, control_Read2, control_Write2, control_WB2,
 
             Decode_RSrc1Val, Decode_RDst1Val,
             Decode_RSrc2Val, Decode_RDst2Val,
@@ -263,7 +263,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             fetchDecode_pc,
             inPort, inPort,
 
-            control_WB1Selector, control_WB2Selector, -- TODO: from control 
+            control_WB1Selector, control_WB2Selector, -- from control 
             
             control_incSP1, control_incSP2,
             control_decSP1, control_decSP2,
@@ -359,7 +359,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     -- ###########################################################################################
     -- Execute/Memory Buffer
         ExecuteMemoryBufferMap: ENTITY work.ExecuteMemoryBuffer GENERIC MAP (regNum, addressBits, wordSize) PORT MAP(
-            clk => notClk, reset => '0',
+            clk => notClk, reset => resetBuffers,
             bufferEn1 => executeMem_En1, bufferEn2 =>executeMem_En2,
 
             -- inputs from Execute Stage
@@ -434,7 +434,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     --Memory/WriteBack Buffer
 
         MEMWBMap: ENTITY work.MemWBBuffer GENERIC MAP (regNum, wordSize) PORT MAP(
-            clk, '0', memWB_En1, memWB_En2,
+            clk, resetBuffers, memWB_En1, memWB_En2,
 
             executeMem_WB1, executeMem_WB2,
 
@@ -475,7 +475,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
                 
                 memWB_WB1Selector, memWB_WB2Selector,
     
-                WB_WB1Val, WB_WB2Val --: std_logic_vector(wordSize downto 0)
+                WB_WB1Val, WB_WB2Val
             );
 
 
