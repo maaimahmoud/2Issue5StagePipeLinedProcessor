@@ -47,6 +47,8 @@ begin
   or ((instructionType1=twoOperand and instructionType2=twoOperand)and ((Rdst1=Rdst2 or Rdst1=Rsrc2) and not(instruction2OpCode=opMOV and Rsrc2=Rdst1)))
   
   
+  or (((instructionType1=oneOperand or instructionType1=twoOperand) and instructionType2=changeOFControlInstructions) and Rdst1=Rdst2 and instruction2OpCode/=opRET and instruction2OpCode/=opRTI) 
+  or ((instructionType1=oneOperand or instructionType1=twoOperand) and ((instruction2OpCode=opPUSH and Rdst1=Rdst2) or (instruction2OpCode=opSTD and Rdst1=Rsrc2)))
   --When((Rdst1=Rsrc2) and instructionType2=twoOperand and instruction1OpCode/=opNOP)or
  -- ((Rdst1=Rdst2)and (instructionType2=oneOperand and instruction1OpCode/=opNOP and instruction1OpCode/=opSETC and instruction1OpCode/=opCLRC  and instruction1OpCode/=opIN )
   --  and (instructionType2=twoOperand and instruction2OpCode/=opMOV)
@@ -60,16 +62,22 @@ and (instructionType2=changeOFControlInstructions and (instruction2OpCode=opJZ o
 
 
 --check if the 1st instruction is LDD instruction and the 2nd pipe uses that registe(load use case)
-or(instruction1OpCode=opLDD and  ((instructionType2=oneOperand and Rdst1=Rdst2) or(instructionType2=twoOperand and (Rdst1=Rsrc2 or Rdst1=Rdst2)) ) )
+or((instruction1OpCode=opLDD or instruction1OpCode=opLDM or instruction1OpCode=opPOP) and  ((instructionType2=oneOperand and Rdst1=Rdst2) or(instructionType2=twoOperand and (Rdst1=Rsrc2 or Rdst1=Rdst2)) ) )
+or (((instruction1OpCode=opLDD or instruction1OpCode=opLDM or instruction1OpCode=opPOP) and instructionType2=changeOFControlInstructions) and Rdst1=Rdst2 and instruction2OpCode/=opRET and instruction2OpCode/=opRTI) 
+or ((instruction1OpCode=opLDD or instruction1OpCode=opLDM or instruction1OpCode=opPOP) and ((instruction2OpCode=opPUSH and Rdst1=Rdst2) or (instruction2OpCode=opSTD and Rdst1=Rsrc2)))
+
 
 --check if the instruction in the 1st pipe is IN and instruction in 2nd pipe uses that register
 or( instruction1OpCode=opIN and ((instructionType2=oneOperand and Rdst1=Rdst2) or(instructionType2=twoOperand and (Rdst1=Rsrc2 or Rdst1=Rdst2))))
+or ((instruction1OpCode=opIN and instructionType2=changeOFControlInstructions) and Rdst1=Rdst2 and instruction2OpCode/=opRET and instruction2OpCode/=opRTI) 
+or (instruction1OpCode=opIN and ((instruction2OpCode=opPUSH and Rdst1=Rdst2) or (instruction2OpCode=opSTD and Rdst1=Rsrc2)))
+
 --check if 1st instruction and 2nd instruction are memory instructions
 or(instructionType1=memoryInstructions and instructionType2=memoryInstructions)
 
 or (instruction2OpCode=opLDM and instruction1OpCode/=opLDM)
 
-or (instruction2OpCode=opRET or instruction2OpCode=opRTI or instruction2OpCode=opCALL)
+or (instruction2OpCode=opRET or instruction2OpCode=opRTI or instruction2OpCode=opCALL)  -- WHY OMAR ???
 
 or(instruction1OpCode=opOUT and instruction2OpCode=opOut)
 

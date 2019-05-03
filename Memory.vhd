@@ -39,15 +39,17 @@ ARCHITECTURE MemoryArch OF Memory IS
     SIGNAL sp, spIn, spPlusOne, spMinusOne,spToBeUsed: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
 	
 	BEGIN
-        address(addressBits-1 DOWNTO wordSize) <= (OTHERS => '0');
+        -- address(addressBits-1 DOWNTO wordSize) <= (OTHERS => '0');
 
-        address(wordSize-1 DOWNTO 0) <= Src1Data WHEN Read1 = '1'
-        ELSE Src2Data WHEN Read2 = '1'
-        ELSE Dst1Data WHEN Write1 = '1'
-        ELSE Dst2Data;
+        -- address(wordSize-1 DOWNTO 0) <= Src1Data WHEN Read1 = '1'
+        -- ELSE Src2Data WHEN Read2 = '1'
+        -- ELSE Dst1Data WHEN Write1 = '1'
+        -- ELSE Dst2Data;
 
 
-        data <= Src1Data WHEN Write1 = '1'
+        data <= Dst1Data when decSP1 = '1'
+        ELSE Dst2Data when decSP2 = '1'
+        ELSE Src1Data WHEN Write1 = '1'
         ELSE Src2Data when Write2='1'
         ELSE pc(2*wordSize-1 downto wordSize) when pushPC="00"
         else pc(wordSize-1 downto 0) when pushPC="01";
@@ -85,7 +87,7 @@ ARCHITECTURE MemoryArch OF Memory IS
         --so spPlusOne will be sp+2 as the output of the register is input to adder ,also when
         --we want to use sp at decSP1 or decSP2 sp will be equal to sp-1 so we need to choose spPlusOne 
         spToBeUsed<=sp when (incSP1='1' or incSP2='1')
-        else spPlusOne when (decSP1='1' OR decSP2='1');
+        else spMinusOne;
         -- TODO: organize plus before execute or execute before minus
         adderOneMap: ENTITY work.NBitAdder GENERIC MAP( (2*wordSize) ) PORT MAP (
             a => sp,

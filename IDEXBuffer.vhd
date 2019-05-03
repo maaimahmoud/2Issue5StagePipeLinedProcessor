@@ -36,6 +36,9 @@ ENTITY IDEXBuffer IS
             pushFlagsIn, popFlagsIn: in std_logic;
 
             immediateValueIn: in std_logic_vector(wordSize-1 downto 0);
+
+            branch1, branch2: in std_logic;
+
             -------------------------------------------------------
             alu1Operation, alu2Operation : out std_logic_vector(operationSize-1 downto 0);
 
@@ -62,7 +65,9 @@ ENTITY IDEXBuffer IS
             pushPC, popPC:out std_logic_vector(1 downto 0) ;
             pushFlags, popFlags: out std_logic;
 
-            immediateValue: out std_logic_vector(wordSize-1 downto 0)
+            immediateValue: out std_logic_vector(wordSize-1 downto 0);
+
+            branch1Out, branch2Out: out std_logic
         );
 
 END IDEXBuffer;
@@ -249,6 +254,16 @@ ARCHITECTURE IDEXBufferArch OF IDEXBuffer IS
         popFlagesMap: ENTITY work.DFlipFlop PORT MAP
         (
             popFlagsIn, enableRead1, notClk, rst, popFlags -- TODO: enableRead1 wla enableRead2?
+        );
+
+        branch1Map: ENTITY work.DFlipFlop PORT MAP
+        (
+            branch1, enableRead1, notClk, rst, branch1Out
+        );
+
+        branch2Map: ENTITY work.DFlipFlop PORT MAP
+        (
+            branch2, enableRead2, notClk, rst, branch2Out
         );
 
 END ARCHITECTURE;

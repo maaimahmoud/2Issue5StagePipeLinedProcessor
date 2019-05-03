@@ -15,6 +15,8 @@ ENTITY ExecuteStage IS
 
             MEM1In, MEM2In,
             WB1In, WB2In: in std_logic_vector(wordSize-1 downto 0);
+
+            inPort1, inPort2: in std_logic_vector(wordSize-1 downto 0);
             
             MemWB1Selector, MemWB2Selector: in STD_LOGIC_VECTOR(1 DOWNTO 0);
 
@@ -28,10 +30,11 @@ ENTITY ExecuteStage IS
 
             EX1, EX2: in std_logic;
             
+            wbMux1Selector, wbMux2Selector: std_logic_vector(1 downto 0);
             
             ------------------------------------------------------
 
-            ALU1Out, ALU2Out: out std_logic_vector(wordSize-1 downto 0);
+            ALU1OutFinal, ALU2OutFinal: out std_logic_vector(wordSize-1 downto 0);
 
             flagRegOut: out std_logic_vector(flagSize-1 downto 0);
 
@@ -42,7 +45,7 @@ ENTITY ExecuteStage IS
             
             isBranch:out std_logic;
 
-            BranchAddress:out std_logic_vector(addressSize-1 downto 0) 
+            BranchAddress:out std_logic_vector(2*wordSize-1 downto 0) 
 		);
 END ENTITY ExecuteStage;
 
@@ -51,7 +54,7 @@ END ENTITY ExecuteStage;
 
 ARCHITECTURE ExecuteStageArch of ExecuteStage is
 
-    SIGNAL alu1Op1, alu1Op2, alu2Op1, alu2Op2: std_logic_vector(wordSize-1 downto 0);
+    SIGNAL alu1Op1, alu1Op2, alu2Op1, alu2Op2, ALU1Out, ALU2Out: std_logic_vector(wordSize-1 downto 0);
     
     SIGNAL flagInput, flagOut, flag1Out, flag2Out: std_logic_vector(flagSize-1 downto 0);
     SIGNAL flagEn: STD_LOGIC;
@@ -146,7 +149,15 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
     BranchAddress(wordSize-1 downto 0) <=(RDstV1) when isBranch1='1'
     else RDstV2 when isBranch2='1';
 
-    BranchAddress(addressSize-1 downto wordSize) <= (others => '0');
+    BranchAddress(2*wordSize-1 downto wordSize) <= (others => '0');
     isBranch<= isBranch1 or isBranch2;
+
+
+    ----------------------------------------------------
+    ALU1OutFinal <= inPort1 when wbMux1Selector = "10"
+    else ALU1Out;
+
+    ALU2OutFinal <= inPort2 when wbMux2Selector = "10"
+    else ALU2Out;
  
 END ARCHITECTURE;

@@ -11,6 +11,7 @@ port(
     interrupt:IN std_logic;
     reset:IN std_logic;
     insertNOP:IN std_logic;
+    isBranch: IN std_logic;
     Execute1,Execute2:OUT std_logic;
     readFromMemory1,readFromMemory2:OUT std_logic;
     wrtieToMemory1,wrtieToMemory2:OUT std_logic;
@@ -125,6 +126,7 @@ begin
     pcSelector<="100" when reset='1'
     else "101" when interrupt='1'
     else "000" when insertNOP='1'
+    else "011" when isBranch = '1'
     else "010" when ( opCode1=opRET or opCode1=opRTI)
     else "001";
     

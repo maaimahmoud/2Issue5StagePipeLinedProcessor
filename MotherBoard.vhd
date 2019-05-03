@@ -73,7 +73,10 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL decodeExecute_alu1Op, decodeExecute_alu2Op: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);
         
         SIGNAL decodeExecute_pushPC,decodeExecute_popPC: std_logic_vector(1 downto 0) ;
-        SIGNAL decodeExecute_pushFlags,decodeExecute_popFlags: std_logic ;
+        SIGNAL decodeExecute_pushFlags,decodeExecute_popFlags, decodeExecute_Branch1, decodeExecute_Branch2: std_logic ;
+
+        SIGNAL decodeExecuteIn_EX1, decodeExecuteIn_Read1, decodeExecuteIn_Write1, decodeExecuteIn_WB1, 
+                decodeExecuteIn_EX2, decodeExecuteIn_Read2, decodeExecuteIn_Write2, decodeExecuteIn_WB2: STD_LOGIC;
         
 
     -- Execute Parameters
@@ -97,6 +100,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL executeMem_RSrc1, executeMem_RDst1: STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
         SIGNAL executeMem_RSrc1Val, executeMem_RDst1Val, executeMem_alu1Out, executeMem_inPort1Val: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL executeMem_incSP1, executeMem_decSP1: STD_LOGIC;
+
+        SIGNAL executeDecodeIn_Read2, executeDecodeIn_Write2, executeDecodeIn_WB2: STD_LOGIC;
         
 
         SIGNAL executeMem_Read2 ,executeMem_Write2, executeMem_WB2: STD_LOGIC;--executeMem_MEM2, 
@@ -142,9 +147,14 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL outRegInput: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
 
+    --flush
+        SIGNAL flush: STD_LOGIC;
+
     BEGIN
     
         notClk <= NOT clk;
+
+        flush <= isBranch;
 
     -- ###########################################################################################
     -- Fetch Stage
@@ -205,6 +215,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
                 interrupt => INTERRUPT,
                 reset => reset,
                 insertNOP => insertNOP,
+                isBranch => isBranch,
                 ------------------------------------------------
 
                 Execute1 => control_EX1,Execute2 => control_EX2,
@@ -246,13 +257,38 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     -- ###########################################################################################
     --Decode/execute buffer
 
+        decodeExecuteIn_EX1 <= '0' when flush = '1'
+        else control_EX1;
+
+        decodeExecuteIn_Read1 <= '0' when flush = '1'
+        else control_Read1;
+
+        decodeExecuteIn_Write1 <= '0' when flush = '1'
+        else control_Write1;
+
+        decodeExecuteIn_WB1 <= '0' when flush = '1'
+        else control_WB1;
+
+        decodeExecuteIn_EX2 <= '0' when flush = '1'
+        else control_EX2;
+
+        decodeExecuteIn_Read2 <= '0' when flush = '1'
+        else control_Read2;
+
+        decodeExecuteIn_Write2 <= '0' when flush = '1'
+        else control_Write2;
+
+        decodeExecuteIn_WB2 <= '0' when flush = '1'
+        else control_WB2;
+
+
         IDEXBufferMap: ENTITY work.IDEXBuffer GENERIC MAP(regNum, wordSize) PORT MAP(
             clk, resetBuffers, decodeExecute_En1, decodeExecute_En2,
 
             Decode_alu1Op, Decode_alu2Op,
 
-            control_EX1, control_Read1, control_Write1, control_WB1, -- Control unit
-            control_EX2, control_Read2, control_Write2, control_WB2,
+            decodeExecuteIn_EX1, decodeExecuteIn_Read1, decodeExecuteIn_Write1, decodeExecuteIn_WB1,
+            decodeExecuteIn_EX2, decodeExecuteIn_Read2, decodeExecuteIn_Write2, decodeExecuteIn_WB2,
 
             Decode_RSrc1Val, Decode_RDst1Val,
             Decode_RSrc2Val, Decode_RDst2Val,
@@ -273,6 +309,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
 
             Decode_ImmVal,
+
+            branch1, branch2,
             ----------------------------------------------
             decodeExecute_alu1Op, decodeExecute_alu2Op,
 
@@ -298,7 +336,9 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             decodeExecute_pushFlags, decodeExecute_popFlags,
 
 
-            decodeExecute_ImmVal
+            decodeExecute_ImmVal,
+
+            decodeExecute_Branch1, decodeExecute_Branch2
         );
 
     -- ###########################################################################################
@@ -330,6 +370,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             executeMem_alu1Out, executeMem_alu2Out, WB_WB1Val, WB_WB2Val, -- for forwarding
 
+            decodeExecute_inPort1Val, decodeExecute_inPort2Val,
+
             -- forward values form memory stage
             executeMem_WB1Selector, executeMem_WB2Selector,
             executeMem_inPort1Val, executeMem_inPort2Val,
@@ -342,6 +384,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             decodeExecute_EX1, decodeExecute_EX2,
 
+            decodeExecute_WB1Selector, decodeExecute_WB2Selector,
+
             --------------------------------------------
 
             execute_alu1Out, execute_alu2Out,
@@ -350,21 +394,34 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             execute_RSrc1Val, execute_RDst1Val, execute_RSrc2Val, execute_RDst2Val,
 
-            branch1, branch2,
+            decodeExecute_Branch1, decodeExecute_Branch2,
 
-            isBranch
+            isBranch,
+
+            branchAddress
         );
 
 
     -- ###########################################################################################
     -- Execute/Memory Buffer
+
+        executeDecodeIn_Read2 <= '0' when flush = '1'
+        else decodeExecute_Read2;
+
+        executeDecodeIn_Write2 <= '0' when flush = '1'
+        else decodeExecute_Write2;
+
+        executeDecodeIn_WB2 <= '0' when flush = '1'
+        else decodeExecute_WB2;
+
+
         ExecuteMemoryBufferMap: ENTITY work.ExecuteMemoryBuffer GENERIC MAP (regNum, addressBits, wordSize) PORT MAP(
             clk => notClk, reset => resetBuffers,
             bufferEn1 => executeMem_En1, bufferEn2 =>executeMem_En2,
 
             -- inputs from Execute Stage
-            Read1In => decodeExecute_Read1, Read2In => decodeExecute_Read2, Write1In => decodeExecute_Write1, Write2In =>  decodeExecute_Write2,--: IN STD_LOGIC;
-            WB1In =>  decodeExecute_WB1, WB2In =>  decodeExecute_WB2,
+            Read1In => decodeExecute_Read1, Read2In => executeDecodeIn_Read2, Write1In => decodeExecute_Write1, Write2In =>  executeDecodeIn_Write2,--: IN STD_LOGIC;
+            WB1In =>  decodeExecute_WB1, WB2In =>  executeDecodeIn_WB2,
             inPort1In => decodeExecute_inPort1Val,  inPort2In => decodeExecute_inPort2Val,
 
             pcIn => decodeExecute_pc, 
