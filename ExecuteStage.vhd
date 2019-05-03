@@ -34,6 +34,8 @@ ENTITY ExecuteStage IS
 
             flagRegOut: out std_logic_vector(flagSize-1 downto 0);
 
+            RSrc1Val, RDst1Val, RSrc2Val, RDst2Val: out STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+
             ---------------------------------------------------------
             Branch1,Branch2: in std_logic;
             
@@ -76,6 +78,11 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
         mux4Map: ENTITY work.Mux5 GENERIC MAP(wordSize) PORT MAP (
             RDstV2, MEM1Input, MEM2In, WB1In, WB2In, mux4Selector, alu2Op2
         ); 
+
+        RSrc1Val <= alu1Op1;
+        RDst1Val <= alu1Op2;
+        RSrc2Val <= alu2Op1;
+        RDst2Val <= alu2Op2;
 
         -----------------------------------------------------------------------------
 

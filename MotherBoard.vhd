@@ -80,6 +80,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL execute_Mux1Selector, execute_Mux2Selector, execute_Mux3Selector, execute_Mux4Selector: STD_LOGIC_VECTOR(2 DOWNTO 0);
         SIGNAL execute_alu1Out, execute_alu2Out: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
+        SIGNAL execute_RSrc1Val, execute_RDst1Val, execute_RSrc2Val, execute_RDst2Val:STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL branch1, branch2: STD_LOGIC;
         SIGNAL isBranch: STD_LOGIC;
 
@@ -344,6 +345,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             flagOut,
 
+            execute_RSrc1Val, execute_RDst1Val, execute_RSrc2Val, execute_RDst2Val,
+
             branch1, branch2,
 
             isBranch
@@ -365,7 +368,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             alu1OutIn => execute_alu1Out, alu2OutIn => execute_alu2Out,
             
             Src1In => decodeExecute_RSrc1, Src2In => decodeExecute_RSrc2, Dst1In => decodeExecute_RDst1, Dst2In => decodeExecute_RDst2,
-            Src1DataIn => decodeExecute_RSrc1Val, Src2DataIn => decodeExecute_RSrc2Val, Dst1DataIn => decodeExecute_RDst1Val, Dst2DataIn => decodeExecute_RDst2Val,
+            Src1DataIn => execute_RSrc1Val, Src2DataIn => execute_RSrc2Val, Dst1DataIn => execute_RDst1Val, Dst2DataIn => execute_RDst2Val,
             mux1WBSelectorIn => decodeExecute_WB1Selector , mux2WBSelectorIn =>  decodeExecute_WB2Selector,
 
             incSP1In => decodeExecute_incSP1, incSP2In => decodeExecute_incSP2,
