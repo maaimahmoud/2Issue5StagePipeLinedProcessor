@@ -1,0 +1,9 @@
+ADD R0, R3
+
+SUB R2, R5
+
+LDM R6, 3
+SHL R4, 16
+LDD R2, R5
+
+INC R3
