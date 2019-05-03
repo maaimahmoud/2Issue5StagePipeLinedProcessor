@@ -41,10 +41,16 @@ begin
   instructionType2<=instruction2OpCode(operationSize-1 downto opCodeSize);
   
   --checks if the two instructions in the two pipes will use the same registers
-  insertNOP <='1' When((Rdst1=Rsrc2) and instructionType2=twoOperand and instruction1OpCode/=opNOP)or
-  ((Rdst1=Rdst2)and (instructionType2=oneOperand and instruction1OpCode/=opNOP and instruction1OpCode/=opSETC and instruction1OpCode/=opCLRC  and instruction1OpCode/=opIN )
-    and (instructionType2=twoOperand and instruction2OpCode/=opMOV)
-  )
+  insertNOP <='1' when ((instructionType1=oneOperand and instructionType2=oneOperand)and (Rdst1=Rdst2 and instruction1OpCode/=opNOP and instruction2OpCode/=opNOP and instruction1OpCode/=opSETC and instruction2OpCode/=opSETC and instruction1OpCode/=opCLRC and instruction2OpCode/=opCLRC))
+  or ((instructionType1=oneOperand and instructionType2=twoOperand)and ((Rdst1=Rdst2 or Rdst1=Rsrc2)and (instruction1OpCode/=opNOP and instruction1OpCode/=opSETC and instruction1OpCode/=opCLRC and instruction2OpCode/=opMOV)))
+  or ((instructionType1=twoOperand and instructionType2=oneOperand)and(Rdst1=Rdst2 and (instruction1OpCode/=opMOV and instruction2OpCode/=opNOP and instruction2OpCode/=opSETC and instruction2OpCode/=opCLRC)))
+  or ((instructionType1=twoOperand and instructionType2=twoOperand)and ((Rdst1=Rdst2 or Rdst1=Rsrc2)and instruction1OpCode/=opMOV and instruction2OpCode/=opMOV))
+  
+  
+  --When((Rdst1=Rsrc2) and instructionType2=twoOperand and instruction1OpCode/=opNOP)or
+ -- ((Rdst1=Rdst2)and (instructionType2=oneOperand and instruction1OpCode/=opNOP and instruction1OpCode/=opSETC and instruction1OpCode/=opCLRC  and instruction1OpCode/=opIN )
+  --  and (instructionType2=twoOperand and instruction2OpCode/=opMOV)
+  --)
  
 --check if the 1st instruction will change the carry flags and the 2nd instruction will use the flags to branch 
 or((instructionType1=twoOperand or
