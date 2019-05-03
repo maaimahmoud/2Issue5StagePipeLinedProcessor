@@ -153,7 +153,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             pcEn => pcEn,
             pcSrcSelector => pcSrcSelector,
 
-            stackOutput => mem_memoryOut , branchAddress => branchAddress, -- TODO: Get calculated branch address
+            stackOutput => stackOutput , branchAddress => branchAddress, -- TODO: Get get output from stack, calculated branch address
 
             -- M0 => M0 , M1 => M1 ,
 
