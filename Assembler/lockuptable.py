@@ -2,7 +2,8 @@ from utils import Helper
 selected = {}
 def setMC(test=False):
     global selected
-    selected = mc_test if test else mc
+    # selected = mc_test if test else mc
+    selected = mc
 
 def getMachineCode(param):
     if param.isdigit():
@@ -15,16 +16,16 @@ def getMachineCode(param):
 
 
 mc = {
-        'NOP': '0000000010000000',
-        'SETC': '0000000010000000',
-        'CLRC': '0000000010000000',
+        'NOP': '0000000000000000',
+        'SETC':'0000100000000000',
+        'CLRC':'0001000000000000',
 
-        'INC': '00100',
-        'DEC': '00101',
-        'NOT': '00101', # TODO: edit its machine code
+        'INC': '00100000',
+        'DEC': '00101000',
+        'NOT': '00011000',
 
-        'OUT': '00110',
-        'IN': '00111',
+        'OUT':'00110000',
+        'IN': '00111000',
 
 
         'MOV': '01000',
@@ -36,10 +37,10 @@ mc = {
         'SHR': '01110',
 
 
-        'PUSH': '10000',
-        'POP': '10001',
+        'PUSH':'10000000',
+        'POP': '10001000',
 
-        'LDM': '10010',
+        'LDM': '10010000',
 
         'LDD': '10011',
         'STD': '10100',
@@ -51,7 +52,7 @@ mc = {
 
         'JMP': '11011',
 
-        'CALL': '0000000100000000',
+        'CALL': '11100',
 
         'RET': '000',
         'RTI': '001',
