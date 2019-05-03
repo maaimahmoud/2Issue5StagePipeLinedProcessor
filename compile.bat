@@ -21,6 +21,7 @@ vcom Utilities\FullSubtractor.vhd -2008
 vcom Utilities\NbitSubtractor.vhd -2008 
 vcom Utilities\DownCounter.vhd -2008
 vcom Utilities\Mux.vhd -2008
+vcom Utilities\OneBitReg.vhd -2008
 
 
 vcom InstructionMemory.vhd -2008
@@ -40,6 +41,11 @@ vcom ExecuteStage.vhd -2008
 vcom MemWBBuffer.vhd -2008
 vcom WBStage.vhd -2008
 vcom OnePipeControlUnit.vhd -2008
+
+vcom InterruptHandler.vhd -2008
+vcom CallHandler.vhd -2008
+vcom retHandler.vhd -2008
+vcom rtiHandler.vhd -2008
 vcom ControlUnit.vhd -2008
 vcom NOPInsertionUnit.vhd -2008
 vcom ForwardingUnit.vhd -2008

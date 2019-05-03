@@ -31,6 +31,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL control_incSP1, control_decSP1, control_incSP2, control_decSP2: STD_LOGIC;
         SIGNAL control_EX1, control_Read1, control_Write1, control_WB1, control_EX2, control_Read2, control_Write2, control_WB2: STD_LOGIC;
         SIGNAL control_WB1Selector, control_WB2Selector: STD_LOGIC_VECTOR(1 DOWNTO 0);
+        SIGNAL control_pushPC,control_popPC: std_logic_vector(1 downto 0) ;
+        SIGNAL control_pushFlags,control_popFlags: std_logic ;
 
     -- Fetch Parameters
         SIGNAL pcEn: STD_LOGIC;
@@ -55,7 +57,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL Decode_RSrc2Val, Decode_RDst2Val: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         
         SIGNAL Decode_ImmVal: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-
+        
     -- Decode/Execute Parameters
         SIGNAL decodeExecute_En1, decodeExecute_En2:STD_LOGIC;
         SIGNAL decodeExecute_incSP1, decodeExecute_incSP2, decodeExecute_decSP1, decodeExecute_decSP2:STD_LOGIC;
@@ -68,6 +70,9 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL decodeExecute_inPort1Val, decodeExecute_inPort2Val: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL decodeExecute_ImmVal: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL decodeExecute_alu1Op, decodeExecute_alu2Op: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);
+        
+        SIGNAL decodeExecute_pushPC,decodeExecute_popPC: std_logic_vector(1 downto 0) ;
+        SIGNAL decodeExecute_pushFlags,decodeExecute_popFlags: std_logic ;
         
 
     -- Execute Parameters
@@ -85,18 +90,22 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL executeMem_pc: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
         SIGNAL executeMem_ImmVal: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
-        SIGNAL executeMem_MEM1, executeMem_Read1, executeMem_Write1,executeMem_WB1:STD_LOGIC;
+        SIGNAL executeMem_Read1, executeMem_Write1,executeMem_WB1:STD_LOGIC;--executeMem_MEM1, 
         SIGNAL executeMem_WB1Selector: std_logic_vector(1 downto 0); 
         SIGNAL executeMem_RSrc1, executeMem_RDst1: STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
         SIGNAL executeMem_RSrc1Val, executeMem_RDst1Val, executeMem_alu1Out, executeMem_inPort1Val: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL executeMem_incSP1, executeMem_decSP1: STD_LOGIC;
         
 
-        SIGNAL executeMem_MEM2, executeMem_Read2 ,executeMem_Write2, executeMem_WB2: STD_LOGIC;
+        SIGNAL executeMem_Read2 ,executeMem_Write2, executeMem_WB2: STD_LOGIC;--executeMem_MEM2, 
         SIGNAL executeMem_WB2Selector: std_logic_vector(1 downto 0);
         SIGNAL executeMem_RSrc2, executeMem_RDst2: STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
         SIGNAL executeMem_RSrc2Val, executeMem_RDst2Val, executeMem_alu2Out, executeMem_inPort2Val : STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL executeMem_incSP2, executeMem_decSP2: STD_LOGIC;
+
+        SIGNAL executeMem_pushPC,executeMem_popPC: std_logic_vector(1 downto 0) ;
+        SIGNAL executeMem_pushFlags,executeMem_popFlags: std_logic ;
+        
 
 
     -- Memory Parameters
@@ -190,6 +199,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
                 opCode1 =>fetchDecode_instruction1(wordSize-1 DOWNTO wordSize-operationSize) ,
                 opCode2 => fetchDecode_instruction2(wordSize-1 DOWNTO wordSize-operationSize),
+                clk => clk,
                 interrupt => INTERRUPT,
                 reset => reset,
                 insertNOP => insertNOP,
@@ -205,9 +215,12 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
                 decSP1 => control_decSP1,decSP2 => control_decSP2,
                 wbMuxSelector1 => control_WB1Selector,wbMuxSelector2 => control_WB2Selector,
                 outPortPipe => outRegSelect,
-                pcSelector => pcSrcSelector
+                pcSelector => pcSrcSelector,
+                pushPC => control_pushPC,popPC => control_popPC,
+                pushFlags => control_pushFlags ,popFlags => control_popFlags
 
         );
+            
 
         insertNOPMAP: ENTITY work.NOPInsertionUnit PORT MAP (
             Rdst1 => Decode_RDst1, Rsrc2 => Decode_RSrc2, Rdst2 =>  Decode_RDst2,
@@ -253,6 +266,10 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             control_incSP1, control_incSP2,
             control_decSP1, control_decSP2,
 
+            control_pushPC, control_popPC,
+            control_pushFlags, control_popFlags,
+
+
             Decode_ImmVal,
             ----------------------------------------------
             decodeExecute_alu1Op, decodeExecute_alu2Op,
@@ -274,6 +291,10 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             decodeExecute_incSP1, decodeExecute_incSP2,
             decodeExecute_decSP1, decodeExecute_decSP2,
+
+            decodeExecute_pushPC, decodeExecute_popPC,
+            decodeExecute_pushFlags, decodeExecute_popFlags,
+
 
             decodeExecute_ImmVal
         );
@@ -350,6 +371,9 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             incSP1In => decodeExecute_incSP1, incSP2In => decodeExecute_incSP2,
             decSP1In => decodeExecute_decSP1, decSP2In => decodeExecute_decSP2,
 
+            pushPCIn => decodeExecute_pushPC, popPCIn => decodeExecute_popPC,
+            pushFlagsIn => decodeExecute_pushFlags, popFlagsIn => decodeExecute_popFlags,
+
             immediateValueIn => decodeExecute_ImmVal,
             -------------------------------------------------------
             -- outputs to Memory Stage
@@ -366,10 +390,13 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             mux1WBSelector =>  executeMem_WB1Selector, mux2WBSelector => executeMem_WB2Selector,
 
-            MEM1 => executeMem_MEM1, MEM2 =>  executeMem_MEM2,
+            -- MEM1 => executeMem_MEM1, MEM2 =>  executeMem_MEM2,
 
             incSP1 => executeMem_incSP1, incSP2 => executeMem_incSP2,
             decSP1 => executeMem_decSP1, decSP2 => executeMem_decSP2,
+
+            pushPC => executeMem_pushPC, popPC => executeMem_popPC,
+            pushFlags => executeMem_pushFlags, popFlags => executeMem_popFlags,
 
 
             immediateValue => executeMem_ImmVal
@@ -390,7 +417,10 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             --------------------------------------
             M0 => M0, M1 => M1,
             
-            memoryOut=> mem_memoryOut
+            memoryOut=> mem_memoryOut,
+
+            pushPC => executeMem_pushPC, popPc => executeMem_popPC ,
+            pushFlags => executeMem_pushFlags, popFlags => executeMem_popFlags 
 
         );
     

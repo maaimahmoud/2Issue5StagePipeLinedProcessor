@@ -32,6 +32,9 @@ ENTITY IDEXBuffer IS
             incSP1In, incSP2In,
             decSP1In, decSP2In: in std_logic;
 
+            pushPCIn, popPCIn:in std_logic_vector(1 downto 0) ;
+            pushFlagsIn, popFlagsIn: in std_logic;
+
             immediateValueIn: in std_logic_vector(wordSize-1 downto 0);
             -------------------------------------------------------
             alu1Operation, alu2Operation : out std_logic_vector(operationSize-1 downto 0);
@@ -55,6 +58,9 @@ ENTITY IDEXBuffer IS
 
             incSP1, incSP2,
             decSP1, decSP2: out std_logic;
+
+            pushPC, popPC:out std_logic_vector(1 downto 0) ;
+            pushFlags, popFlags: out std_logic;
 
             immediateValue: out std_logic_vector(wordSize-1 downto 0)
         );
@@ -222,6 +228,27 @@ ARCHITECTURE IDEXBufferArch OF IDEXBuffer IS
         decSP2Map: ENTITY work.DFlipFlop PORT MAP
         (
             decSP2In, enableRead2, notClk, rst, decSP2
+        );
+
+
+        pushPCMap: ENTITY work.Reg GENERIC MAP(2) PORT MAP
+        (
+            pushPCIn, enableRead1, notClk, rst, pushPC -- TODO: enableRead1 wla enableRead2?
+        );
+        
+        popPCMap: ENTITY work.Reg GENERIC MAP(2) PORT MAP
+        (
+            popPCIn, enableRead1, notClk, rst, popPC -- TODO: enableRead1 wla enableRead2?
+        );
+
+        pushFlagesMap: ENTITY work.DFlipFlop PORT MAP
+        (
+            pushFlagsIn, enableRead1, notClk, rst, pushFlags -- TODO: enableRead1 wla enableRead2?
+        );
+        
+        popFlagesMap: ENTITY work.DFlipFlop PORT MAP
+        (
+            popFlagsIn, enableRead1, notClk, rst, popFlags -- TODO: enableRead1 wla enableRead2?
         );
 
 END ARCHITECTURE;

@@ -83,7 +83,7 @@ ARCHITECTURE MemoryArch OF Memory IS
         --so spPlusOne will be sp+2 as the output of the register is input to adder ,also when
         --we want to use sp at decSP1 or decSP2 sp will be equal to sp-1 so we need to choose spPlusOne 
         spToBeUsed<=sp when (incSP1='1' or incSP2='1')
-        else spPlusOne when (decSP1='1' OR decSP2='1')
+        else spPlusOne when (decSP1='1' OR decSP2='1');
         -- TODO: organize plus before execute or execute before minus
         adderOneMap: ENTITY work.NBitAdder GENERIC MAP( (2*wordSize) ) PORT MAP (
             a => sp,

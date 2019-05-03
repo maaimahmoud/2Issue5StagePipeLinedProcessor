@@ -21,6 +21,9 @@ ENTITY ExecuteMemoryBuffer IS
             
             incSP1In , incSP2In,
             decSP1In , decSP2In: IN STD_LOGIC;
+
+            pushPCIn, popPCIn:in std_logic_vector(1 downto 0) ;
+            pushFlagsIn, popFlagsIn: in std_logic;
       
             immediateValueIn: IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
@@ -33,10 +36,13 @@ ENTITY ExecuteMemoryBuffer IS
             Src1, Src2, Dst1, Dst2 : OUT STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
             Src1Data, Src2Data, Dst1Data, Dst2Data : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
             mux1WBSelector, mux2WBSelector: OUT STD_LOGIC_VECTOR(1 downto 0);
-            MEM1, MEM2: OUT STD_LOGIC;
+            -- MEM1, MEM2: OUT STD_LOGIC;
 
             incSP1 , incSP2,
             decSP1 , decSP2: OUT STD_LOGIC;
+
+            pushPC, popPC:out std_logic_vector(1 downto 0) ;
+            pushFlags, popFlags: out std_logic;
 
             immediateValue: OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0)
 		);
@@ -184,8 +190,28 @@ ARCHITECTURE ExecuteMemoryBufferArch OF ExecuteMemoryBuffer IS
             decSP2In, bufferEn2, clk, reset, decSP2
         );
 
+        pushPCMap: ENTITY work.Reg GENERIC MAP(2) PORT MAP
+        (
+            pushPCIn, bufferEn1, clk, reset, pushPC -- TODO: bufferEn1 wla bufferEn2?
+        );
+        
+        popPCMap: ENTITY work.Reg GENERIC MAP(2) PORT MAP
+        (
+            popPCIn, bufferEn1, clk, reset, popPC -- TODO: bufferEn1 wla bufferEn2?
+        );
 
-        MEM1 <= Read1 OR Write1;
+        pushFlagesMap: ENTITY work.DFlipFlop PORT MAP
+        (
+            pushFlagsIn, bufferEn1, clk, reset, pushFlags -- TODO: bufferEn1 wla bufferEn2?
+        );
+        
+        popFlagesMap: ENTITY work.DFlipFlop PORT MAP
+        (
+            popFlagsIn, bufferEn1, clk, reset, popFlags -- TODO: bufferEn1 wla bufferEn2?
+        );
 
-        MEM1 <= Read2 OR Write2;
+        -- TODO: check if this right
+        -- MEM1 <= Read1 OR Write1;
+
+        -- MEM1 <= Read2 OR Write2;
 END ARCHITECTURE;
