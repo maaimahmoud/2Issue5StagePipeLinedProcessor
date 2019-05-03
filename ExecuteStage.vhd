@@ -16,8 +16,9 @@ ENTITY ExecuteStage IS
             MEM1In, MEM2In,
             WB1In, WB2In: in std_logic_vector(wordSize-1 downto 0);
             
-            MemWB1Selector: STD_LOGIC_VECTOR(1 DOWNTO 0);
-            MemImmediateValue:STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+            MemWB1Selector, MemWB2Selector: in STD_LOGIC_VECTOR(1 DOWNTO 0);
+
+            meminPort1Val, meminPort2Val, MemImmediateValue:in STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
 
             mux1Selector, mux2Selector,
@@ -56,27 +57,31 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
     SIGNAL flagEn: STD_LOGIC;
     Signal isBranch1,isBranch2:STD_logic;
 
-    SIGNAL Mem1Input:STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+    SIGNAL Mem1Input, Mem2Input:STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
     BEGIN
 
         Mem1Input <= MemImmediateValue WHEN MemWB1Selector = "11"
+        else meminPort1Val WHEN MemWB1Selector = "10"
         else MEM1In;    
 
+        Mem2Input <= meminPort2Val WHEN MemWB2Selector = "10"
+        else MEM2In;
+
         mux1Map: ENTITY work.Mux5 GENERIC MAP(wordSize) PORT MAP (
-            RSrcV1, MEM1Input, MEM2In, WB1In, WB2In, mux1Selector, alu1Op1
+            RSrcV1, MEM1Input, Mem2Input, WB1In, WB2In, mux1Selector, alu1Op1
         );
 
         mux2Map: ENTITY work.Mux5 GENERIC MAP(wordSize) PORT MAP (
-            RDstV1, MEM1Input, MEM2In, WB1In, WB2In, mux2Selector, alu1Op2
+            RDstV1, MEM1Input, Mem2Input, WB1In, WB2In, mux2Selector, alu1Op2
         );
 
         mux3Map: ENTITY work.Mux5 GENERIC MAP(wordSize) PORT MAP (
-            RSrcV2, MEM1Input, MEM2In, WB1In, WB2In, mux3Selector, alu2Op1
+            RSrcV2, MEM1Input, Mem2Input, WB1In, WB2In, mux3Selector, alu2Op1
         );
 
         mux4Map: ENTITY work.Mux5 GENERIC MAP(wordSize) PORT MAP (
-            RDstV2, MEM1Input, MEM2In, WB1In, WB2In, mux4Selector, alu2Op2
+            RDstV2, MEM1Input, Mem2Input, WB1In, WB2In, mux4Selector, alu2Op2
         ); 
 
         RSrc1Val <= alu1Op1;

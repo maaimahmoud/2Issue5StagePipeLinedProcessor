@@ -30,7 +30,7 @@ ARCHITECTURE FetchArch OF Fetch IS
 
     SIGNAL muxInputs : ARRAYOFREGS(0 TO pcInputsNum-1)((2*wordSize)-1 DOWNTO 0);
 
-    SIGNAL muxOutput : STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+    SIGNAL plusOneAdderIn, plusTwoAdderIn, muxOutput : STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
 
     SIGNAL pcPlusOne,pcPlusTwo : STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
 
@@ -40,17 +40,23 @@ ARCHITECTURE FetchArch OF Fetch IS
 
 	BEGIN
 
+    plusOneAdderIn <= (OTHERS=>'0') WHEN reset = '1'
+    ELSE ( 0=>'1', OTHERS=>'0');
+
     adderOneMap: ENTITY work.NBitAdder GENERIC MAP( (2*wordSize) ) PORT MAP (
         a => pc,
-        b => ( 0=>'1', OTHERS=>'0'),
+        b => plusOneAdderIn,
         carryIn=> '0',
         sum => pcPlusOne,
         carryOut =>pcPlusOneCarry
     );
 
+    plusTwoAdderIn <= (OTHERS=>'0') WHEN reset = '1'
+    ELSE ( 1=>'1', OTHERS=>'0');
+
     adderTwoMap: ENTITY work.NBitAdder GENERIC MAP( (2*wordSize) ) PORT MAP (
         a => pc,
-        b => ( 1=>'1', OTHERS=>'0'),
+        b => plusTwoAdderIn,
         carryIn=> '0',
         sum => pcPlusTwo,
         carryOut =>pcPlusTwoCarry

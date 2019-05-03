@@ -40,6 +40,8 @@ architecture ControlUnitArch of ControlUnit is
     signal popOnRet: std_logic_vector(1 downto 0);
     signal incSP1Temp,incSP2Temp,decSP1Temp,decSP2Temp:std_logic;
      
+    signal Execute2Out,readFromMemory2Out,wrtieToMemory2Out,WB2Out,Branch2Out,incSP2TempOut,decSP2TempOut:STD_LOGIC;
+
 begin
     stall<= stallInterrupt or stallRTI or stallCALL or stallRET;
     
@@ -56,8 +58,9 @@ begin
         opCode1,stall,Execute1,readFromMemory1,wrtieToMemory1,WB1,Branch1,incSP1Temp,decSP1Temp,wbMuxSelector1
     );
     seconedPipe:Entity work.OnePipeControlUnit PORT MAP(
-        opCode2,stall,Execute2,readFromMemory2,wrtieToMemory2,WB2,Branch2,incSP2Temp,decSP2Temp,wbMuxSelector2
+        opCode2,stall,Execute2Out,readFromMemory2Out,wrtieToMemory2Out,WB2Out,Branch2Out,incSP2TempOut,decSP2TempOut,wbMuxSelector2
     );
+
     incSP1 <='1' when incSP1Temp='1' or popFlags='1'
     else '0';
     incSP2<='1' when incSP2Temp='1' or popFlags='1'
@@ -66,6 +69,15 @@ begin
     else '0';
     decSP2<='1' when decSP2Temp='1' or pushFlags='1'
     else '0';
+
+    Execute2 <=  Execute2Out AND (NOT insertNOP);
+    readFromMemory2 <=  readFromMemory2Out AND (NOT insertNOP);
+    wrtieToMemory2 <=  wrtieToMemory2Out AND (NOT insertNOP);
+    WB2 <=  WB2Out AND (NOT insertNOP);
+    Branch2 <=  Branch2Out AND (NOT insertNOP);
+    incSP2Temp <= incSP2TempOut  AND (NOT insertNOP);
+    decSP2Temp <= decSP2TempOut  AND (NOT insertNOP);
+
 
     inerruptHandler:Entity work.InterruptHandler port map(
         interrupt =>interrupt,

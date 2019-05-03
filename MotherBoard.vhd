@@ -26,13 +26,6 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         -- SIGNAL M0, M1 : STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL notClk: STD_LOGIC;
 
-    -- Control Unit Parameters
-        SIGNAL insertNOP: STD_LOGIC;
-        SIGNAL control_incSP1, control_decSP1, control_incSP2, control_decSP2: STD_LOGIC;
-        SIGNAL control_EX1, control_Read1, control_Write1, control_WB1, control_EX2, control_Read2, control_Write2, control_WB2: STD_LOGIC;
-        SIGNAL control_WB1Selector, control_WB2Selector: STD_LOGIC_VECTOR(1 DOWNTO 0);
-        SIGNAL control_pushPC,control_popPC: std_logic_vector(1 downto 0) ;
-        SIGNAL control_pushFlags,control_popFlags: std_logic ;
 
     -- Fetch Parameters
         SIGNAL pcEn: STD_LOGIC;
@@ -58,6 +51,14 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         
         SIGNAL Decode_ImmVal: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         
+    -- Control Unit Parameters
+        SIGNAL insertNOP: STD_LOGIC;
+        SIGNAL control_incSP1, control_decSP1, control_incSP2, control_decSP2: STD_LOGIC;
+        SIGNAL control_EX1, control_Read1, control_Write1, control_WB1, control_EX2, control_Read2, control_Write2, control_WB2: STD_LOGIC;
+        SIGNAL control_WB1Selector, control_WB2Selector: STD_LOGIC_VECTOR(1 DOWNTO 0);
+        SIGNAL control_pushPC,control_popPC: std_logic_vector(1 downto 0) ;
+        SIGNAL control_pushFlags,control_popFlags: std_logic ;
+
     -- Decode/Execute Parameters
         SIGNAL decodeExecute_En1, decodeExecute_En2:STD_LOGIC;
         SIGNAL decodeExecute_incSP1, decodeExecute_incSP2, decodeExecute_decSP1, decodeExecute_decSP2:STD_LOGIC;
@@ -163,7 +164,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     -- ###########################################################################################
     -- Fetch/Decode Buffer
         FetchDecodeBufferMap: ENTITY work.FetchDecodeBuffer GENERIC MAP (wordSize) PORT MAP (
-            clk => notClk, reset => reset,
+            clk => notClk, reset => '0',
 			bufferEn  => fetchDecode_En,
 			pcIn => fetch_pc,
             instruction1In =>fetch_instruction1 , instruction2In => fetch_instruction2,
@@ -246,7 +247,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     --Decode/execute buffer
 
         IDEXBufferMap: ENTITY work.IDEXBuffer GENERIC MAP(regNum, wordSize) PORT MAP(
-            clk, reset, decodeExecute_En1, decodeExecute_En2,
+            clk, '0', decodeExecute_En1, decodeExecute_En2,
 
             Decode_alu1Op, Decode_alu2Op,
 
@@ -329,7 +330,9 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             executeMem_alu1Out, executeMem_alu2Out, WB_WB1Val, WB_WB2Val, -- for forwarding
 
-            executeMem_WB1Selector, -- for immediate Value Check
+            -- forward values form memory stage
+            executeMem_WB1Selector, executeMem_WB2Selector,
+            executeMem_inPort1Val, executeMem_inPort2Val,
             executeMem_ImmVal,
 
             execute_Mux1Selector, execute_Mux2Selector,
@@ -356,7 +359,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     -- ###########################################################################################
     -- Execute/Memory Buffer
         ExecuteMemoryBufferMap: ENTITY work.ExecuteMemoryBuffer GENERIC MAP (regNum, addressBits, wordSize) PORT MAP(
-            clk => notClk, reset => reset,
+            clk => notClk, reset => '0',
             bufferEn1 => executeMem_En1, bufferEn2 =>executeMem_En2,
 
             -- inputs from Execute Stage
@@ -431,7 +434,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     --Memory/WriteBack Buffer
 
         MEMWBMap: ENTITY work.MemWBBuffer GENERIC MAP (regNum, wordSize) PORT MAP(
-            clk, reset, memWB_En1, memWB_En2,
+            clk, '0', memWB_En1, memWB_En2,
 
             executeMem_WB1, executeMem_WB2,
 

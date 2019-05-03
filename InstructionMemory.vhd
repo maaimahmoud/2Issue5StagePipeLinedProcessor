@@ -39,6 +39,6 @@ ARCHITECTURE InstructionMemoryArch OF InstructionMemory IS
         dataout2 <= Ram(TO_INTEGER(UNSIGNED(address)+1));
 		
 		M0 <= Ram(0);
-        M1 <= Ram(1); -- TODO: check if this 1 or 2?
+        M1 <= Ram(2); -- TODO: check if this 1 or 2?
 
 END ARCHITECTURE;
