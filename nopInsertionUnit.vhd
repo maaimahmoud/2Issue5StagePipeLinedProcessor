@@ -39,14 +39,15 @@ architecture NOPInsertionUnitArch of NOPInsertionUnit is
 begin
   instructionType1<=instruction1OpCode(operationSize-1 downto opCodeSize);
   instructionType2<=instruction2OpCode(operationSize-1 downto opCodeSize);
+  
   --checks if the two instructions in the two pipes will use the same registers
   insertNOP <='1' When((Rdst1=Rsrc2) and instructionType2=twoOperand and instruction1OpCode/=opNOP)or
   ((Rdst1=Rdst2)and (instructionType2=oneOperand and instruction1OpCode/=opNOP and instruction1OpCode/=opSETC and instruction1OpCode/=opCLRC  and instruction1OpCode/=opIN )
     and (instructionType2=twoOperand and instruction2OpCode/=opMOV)
   )
-  or
-  --check if the 1st instruction will change the carry flags and the 2nd instruction will use the flags to branch
-  ((instructionType1=twoOperand or
+ 
+--check if the 1st instruction will change the carry flags and the 2nd instruction will use the flags to branch 
+or((instructionType1=twoOperand or
 ((instructionType1=oneOperand and instruction1OpCode/=opOUT and instruction1OpCode/=opIN and instruction1OpCode/=opNOP)
  ))
 and (instructionType2=changeOFControlInstructions and (instruction2OpCode=opJZ or instruction2OpCode=opJN or instruction2OpCode=opJC)))
@@ -71,6 +72,8 @@ or (instruction2OpCode=opLDM)
 or (instruction2OpCode=opRET or instruction2OpCode=opRTI)
 
 or(instruction1OpCode=opOUT and instruction2OpCode=opOut)
+
+or(instruction1OpCode=opIN and instruction2OpCode=opIN)
 else '0';
 
 
