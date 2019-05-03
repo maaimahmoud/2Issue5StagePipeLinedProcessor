@@ -1,5 +1,20 @@
+from utils import Helper
+selected = {}
+def setMC(test=False):
+    global selected
+    selected = mc_test if test else mc
+
 def getMachineCode(param):
-    mc = {
+    if param.isdigit():
+        return Helper.strToBinary16(param)
+    mc = selected.get(param)
+    if(mc == None):
+        raise Exception(
+            f"Not valid param: {param}, can't find its machine code")
+    return mc
+
+
+mc = {
         'NOP': '0000000010000000',
         'SETC': '0000000010000000',
         'CLRC': '0000000010000000',
@@ -52,15 +67,9 @@ def getMachineCode(param):
         'R7': '111',
 
         '': '',
-    }.get(param)
-    if(mc == None):
-        raise Exception(
-            f"Not valid param: {param}, can't find its machine code")
-    return mc
+}
 
-
-def getMachineCode_test(param):
-    mc = {
+mc_test = {
         'NOP': '$NOP',
         'SETC': '$SETC',
         'CLRC': '$CLRC',
@@ -113,7 +122,6 @@ def getMachineCode_test(param):
         'R7': '$R7',
 
         '': '',
-    }.get(param)
-    if(mc == None):
-        raise Exception(f"Not valid param: {param}, can't find its machine code")
-    return mc
+}
+
+setMC()
