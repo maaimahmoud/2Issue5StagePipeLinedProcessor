@@ -13,12 +13,12 @@ USE work.Constants.all;
 -----2-if the Rdst of the instruction in the first pipe will be the the Rdst in the 2nd pipe and the instruction in the 2nd pipe will be using that new value
 -----3-If the 1st operation ALU operation and 2nd operation is branch operation
 -----4-if the first pipe is LDD instruction and 2nd pipe is an instruction that uses the Rdst of 1st pipe
------[TOBE DELETED]5-if the instruction in the 1st pipe is LDM and 2nd pipe and the instruction in the 2nd pipe depends on that destination register
 -----6-if the instruction in the 1st pipe is IN and instruction in 2nd pipe uses this register (note we will insert NOP once then forwarding will be used)
 -----7-if the instructions in 1st  and 2nd pipe are memory instructions
 -----8-if the instruction in 2nd pipe is LDM 
 -----9-if the instruction in the 1st pipe is RET or RTI
 -----10-if the two instructions are OUT 
+-----11-if the two instructions are IN 
 ----------------------------------------------------------------------------------------------------------
 Entity NOPInsertionUnit is 
 
@@ -54,22 +54,16 @@ and (instructionType2=changeOFControlInstructions and (instruction2OpCode=opJZ o
 
 
 --check if the 1st instruction is LDD instruction and the 2nd pipe uses that registe(load use case)
-or(instructionType1=memoryInstructions and instruction1OpCode=opLDD and (Rdst1=Rsrc2 or Rdst1=Rdst2))
-
---check if the instruction in the 1st pipe is unconditional branch
---or(instructionType1=changeOFControlInstructions and(instruction2OpCode/=opJZ and instruction2OpCode/=opJN and instruction2OpCode/=opJC))
-
---check if the instruction in 1st pipe in LDM and instruction in 2nd pipe depends on it
---or(instructionType1=memoryInstructions and instruction1OpCode=opLDM and (Rdst1=Rsrc2 or Rdst1=Rdst2))
+or(instruction1OpCode=opLDD and  ((instructionType2=oneOperand and Rdst1=Rdst2) or(instructionType2=twoOperand and (Rdst1=Rsrc2 or Rdst1=Rdst2)) )
 
 --check if the instruction in the 1st pipe is IN and instruction in 2nd pipe uses that register
-or(instructionType1=oneOperand and instruction1OpCode=opIN and ((Rdst1=Rsrc2 and  instruction2OpCode/=opMOV and instructionType2=twoOperand) or Rdst1=Rdst2))
+or( instruction1OpCode=opIN and ((instructionType2=oneOperand and Rdst1=Rdst2) or(instructionType2=twoOperand and (Rdst1=Rsrc2 or Rdst1=Rdst2)))
 --check if 1st instruction and 2nd instruction are memory instructions
 or(instructionType1=memoryInstructions and instructionType2=memoryInstructions)
 
-or (instruction2OpCode=opLDM)
+or (instruction2OpCode=opLDM and instruction1OpCode/=opLDM)
 
-or (instruction2OpCode=opRET or instruction2OpCode=opRTI)
+or (instruction2OpCode=opRET or instruction2OpCode=opRTI or instruction2OpCode=opCALL)
 
 or(instruction1OpCode=opOUT and instruction2OpCode=opOut)
 
