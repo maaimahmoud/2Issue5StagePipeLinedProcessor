@@ -41,10 +41,10 @@ begin
   instructionType2<=instruction2OpCode(operationSize-1 downto opCodeSize);
   
   --checks if the two instructions in the two pipes will use the same registers
-  insertNOP <='1' when ((instructionType1=oneOperand and instructionType2=oneOperand)and (Rdst1=Rdst2 and instruction1OpCode/=opNOP and instruction2OpCode/=opNOP and instruction1OpCode/=opSETC and instruction2OpCode/=opSETC and instruction1OpCode/=opCLRC and instruction2OpCode/=opCLRC))
-  or ((instructionType1=oneOperand and instructionType2=twoOperand)and ((Rdst1=Rdst2 or Rdst1=Rsrc2)and (instruction1OpCode/=opNOP and instruction1OpCode/=opSETC and instruction1OpCode/=opCLRC and instruction2OpCode/=opMOV)))
-  or ((instructionType1=twoOperand and instructionType2=oneOperand)and(Rdst1=Rdst2 and (instruction1OpCode/=opMOV and instruction2OpCode/=opNOP and instruction2OpCode/=opSETC and instruction2OpCode/=opCLRC)))
-  or ((instructionType1=twoOperand and instructionType2=twoOperand)and ((Rdst1=Rdst2 or Rdst1=Rsrc2)and instruction1OpCode/=opMOV and instruction2OpCode/=opMOV))
+  insertNOP <='1' when ((instructionType1=oneOperand and instructionType2=oneOperand)and (Rdst1=Rdst2 and instruction1OpCode/=opNOP and instruction2OpCode/=opNOP and instruction1OpCode/=opSETC and instruction2OpCode/=opSETC and instruction1OpCode/=opCLRC and instruction2OpCode/=opCLRC and instruction2OpCode/=opIN and instruction1OpCode/=opOUT and instruction2OpCode/=opOUT))
+  or ((instructionType1=oneOperand and instructionType2=twoOperand)and ((Rdst1=Rdst2 or Rdst1=Rsrc2)and (instruction1OpCode/=opNOP and instruction1OpCode/=opSETC and instruction1OpCode/=opCLRC and instruction1OpCode/=opOUT and not(instruction2OpCode=opMOV and Rdst1=Rsrc2))))
+  or ((instructionType1=twoOperand and instructionType2=oneOperand)and(Rdst1=Rdst2 and (instruction2OpCode/=opNOP and instruction2OpCode/=opSETC and instruction2OpCode/=opCLRC)))
+  or ((instructionType1=twoOperand and instructionType2=twoOperand)and ((Rdst1=Rdst2 or Rdst1=Rsrc2) and not(instruction2OpCode=opMOV and Rsrc2=Rdst1)))
   
   
   --When((Rdst1=Rsrc2) and instructionType2=twoOperand and instruction1OpCode/=opNOP)or

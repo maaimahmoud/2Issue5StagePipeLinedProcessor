@@ -102,7 +102,7 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
 
         alu2Map: ENTITY work.ALU GENERIC MAP(wordSize) PORT MAP(
             alu2Op1, alu2Op2, 
-            opCode2, flagOut,
+            opCode2, flag1Out,
             EX2, 
             ALU2Out,
             flag2Out
