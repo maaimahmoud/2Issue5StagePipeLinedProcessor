@@ -16,7 +16,9 @@ ENTITY Memory IS
 
             incSP1, decSP1, incSP2, decSP2: IN STD_LOGIC;
             ----------------------------------------------------------------------
-            M0, M1, memoryOut : OUT STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
+            -- M0, M1,
+            memoryOut : OUT STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
+            
             pushPC,popPc:IN std_logic_vector(1 downto 0) ;
             pushFlags,popFlags:IN std_logic
 		);
@@ -72,8 +74,8 @@ ARCHITECTURE MemoryArch OF Memory IS
                 we  => we ,
                 address => address,
                 datain => data,
-                M0 =>  M0,
-                M1 =>  M1,
+                -- M0 =>  M0,
+                -- M1 =>  M1,
                 dataout => memoryOut
             );
 

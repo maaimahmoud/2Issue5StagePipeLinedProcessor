@@ -14,7 +14,7 @@ ENTITY Fetch IS
             pcSrcSelector: IN STD_LOGIC_VECTOR( integer(ceil(log2(real(pcInputsNum))))-1 DOWNTO 0);
 
             stackOutput, branchAddress:IN STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
-            M0, M1: IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+            -- M0, M1: IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
             dataOut1, dataOut2: OUT STD_LOGIC_VECTOR (wordSize-1 DOWNTO 0);
             pc: OUT STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0)
@@ -36,7 +36,8 @@ ARCHITECTURE FetchArch OF Fetch IS
 
     SIGNAL pcPlusOneCarry, pcPlusTwoCarry : STD_LOGIC;
 
-	
+	SIGNAL M0, M1: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+
 	BEGIN
 
     adderOneMap: ENTITY work.NBitAdder GENERIC MAP( (2*wordSize) ) PORT MAP (
@@ -72,7 +73,7 @@ ARCHITECTURE FetchArch OF Fetch IS
 
     pcRegMap: ENTITY work.Reg GENERIC MAP ((2*wordSize)) PORT MAP (
         D =>  muxOutput,
-        en => pcEn, clk => clk , rst => reset ,
+        en => pcEn, clk => clk , rst => '0' ,
         Q => pc
     );
 
@@ -81,6 +82,7 @@ ARCHITECTURE FetchArch OF Fetch IS
         we =>  '0',
         address => pc(addressBits-1 downto 0) ,
         datain  =>  (OTHERS => '0' ),
+        M0 => M0, M1 => M1,
         dataOut1 => dataOut1,
         dataOut2 => dataOut2
     );

@@ -23,7 +23,7 @@ END ENTITY MotherBoard;
 ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
     -- General Parameters
-        SIGNAL M0, M1 : STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        -- SIGNAL M0, M1 : STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL notClk: STD_LOGIC;
 
     -- Control Unit Parameters
@@ -154,7 +154,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             stackOutput => stackOutput , branchAddress => branchAddress,-- : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);  -- TODO:
 
-            M0 => M0 , M1 => M1 ,
+            -- M0 => M0 , M1 => M1 ,
 
             dataOut1 => fetch_instruction1, dataOut2 => fetch_instruction2,
             
@@ -418,7 +418,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             incSP1 => executeMem_incSP1, decSP1 => executeMem_decSP1 ,
             incSP2 => executeMem_incSP2 , decSP2 => executeMem_decSP2, 
             --------------------------------------
-            M0 => M0, M1 => M1,
+            -- M0 => M0, M1 => M1,
             
             memoryOut=> mem_memoryOut,
 
