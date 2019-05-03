@@ -36,10 +36,6 @@ ARCHITECTURE DataMemoryArch OF DataMemory IS
 				END IF;
 		END PROCESS;
 
-                
-        -- M0 <= Ram(0);
-        -- M1 <= Ram(1); -- TODO: check if this 1 or 2?
-
 		dataout <= Ram(TO_INTEGER(UNSIGNED(address)));
 
 END ARCHITECTURE;
