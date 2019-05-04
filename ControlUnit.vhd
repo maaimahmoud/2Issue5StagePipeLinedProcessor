@@ -132,8 +132,8 @@ begin
     
     enableOut<='1' when (opCode1=opOUT or opCode2=opOut)
     else '0';
-    
-    outPortPipe<='1' when opCode1=opOut
-    else '0';
+     
+    outPortPipe<='0' when opCode1=opOut
+    else '1';
 
     end ControlUnitArch ; -- ControlUnitArch
