@@ -62,9 +62,9 @@ and (instructionType2=changeOFControlInstructions and (instruction2OpCode=opJZ o
 
 
 --check if the 1st instruction is LDD instruction and the 2nd pipe uses that registe(load use case)
-or((instruction1OpCode=opLDD or instruction1OpCode=opLDM or instruction1OpCode=opPOP) and  ((instructionType2=oneOperand and Rdst1=Rdst2) or(instructionType2=twoOperand and (Rdst1=Rsrc2 or Rdst1=Rdst2)) ) )
-or (((instruction1OpCode=opLDD or instruction1OpCode=opLDM or instruction1OpCode=opPOP) and instructionType2=changeOFControlInstructions) and Rdst1=Rdst2 and instruction2OpCode/=opRET and instruction2OpCode/=opRTI) 
-or ((instruction1OpCode=opLDD or instruction1OpCode=opLDM or instruction1OpCode=opPOP) and ((instruction2OpCode=opPUSH and Rdst1=Rdst2) or (instruction2OpCode=opSTD and Rdst1=Rsrc2)))
+or((instruction1OpCode=opLDD or instruction1OpCode=opPOP) and  ((instructionType2=oneOperand and Rdst1=Rdst2) or(instructionType2=twoOperand and (Rdst1=Rsrc2 or Rdst1=Rdst2)) ) )
+or (((instruction1OpCode=opLDD or instruction1OpCode=opPOP) and instructionType2=changeOFControlInstructions) and Rdst1=Rdst2 and instruction2OpCode/=opRET and instruction2OpCode/=opRTI) 
+or ((instruction1OpCode=opLDD or instruction1OpCode=opPOP) and ((instruction2OpCode=opPUSH and Rdst1=Rdst2) or (instruction2OpCode=opSTD and Rdst1=Rsrc2)))
 
 
 --check if the instruction in the 1st pipe is IN and instruction in 2nd pipe uses that register
