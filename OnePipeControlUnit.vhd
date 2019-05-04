@@ -29,7 +29,7 @@ begin
     opMode<=opCode(operationSize-1 downto opCodeSize);
     Execute <='1' when (((opCode=opNOT OR opCode=opINC OR opCode=opDEC or opCode=opSETC or opCode=opCLRC)
     AND opMode=oneOperand)
-    OR ( opMode=twoOperand))and stall='0'
+    OR ( opMode=twoOperand) or (opCode = opJZ) or (opCode = opJN) or (opCode = opJC) )and stall='0'
     --OR(opMode=memoryInstructions AND(opcode=opPUSH or opCode=opPOP)) 
     else '0';
     

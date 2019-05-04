@@ -37,6 +37,8 @@ ARCHITECTURE MemoryArch OF Memory IS
     -- Stack pointer
     SIGNAL spEn, spPlusOneCarry, spMinusOneCarry: STD_LOGIC;
     SIGNAL sp, spIn, spPlusOne, spMinusOne,spToBeUsed: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+
+    SIGNAL memoryOutTemp: std_logic_vector(wordSize-1 downto 0);
 	
 	BEGIN
         -- address(addressBits-1 DOWNTO wordSize) <= (OTHERS => '0');
@@ -78,8 +80,15 @@ ARCHITECTURE MemoryArch OF Memory IS
                 datain => data,
                 -- M0 =>  M0,
                 -- M1 =>  M1,
-                dataout => memoryOut
+                dataout => memoryOutTemp
             );
+
+
+        memoryOutRegMap: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP(
+            D =>  memoryOutTemp,
+            en => '1', clk => clk , rst => reset ,
+            Q => memoryOut
+        );
 
         --when using the sp whether to read from memory or write to it if incSP1 or incSP2 is high this means
         --we have to use SP+1 value  if the decSP1 or decSP2 is high this means we have to use the original SP value
@@ -91,7 +100,7 @@ ARCHITECTURE MemoryArch OF Memory IS
         -- TODO: organize plus before execute or execute before minus
         adderOneMap: ENTITY work.NBitAdder GENERIC MAP( (2*wordSize) ) PORT MAP (
             a => sp,
-            b => ( 1=>'1', OTHERS=>'0'),
+            b => ( 0=>'1', OTHERS=>'0'),
             carryIn=> '0',
             sum => spPlusOne,
             carryOut =>spPlusOneCarry

@@ -77,8 +77,9 @@ ARCHITECTURE ALUArch of ALU is
 
         -----------------------------------------------------------------------------
 
-        flagOut(ZFlag) <= '1' when changeFlag = '1' and result = "0000000000000000" and not (operation = opSETC or operation = opCLRC)
-        else '0' when changeFlag = '1'
+        flagOut(ZFlag) <= '1' when changeFlag = '1' and result = "0000000000000000" and not (operation = opSETC or operation = opCLRC or operation = opJZ or operation = opJN or operation = opJC)
+        else '0' when changeFlag = '1' and operation = opJZ
+        else '0' when changeFlag = '1' and operation /= opJC and operation /= opJN
         else flagIn(ZFlag);
 
         flagOut(CFlag) <= carryOutShifterRight when changeFlag = '1' and operation = opSHR
@@ -86,10 +87,12 @@ ARCHITECTURE ALUArch of ALU is
         else '1' when changeFlag = '1' and operation = opSETC
         else '0' when changeFlag = '1' and operation = opCLRC
         else carryOutAdder when changeFlag = '1' and (operation = opINC or operation = opDEC or operation = opADD or operation = opSUB) 
+        else '0' when changeFlag = '1' and operation = opJC
         else flagIn(CFlag);
 
         flagOut(NFlag) <= '1' when changeFlag = '1' and  result(wordSize-1) = '1'
-        else '0' when changeFlag = '1'
+        else '0' when changeFlag = '1' and operation = opJN
+        else '0' when changeFlag = '1' and operation /= opJC and operation /= opJZ
         else flagIn(NFlag);
 
         -----------------------------------------------------------------------------

@@ -114,11 +114,11 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
         -----------------------------------------------------------------------------
 
 
-        flagInput <= flag2Out when EX1 = '1' and EX2 = '1'
+        flagInput <= flag2Out when EX1 = '1' and EX2 = '1' and isBranch1 = '0'
         else flag2Out when EX1 = '0' and EX2 = '1'
         else flag1Out;
 
-        flagEn <= EX1 OR EX2;
+        flagEn <= (EX1 OR (EX2 and not(isBranch1)));
 
         flagRegMap: ENTITY work.Reg GENERIC MAP(flagSize) PORT MAP(
             D =>  flagInput,
@@ -146,8 +146,8 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
         )
         else '0';
     ---------------calculate the branch address
-    BranchAddress(wordSize-1 downto 0) <=(RDstV1) when isBranch1='1'
-    else RDstV2 when isBranch2='1';
+    BranchAddress(wordSize-1 downto 0) <=(alu1Op2) when isBranch1='1'
+    else alu2Op2 when isBranch2='1';
 
     BranchAddress(2*wordSize-1 downto wordSize) <= (others => '0');
     isBranch<= isBranch1 or isBranch2;
