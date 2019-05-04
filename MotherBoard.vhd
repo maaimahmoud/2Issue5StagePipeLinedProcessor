@@ -58,6 +58,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL control_WB1Selector, control_WB2Selector: STD_LOGIC_VECTOR(1 DOWNTO 0);
         SIGNAL control_pushPC,control_popPC: std_logic_vector(1 downto 0) ;
         SIGNAL control_pushFlags,control_popFlags: std_logic ;
+        SIGNAL control_outRegEn, control_outRegSelect: STD_LOGIC;
 
     -- Decode/Execute Parameters
         SIGNAL decodeExecute_En1, decodeExecute_En2:STD_LOGIC;
@@ -77,6 +78,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
         SIGNAL decodeExecuteIn_EX1, decodeExecuteIn_Read1, decodeExecuteIn_Write1, decodeExecuteIn_WB1, 
                 decodeExecuteIn_EX2, decodeExecuteIn_Read2, decodeExecuteIn_Write2, decodeExecuteIn_WB2: STD_LOGIC;
+        SIGNAL decodeExecute_outRegEn, decodeExecute_outRegSelect: STD_LOGIC;
         
 
     -- Execute Parameters
@@ -143,7 +145,6 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL flagOut: std_logic_vector(flagSize-1 downto 0); -- flagIn,
 
     -- Out Register Parameters
-        SIGNAL outRegEn, outRegSelect: STD_LOGIC;
         SIGNAL outRegInput: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
 
@@ -223,11 +224,11 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
                 wrtieToMemory1 => control_Write1,wrtieToMemory2 => control_Write2,
                 WB1 => control_WB1 ,WB2 => control_WB2,
                 Branch1 => branch1,Branch2 => branch2,
-                enableOut => outRegEn,
+                enableOut => control_outRegEn,
                 incSP1 => control_incSP1,incSP2 => control_incSP2,
                 decSP1 => control_decSP1,decSP2 => control_decSP2,
                 wbMuxSelector1 => control_WB1Selector,wbMuxSelector2 => control_WB2Selector,
-                outPortPipe => outRegSelect,
+                outPortPipe => control_outRegSelect,
                 pcSelector => pcSrcSelector,
                 pushPC => control_pushPC,popPC => control_popPC,
                 pushFlags => control_pushFlags ,popFlags => control_popFlags
@@ -242,18 +243,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         );
 
         
-        -- Out Register
-        outMuxMap: ENTITY work.mux2 GENERIC MAP(wordSize) PORT MAP(
-            A => Decode_RDst1Val, B =>  Decode_RDst2Val,
-            S => outRegSelect,
-            C => outRegInput
-        );
 
-        outRegMap: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP (
-            D => outRegInput,
-            en => outRegEn, clk => clk, rst =>reset ,
-            Q => outPort
-        );
     -- ###########################################################################################
     --Decode/execute buffer
 
@@ -307,6 +297,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             control_pushPC, control_popPC,
             control_pushFlags, control_popFlags,
 
+            control_outRegEn, control_outRegSelect,
 
             Decode_ImmVal,
 
@@ -335,6 +326,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             decodeExecute_pushPC, decodeExecute_popPC,
             decodeExecute_pushFlags, decodeExecute_popFlags,
 
+            decodeExecute_outRegEn, decodeExecute_outRegSelect,
 
             decodeExecute_ImmVal,
 
@@ -401,6 +393,18 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             branchAddress
         );
 
+        -- Out Register
+        outMuxMap: ENTITY work.mux2 GENERIC MAP(wordSize) PORT MAP(
+            A => execute_RSrc1Val, B =>  execute_RSrc2Val,
+            S => decodeExecute_outRegSelect,
+            C => outRegInput
+        );
+
+        outRegMap: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP (
+            D => outRegInput,
+            en => decodeExecute_outRegEn, clk => clk, rst =>reset ,
+            Q => outPort
+        );
 
     -- ###########################################################################################
     -- Execute/Memory Buffer
