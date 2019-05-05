@@ -10,6 +10,8 @@ ENTITY Fetch IS
 
 	PORT(
             clk, reset: IN STD_LOGIC;
+            resetCounterOut: IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+
             pcEn: IN STD_LOGIC;
             pcSrcSelector: IN STD_LOGIC_VECTOR( integer(ceil(log2(real(pcInputsNum))))-1 DOWNTO 0);
 
@@ -27,6 +29,7 @@ END ENTITY Fetch;
 
 ARCHITECTURE FetchArch OF Fetch IS
 
+    SIGNAL M0M1RegEn : STD_LOGIC;
 
     SIGNAL muxInputs : ARRAYOFREGS(0 TO pcInputsNum-1)((2*wordSize)-1 DOWNTO 0);
 
@@ -88,9 +91,24 @@ ARCHITECTURE FetchArch OF Fetch IS
         we =>  '0',
         address => pc(addressBits-1 downto 0) ,
         datain  =>  (OTHERS => '0' ),
-        M0 => M0, M1 => M1,
+        -- M0 => M0, M1 => M1,
         dataOut1 => dataOut1,
         dataOut2 => dataOut2
+    );
+
+    M0M1RegEn <= '1' WHEN resetCounterOut = "01"
+    ELSE '0' WHEN resetCounterOut = "10";
+
+    M0RegMap: ENTITY work.Reg GENERIC MAP (wordSize)  PORT MAP(
+        D => dataOut1,
+        en => M0M1RegEn, clk => clk, rst =>'0' ,
+        Q => M0
+    );
+
+    M1RegMap: ENTITY work.Reg GENERIC MAP (wordSize)  PORT MAP(
+        D => dataOut2,
+        en => M0M1RegEn, clk => clk, rst =>'0' ,
+        Q => M1
     );
 
 

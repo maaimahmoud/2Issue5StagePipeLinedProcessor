@@ -9,7 +9,7 @@ ENTITY MotherBoard IS
 	Generic(regNum: integer := 3; addressBits: integer := 20; wordSize: integer :=16; pcInputsNum: integer := 6);
 
 	PORT(
-            clk, reset, resetBuffers, INTERRUPT : IN STD_LOGIC;
+            clk, reset, INTERRUPT : IN STD_LOGIC;
 
             inPort : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
             
@@ -24,8 +24,11 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
     -- General Parameters
         -- SIGNAL M0, M1 : STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        SIGNAL start, resetBuffers: STD_LOGIC;
         SIGNAL notClk: STD_LOGIC;
-
+        -- Reset
+        SIGNAL resetCounterEn: STD_LOGIC;
+        SIGNAL resetCounterOut: STD_LOGIC_VECTOR(1 DOWNTO 0);
 
     -- Fetch Parameters
         SIGNAL pcEn: STD_LOGIC;
@@ -157,10 +160,40 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
         flush <= isBranch;
 
+        resetBuffers <= reset;
+
+    -- Reset Whole System
+        resetCounterEn <= '1' WHEN FALLING_EDGE(reset)
+        ELSE '0' WHEN resetCounterOut = "10";
+
+        resetCounterMap: ENTITY work.Counter GENERIC MAP (2) PORT MAP (
+            en => resetCounterEn, reset => reset, clk => clk,
+            count => resetCounterOut
+        );
+
+        start <= '1' WHEN resetCounterOut="10"
+        ELSE '0';
+
+        pcEn <= start;
+        fetchDecode_En <= start;
+
+        decodeExecute_En1 <= start;
+        decodeExecute_En2 <= start;
+
+        executeMem_En1 <= start;
+        executeMem_En2 <= start;
+
+        memWB_En1 <= start;
+        memWB_En2 <= start;
+
+
+
     -- ###########################################################################################
     -- Fetch Stage
         fetchMap: ENTITY work.Fetch GENERIC MAP (addressBits, wordSize, pcInputsNum) PORT MAP (
             clk => clk , reset => reset,
+            resetCounterOut => resetCounterOut,
+            
             pcEn => pcEn,
             pcSrcSelector => pcSrcSelector,
 

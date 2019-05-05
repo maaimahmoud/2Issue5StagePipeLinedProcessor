@@ -123,7 +123,7 @@ begin
     
     --firstPipeWBMuxSelector:Entity work.mux2 Generic map(2) port map(wbMuxSelctorSignal,"11",loadImmediate1,wbMuxSelector1);
     --PC selector is an input to The Mux that selects the pc 
-    pcSelector<="100" when reset='1'
+    pcSelector<="100" when FALLING_EDGE(reset)
     else "101" when interrupt='1'
     else "000" when insertNOP='1'
     else "011" when isBranch = '1'

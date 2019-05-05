@@ -11,7 +11,8 @@ ENTITY InstructionMemory IS
 			we  : IN STD_LOGIC;
 			address: IN  STD_LOGIC_VECTOR(addressBits - 1 DOWNTO 0);
 			datain  : IN  STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
-			M0, M1, dataOut1, dataOut2 : OUT STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0)
+			-- M0, M1, 
+			dataOut1, dataOut2 : OUT STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0)
 		);
 
 END ENTITY InstructionMemory;
@@ -38,7 +39,9 @@ ARCHITECTURE InstructionMemoryArch OF InstructionMemory IS
 		dataout1 <= Ram(TO_INTEGER(UNSIGNED(address)));
         dataout2 <= Ram(TO_INTEGER(UNSIGNED(address)+1));
 		
-		M0 <= Ram(0);
-        M1 <= Ram(2); -- TODO: check if this 1 or 2?
+		-- M0 <= Ram(0);
+        -- M1 <= Ram(2); -- TODO: check if this 1 or 2?
+
+
 
 END ARCHITECTURE;
