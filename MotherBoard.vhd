@@ -380,6 +380,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             Rdst1 => decodeExecute_RDst1, Rdst2 => decodeExecute_RDst2,
             Rsrc1 =>decodeExecute_RSrc1 , Rsrc2 => decodeExecute_RSrc2 ,--: in std_logic_vector(numRegister-1 downto 0) ;
 
+            opCode1 => decodeExecute_alu1Op, opCode2 => decodeExecute_alu2Op,
+
             ---------------------------------
             out1 => execute_Mux1Selector,
             out2 => execute_Mux2Selector,
