@@ -23,6 +23,7 @@ port(
     wbMuxSelector1,wbMuxSelector2:OUT std_logic_vector(1 downto 0) ;
     outPortPipe:OUT std_logic; --0:take the data from 1st pipe ,1:take the data from 2nd pipe
     pcSelector:OUT std_logic_vector(2 downto 0) ;
+    stopFetch: OUT STD_LOGIC;
     pushPC,popPC:OUT std_logic_vector(1 downto 0) ;
     pushFlags,popFlags:out std_logic 
 );
@@ -108,19 +109,23 @@ begin
         pop=>popOnRet,
         retToControlUnit =>stallRET
     );
-    pushFlags<='1' when (stallInterrupt='1' and pushOnInterrupt<="10" ) 
-    else '0';
-    popFlags<='1' when (stallRTI='1' and popOnRti="00" )
+    pushFlags<='1' when (stallInterrupt='1' and pushOnInterrupt="11" ) 
     else '0';
 
-    pushPC<= "00" when (pushOnCall="00" or pushOnInterrupt="00")
-    else "01" when (pushOnCall="01" or pushOnInterrupt="01")
-    else "11";
+    popFlags<='1' when (stallRTI='1' and popOnRti="11" )
+    else '0';
+
+    pushPC<= "01" when (pushOnCall="00" or pushOnInterrupt="01")
+    else "10" when (pushOnCall="01" or pushOnInterrupt="10")
+    else "00";
     
-    popPC<="00" when (popOnRet="00" or popOnRti="01")
-    else "01"when (popOnRet="01"or popOnRti="10")
-    else "11";
+    popPC<="01" when (popOnRet="00" or popOnRti="01")
+    else "10"when (popOnRet="01"or popOnRti="10")
+    else "00";
     
+    stopFetch <= '1' WHEN interrupt = '1' OR pushPC = "01" OR pushPC = "10" OR popPC = "01" OR popPC = "10"  
+    ELSE '0';
+
     --firstPipeWBMuxSelector:Entity work.mux2 Generic map(2) port map(wbMuxSelctorSignal,"11",loadImmediate1,wbMuxSelector1);
     --PC selector is an input to The Mux that selects the pc 
     pcSelector<="100" when FALLING_EDGE(reset)

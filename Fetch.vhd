@@ -19,7 +19,7 @@ ENTITY Fetch IS
             -- M0, M1: IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
             dataOut1, dataOut2: OUT STD_LOGIC_VECTOR (wordSize-1 DOWNTO 0);
-            pc: OUT STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0)
+            pc, pcMuxOutput: OUT STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0)
 
 		);
 
@@ -33,7 +33,7 @@ ARCHITECTURE FetchArch OF Fetch IS
 
     SIGNAL muxInputs : ARRAYOFREGS(0 TO pcInputsNum-1)((2*wordSize)-1 DOWNTO 0);
 
-    SIGNAL plusOneAdderIn, plusTwoAdderIn, muxOutput : STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+    SIGNAL plusOneAdderIn, plusTwoAdderIn : STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0); --, pcMuxOutput
 
     SIGNAL pcPlusOne,pcPlusTwo : STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
 
@@ -77,11 +77,11 @@ ARCHITECTURE FetchArch OF Fetch IS
     pcInMuxMap: ENTITY work.Mux GENERIC MAP(pcInputsNum , (2*wordSize)) PORT MAP (
         inputs =>  muxInputs,
         selectionLines =>  pcSrcSelector,
-        output => muxOutput
+        output => pcMuxOutput
     );
 
     pcRegMap: ENTITY work.Reg GENERIC MAP ((2*wordSize)) PORT MAP (
-        D =>  muxOutput,
+        D =>  pcMuxOutput,
         en => pcEn, clk => clk , rst => '0' ,
         Q => pc
     );

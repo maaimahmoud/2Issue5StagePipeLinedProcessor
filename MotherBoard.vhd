@@ -33,7 +33,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
     -- Fetch Parameters
         SIGNAL pcEn: STD_LOGIC;
         SIGNAL pcSrcSelector: STD_LOGIC_VECTOR( integer(ceil(log2(real(pcInputsNum))))-1 DOWNTO 0);
-        SIGNAL fetch_pc: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+        SIGNAL fetch_pc, fetch_pcMuxOut: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
         SIGNAL fetch_instruction1, fetch_instruction2: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL stackOutput, branchAddress: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
 
@@ -55,7 +55,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL Decode_ImmVal: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         
     -- Control Unit Parameters
-        SIGNAL insertNOP: STD_LOGIC;
+        SIGNAL insertNOP, control_stopFetch: STD_LOGIC;
         SIGNAL control_incSP1, control_decSP1, control_incSP2, control_decSP2: STD_LOGIC;
         SIGNAL control_EX1, control_Read1, control_Write1, control_WB1, control_EX2, control_Read2, control_Write2, control_WB2: STD_LOGIC;
         SIGNAL control_WB1Selector, control_WB2Selector: STD_LOGIC_VECTOR(1 DOWNTO 0);
@@ -174,7 +174,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         start <= '1' WHEN resetCounterOut="10"
         ELSE '0';
 
-        pcEn <= start;
+        pcEn <= start AND (NOT control_stopFetch);
         fetchDecode_En <= start;
 
         decodeExecute_En1 <= start;
@@ -203,7 +203,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             dataOut1 => fetch_instruction1, dataOut2 => fetch_instruction2,
             
-            pc => fetch_pc
+            pc => fetch_pc, pcMuxOutput => fetch_pcMuxOut
         );
     -- ###########################################################################################
     -- Fetch/Decode Buffer
@@ -263,6 +263,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
                 wbMuxSelector1 => control_WB1Selector,wbMuxSelector2 => control_WB2Selector,
                 outPortPipe => control_outRegSelect,
                 pcSelector => pcSrcSelector,
+                stopFetch => control_stopFetch,
                 pushPC => control_pushPC,popPC => control_popPC,
                 pushFlags => control_pushFlags ,popFlags => control_popFlags
 
@@ -507,7 +508,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             clk => clk, reset => reset,
 
             Read1 => executeMem_Read1 , Read2 => executeMem_Read2 , Write1 => executeMem_Write1 ,Write2 => executeMem_Write2,
-            pc => executeMem_pc , alu1Out => executeMem_alu1Out , alu2Out => executeMem_alu2Out, -- TODO: check if it's neccessary to pass alu1, alu2
+            pc => fetch_pcMuxOut , alu1Out => executeMem_alu1Out , alu2Out => executeMem_alu2Out, -- TODO: check if it's neccessary to pass alu1, alu2
 
             Src1Data => executeMem_RSrc1Val, Src2Data => executeMem_RSrc2Val,
             Dst1Data => executeMem_RDst1Val, Dst2Data => executeMem_RDst2Val,
