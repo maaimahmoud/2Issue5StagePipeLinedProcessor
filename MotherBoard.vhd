@@ -431,7 +431,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
         -- Out Register
         outMuxMap: ENTITY work.mux2 GENERIC MAP(wordSize) PORT MAP(
-            A => execute_RSrc1Val, B =>  execute_RSrc2Val,
+            A => execute_RDst1Val, B =>  execute_RDst2Val,
             S => decodeExecute_outRegSelect,
             C => outRegInput
         );

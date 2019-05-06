@@ -28,7 +28,7 @@ END ENTITY ALU;
 ARCHITECTURE ALUArch of ALU is
 
     SIGNAL one, twosInput, twosOutput, adderInput, adderOutput, outShifterRight, outShifterLeft, adderInput1, resultTemp: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-    SIGNAL carryOutShifterRight, carryOutShifterLeft, carryOutAdder: STD_LOGIC;
+    SIGNAL carryOutShifterRight, carryOutShifterLeft, carryOutAdder, flagAdder: STD_LOGIC;
 
     BEGIN
 
@@ -47,7 +47,7 @@ ARCHITECTURE ALUArch of ALU is
         -- else twosOutput;
 
         twosCompMap: ENTITY work.TwosComplement GENERIC MAP(wordSize) PORT MAP (twosInput, twosOutput);
-        adderMap: ENTITY work.NBitAdder GENERIC MAP(wordSize) PORT MAP(adderInput1, adderInput, flagIn(CFlag), adderOutput, carryOutAdder);
+        adderMap: ENTITY work.NBitAdder GENERIC MAP(wordSize) PORT MAP(adderInput1, adderInput, flagAdder, adderOutput, carryOutAdder);
 
         adderInput1 <= src when operation = opSUB
         else dst;
@@ -58,6 +58,9 @@ ARCHITECTURE ALUArch of ALU is
         adderInput <= one when operation = opINC
         else src when operation = opADD
         else twosOutput;
+
+        flagAdder <= flagIn(CFlag) when operation = opADD or operation = opSUB
+        else '0';
 
         -----------------------------------------------------------------------------
 
