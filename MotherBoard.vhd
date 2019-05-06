@@ -28,7 +28,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL notClk: STD_LOGIC;
         -- Reset
         SIGNAL resetCounterEn: STD_LOGIC;
-        SIGNAL resetCounterOut: STD_LOGIC_VECTOR(1 DOWNTO 0);
+        SIGNAL resetCounterOut: STD_LOGIC_VECTOR(0 DOWNTO 0);
 
     -- Fetch Parameters
         SIGNAL pcEn: STD_LOGIC;
@@ -163,15 +163,15 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         resetBuffers <= reset;
 
     -- Reset Whole System
-        resetCounterEn <= '1' WHEN FALLING_EDGE(reset)
-        ELSE '0' WHEN resetCounterOut = "10";
+        -- resetCounterEn <= '1' WHEN rising_edge(reset)
+        -- ELSE '0' WHEN resetCounterOut = "1";
 
-        resetCounterMap: ENTITY work.Counter GENERIC MAP (2) PORT MAP (
-            en => resetCounterEn, reset => reset, clk => clk,
-            count => resetCounterOut
-        );
+        -- resetCounterMap: ENTITY work.Counter GENERIC MAP (1) PORT MAP (
+        --     en => resetCounterEn, reset => reset, clk => notClk,
+        --     count => resetCounterOut
+        -- );
 
-        start <= '1' WHEN resetCounterOut="10"
+        start <= '1' WHEN falling_edge(reset)
         ELSE '0';
 
         pcEn <= start AND (NOT control_stopFetch);
