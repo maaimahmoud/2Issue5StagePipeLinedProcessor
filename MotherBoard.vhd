@@ -211,7 +211,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             R1DstVal => execute_RDst1Val,
 
-            dataOut1 => fetch_instruction1, dataOut2 => fetch_instruction2,
+            instruction1 => fetch_instruction1, instruction2 => fetch_instruction2,
             
             pc => fetch_pc, pcPlusOne => fetch_pcPlusOne
         );

@@ -1,0 +1,15 @@
+.ORG 0
+19
+
+.ORG 2
+893
+
+.ORG 19
+LDM R1,7 #R1 = 7h
+LDM R2,20 #R2 = 32h
+LDM R3,6 #R3 = 6h
+STD R2,R1 #M[7]=32h
+LDD R1,R6 #R3= M[7] , R6 = 32h
+Add R6,R5 #R5 = R5+R6 , R5 = 32h
+LDM R7,76 #R7=256d
+NOT R7 #R7=FE89
