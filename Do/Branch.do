@@ -22,6 +22,7 @@ force -freeze sim:/motherboard/inPort 0000000000000000 0
 run
 force -freeze sim:/motherboard/reset 0 0
 run
+run
 force -freeze sim:/motherboard/inPort 0000000000110000 0
 run
 force -freeze sim:/motherboard/inPort 0000000001010000 0
