@@ -1,4 +1,5 @@
 from assembler import Assembler
+from pcsplitter import PCSplitter 
 from msadapter import MSAdapter
 import sys
 if __name__ == "__main__":
@@ -6,6 +7,8 @@ if __name__ == "__main__":
     piplinedProcessorAsm = Assembler()
     mcCode = piplinedProcessorAsm.assembleFromFile(fileName)
     
+    mcCode = PCSplitter(mcCode).split()
+
     # write the machine code
     mcFile = open(f'{fileName}.mc', 'w')
     mcFile.write(mcCode)
