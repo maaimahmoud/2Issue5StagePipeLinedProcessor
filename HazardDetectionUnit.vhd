@@ -42,7 +42,7 @@ ENTITY HazardDetectionUnit IS
         g_regSize: integer := 3 -- src and dst size
     );
     Port(
-        pip1FetchOp, pip1DecodeOp, pip2FetchOp, pip2DecodeOp: IN STD_LOGIC_VECTOR(opcodeSize - 1 DOWNTO 0);
+        pip1FetchOp, pip1DecodeOp, pip2FetchOp, pip2DecodeOp: IN STD_LOGIC_VECTOR(g_opcodeSize - 1 DOWNTO 0);
         pip1FetchSrc, pip1DecodeSrc, pip2FetchSrc, pip2DecodeSrc: IN STD_LOGIC_VECTOR(g_regSize - 1 DOWNTO 0);
         pip1FetchDst, pip1DecodeDst, pip2FetchDst, pip2DecodeDst: IN STD_LOGIC_VECTOR(g_regSize - 1 DOWNTO 0);
         ---------------------------------------------
@@ -60,32 +60,27 @@ pure function f_isLoadUse (
     return STD_LOGIC is
     variable isInstructionLoad: BOOLEAN;
     variable isDataDependant: BOOLEAN;
-    variable result: BOOLEAN;
+    variable isLoad: BOOLEAN;
+    variable result: STD_LOGIC;
 begin
     isInstructionLoad := lastOpcode = opPOP OR lastOpcode = opLDD;
     isDataDependant := lastDst = newInstructionSrc OR lastDst = newInstructionDst;
-    result := isDataDependant AND isInstructionLoad;
-    if result then
-        return '1';
-    else 
-        return '0';
-    end if;
+    isLoad := isDataDependant AND isInstructionLoad;
+    result := '1' when isLoad else '0';
+    return result;
 end;
 
 SIGNAL pip1DuePip2decode, pip1DuePip1decode, pip1fetchLoad, pip2DuePip1fetch, pip2DuePip2decode, pip2DuePip1decode, pip2fetchLoad: STD_LOGIC;
 
 BEGIN
-    -- process(pip1FetchOp, pip1DecodeOp, pip2FetchOp, pip2DecodeOp, pip1FetchSrc, pip1DecodeSrc, pip2FetchSrc, pip2DecodeSrc, pip1FetchDst, pip1DecodeDst, pip2FetchDst, pip2DecodeDst) IS
-    -- begin
-        pip1DuePip2decode <= f_isLoadUse(pip2DecodeOp, pip2DecodeDst, pip1FetchSrc, pip1FetchDst);
-        pip1DuePip1decode <= f_isLoadUse(pip1DecodeOp, pip1DecodeDst, pip1FetchSrc, pip1FetchDst);
-        pip1fetchLoad <= pip1DuePip2decode OR pip1DuePip1decode;
+    pip1DuePip2decode <= f_isLoadUse(pip2DecodeOp, pip2DecodeDst, pip1FetchSrc, pip1FetchDst);
+    pip1DuePip1decode <= f_isLoadUse(pip1DecodeOp, pip1DecodeDst, pip1FetchSrc, pip1FetchDst);
+    pip1fetchLoad <= pip1DuePip2decode OR pip1DuePip1decode;
 
-        pip2DuePip1fetch <= f_isLoadUse(pip1FetchOp, pip1FetchDst, pip2FetchSrc, pip2FetchDst);
-        pip2DuePip2decode <= f_isLoadUse(pip2DecodeOp, pip2DecodeDst, pip2FetchSrc, pip2FetchDst);
-        pip2DuePip1decode <= f_isLoadUse(pip1DecodeOp, pip1DecodeDst, pip2FetchSrc, pip2FetchDst);
-        pip2fetchLoad <= pip2DuePip1fetch OR pip2DuePip2decode OR pip2DuePip1decode;
+    pip2DuePip1fetch <= f_isLoadUse(pip1FetchOp, pip1FetchDst, pip2FetchSrc, pip2FetchDst);
+    pip2DuePip2decode <= f_isLoadUse(pip2DecodeOp, pip2DecodeDst, pip2FetchSrc, pip2FetchDst);
+    pip2DuePip1decode <= f_isLoadUse(pip1DecodeOp, pip1DecodeDst, pip2FetchSrc, pip2FetchDst);
+    pip2fetchLoad <= pip2DuePip1fetch OR pip2DuePip2decode OR pip2DuePip1decode;
 
-        stall <= pip1fetchLoad OR pip2fetchLoad;
-    -- end process;
+    stall <= pip1fetchLoad OR pip2fetchLoad;
 END HazardDetectionUnitArch; -- HazardDetectionUnitArch
