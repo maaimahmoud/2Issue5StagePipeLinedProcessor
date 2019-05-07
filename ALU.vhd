@@ -59,8 +59,9 @@ ARCHITECTURE ALUArch of ALU is
         else src when operation = opADD
         else twosOutput;
 
-        flagAdder <= flagIn(CFlag) when operation = opADD or operation = opSUB
-        else '0';
+        -- flagAdder <= flagIn(CFlag) when operation = opADD or operation = opSUB
+        -- else '0';
+        flagAdder <= '0';
 
         -----------------------------------------------------------------------------
 

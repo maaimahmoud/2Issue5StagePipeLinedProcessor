@@ -30,7 +30,9 @@ ENTITY ExecuteStage IS
 
             EX1, EX2: in std_logic;
             
-            wbMux1Selector, wbMux2Selector: std_logic_vector(1 downto 0);
+            wbMux1Selector, wbMux2Selector: in std_logic_vector(1 downto 0);
+
+            stallInterupt: in std_logic;
             
             ------------------------------------------------------
 
@@ -154,7 +156,7 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
     else alu2Op2 when isBranch2='1';
 
     BranchAddress(2*wordSize-1 downto wordSize) <= (others => '0');
-    isBranch<= isBranch1 or isBranch2;
+    isBranch<= (isBranch1 or isBranch2) and (not stallInterupt);
 
 
     ----------------------------------------------------
