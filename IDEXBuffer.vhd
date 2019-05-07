@@ -41,6 +41,8 @@ ENTITY IDEXBuffer IS
 
             branch1, branch2: in std_logic;
 
+            stallIntIn: in std_logic;
+
             -------------------------------------------------------
             alu1Operation, alu2Operation : out std_logic_vector(operationSize-1 downto 0);
 
@@ -71,7 +73,9 @@ ENTITY IDEXBuffer IS
 
             immediateValue: out std_logic_vector(wordSize-1 downto 0);
 
-            branch1Out, branch2Out: out std_logic
+            branch1Out, branch2Out: out std_logic;
+
+            stallIntOut: out std_logic
         );
 
 END IDEXBuffer;
@@ -286,6 +290,11 @@ ARCHITECTURE IDEXBufferArch OF IDEXBuffer IS
         outRegSelectMap: ENTITY work.DFlipFlop PORT MAP
         (
             outRegSelectIn, enableRead2, notClk, rst, outRegSelect
+        );
+
+        intereptMap: ENTITY work.DFlipFlop PORT MAP
+        (
+            stallIntIn, enableRead1, notClk, rst, stallIntOut
         );
 
 END ARCHITECTURE;

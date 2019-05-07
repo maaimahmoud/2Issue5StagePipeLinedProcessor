@@ -62,7 +62,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL control_pushPC,control_popPC: std_logic_vector(1 downto 0) ;
         SIGNAL control_pushFlags,control_popFlags: std_logic ;
         SIGNAL control_outRegEn, control_outRegSelect: STD_LOGIC;
-        SIGNAL loadUse: STD_LOGIC;
+        SIGNAL loadUse, control_stallInterrupt: STD_LOGIC;
 
     -- hazard detection parameters 
         SIGNAL pip2FetchOp, pip2DecodeOp: std_logic_vector(operationSize-1 downto 0) ;
@@ -85,7 +85,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
         SIGNAL decodeExecuteIn_EX1, decodeExecuteIn_Read1, decodeExecuteIn_Write1, decodeExecuteIn_WB1, 
                 decodeExecuteIn_EX2, decodeExecuteIn_Read2, decodeExecuteIn_Write2, decodeExecuteIn_WB2: STD_LOGIC;
-        SIGNAL decodeExecute_outRegEn, decodeExecute_outRegSelect: STD_LOGIC;
+        SIGNAL decodeExecute_outRegEn, decodeExecute_outRegSelect, decodeExecute_stallInterupt: STD_LOGIC;
         
 
     -- Execute Parameters
@@ -280,7 +280,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
                 pcSelector => pcSrcSelector,
                 stopFetch => control_stopFetch,
                 pushPC => control_pushPC,popPC => control_popPC,
-                pushFlags => control_pushFlags ,popFlags => control_popFlags
+                pushFlags => control_pushFlags ,popFlags => control_popFlags,
+                stallInterrupt => control_stallInterrupt
 
         );
             
@@ -376,6 +377,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             Decode_ImmVal,
 
             branch1, branch2,
+
+            control_stallInterrupt,
             ----------------------------------------------
             decodeExecute_alu1Op, decodeExecute_alu2Op,
 
@@ -405,7 +408,9 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             decodeExecute_ImmVal,
 
-            decodeExecute_Branch1, decodeExecute_Branch2
+            decodeExecute_Branch1, decodeExecute_Branch2,
+
+            decodeExecute_stallInterupt
         );
 
     -- ###########################################################################################
@@ -457,6 +462,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             decodeExecute_EX1, decodeExecute_EX2,
 
             decodeExecute_WB1Selector, decodeExecute_WB2Selector,
+
+            decodeExecute_stallInterupt,
 
             --------------------------------------------
 

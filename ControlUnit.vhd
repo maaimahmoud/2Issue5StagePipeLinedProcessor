@@ -28,7 +28,7 @@ port(
     pcSelector:OUT std_logic_vector(2 downto 0) ;
     stopFetch: OUT STD_LOGIC;
     pushPC,popPC:OUT std_logic_vector(1 downto 0) ;
-    pushFlags,popFlags:out std_logic 
+    pushFlags,popFlags, stallInterrupt:out std_logic 
 );
 End Entity ControlUnit;
 
@@ -37,7 +37,7 @@ architecture ControlUnitArch of ControlUnit is
     --signal loadImmediate1,loadImmediate2:STD_LOGIC;
     --signal wbMuxSelctorSignal:std_logic_vector(1 downto 0) ;
     signal loadM0: std_logic:='1';
-    signal stallInterrupt,stallRTI,stallCALL,stallRET,stall:std_logic;
+    signal stallRTI,stallCALL,stallRET,stall:std_logic;
     signal rtiSignal, RTIFinish,callSignal, aluCallSignal,retSignal, RETFinish:std_logic;
     signal pushOnInterrupt: std_logic_vector(1 downto 0);
     signal popOnRti: std_logic_vector(1 downto 0) ;
