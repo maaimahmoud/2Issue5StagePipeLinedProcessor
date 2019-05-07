@@ -74,7 +74,9 @@ begin
         )
         OR
         (
-            newInstructionOp /= opNOP AND newInstructionOp /= opSETC AND newInstructionOp /= opCLRC AND 
+            newInstructionOp /= opNOP AND newInstructionOp /= opSETC AND newInstructionOp /= opCLRC AND
+            newInstructionOp /= opIN AND newInstructionOp /= opMOV AND newInstructionOp /= opPOP AND
+            newInstructionOp /= opLDD AND newInstructionOp /= opRET AND newInstructionOp /= opRTI AND
             lastDst = newInstructionDst
         );
     isLoad := isDataDependant AND isInstructionLoad;
