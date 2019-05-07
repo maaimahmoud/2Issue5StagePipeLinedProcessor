@@ -10,7 +10,7 @@ class MSAdapter:
         adapted = ""
         adapted += '''// memory data file (do not edit the following line - required for mem load use)
 // instance=/tb_filereg/Fr/Ram/ram
-// format=mti addressradix=d dataradix=b version=1.0 wordsperline=1
+// format=mti addressradix=h dataradix=b version=1.0 wordsperline=1
 '''
         code = str(code)
         codeLines = code.splitlines(keepends=True)
