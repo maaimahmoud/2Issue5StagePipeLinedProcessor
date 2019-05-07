@@ -57,12 +57,14 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
     SIGNAL alu1Op1, alu1Op2, alu2Op1, alu2Op2, ALU1Out, ALU2Out: std_logic_vector(wordSize-1 downto 0);
     
     SIGNAL flagInput, flagOut, flag1Out, flag2Out: std_logic_vector(flagSize-1 downto 0);
-    SIGNAL flagEn: STD_LOGIC;
+    SIGNAL flagEn, notClk: STD_LOGIC;
     Signal isBranch1,isBranch2:STD_logic;
 
     SIGNAL Mem1Input, Mem2Input:STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
     BEGIN
+
+        notClk <= not clk;
 
         Mem1Input <= MemImmediateValue WHEN MemWB1Selector = "11"
         else meminPort1Val WHEN MemWB1Selector = "10"
@@ -97,7 +99,8 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
         alu1Map: ENTITY work.ALU GENERIC MAP(wordSize) PORT MAP(
             alu1Op1, alu1Op2, 
             opCode1, flagOut,
-            EX1, 
+            EX1,
+            clk, reset,
             ALU1Out,
             flag1Out
         );
@@ -107,6 +110,7 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
             alu2Op1, alu2Op2, 
             opCode2, flag1Out,
             EX2, 
+            clk, reset,
             ALU2Out,
             flag2Out
         );
@@ -122,7 +126,7 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
 
         flagRegMap: ENTITY work.Reg GENERIC MAP(flagSize) PORT MAP(
             D =>  flagInput,
-            en => flagEn, clk => clk , rst => reset ,
+            en => flagEn, clk => notClk , rst => reset ,
             Q => flagOut
         );
 

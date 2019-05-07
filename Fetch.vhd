@@ -10,6 +10,8 @@ ENTITY Fetch IS
 
 	PORT(
             clk, reset: IN STD_LOGIC;
+            resetCounterOut: IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+
             pcEn: IN STD_LOGIC;
             pcSrcSelector: IN STD_LOGIC_VECTOR( integer(ceil(log2(real(pcInputsNum))))-1 DOWNTO 0);
 
@@ -17,7 +19,7 @@ ENTITY Fetch IS
             -- M0, M1: IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
             dataOut1, dataOut2: OUT STD_LOGIC_VECTOR (wordSize-1 DOWNTO 0);
-            pc: OUT STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0)
+            pc, pcMuxOutput: OUT STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0)
 
 		);
 
@@ -27,10 +29,13 @@ END ENTITY Fetch;
 
 ARCHITECTURE FetchArch OF Fetch IS
 
+    SIGNAL M0M1RegEn : STD_LOGIC;
+
+    SIGNAL addressSelected: STD_LOGIC_VECTOR(addressBits-1 DOWNTO 0);
 
     SIGNAL muxInputs : ARRAYOFREGS(0 TO pcInputsNum-1)((2*wordSize)-1 DOWNTO 0);
 
-    SIGNAL plusOneAdderIn, plusTwoAdderIn, muxOutput : STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+    SIGNAL plusOneAdderIn, plusTwoAdderIn : STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0); --, pcMuxOutput
 
     SIGNAL pcPlusOne,pcPlusTwo : STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
 
@@ -74,23 +79,41 @@ ARCHITECTURE FetchArch OF Fetch IS
     pcInMuxMap: ENTITY work.Mux GENERIC MAP(pcInputsNum , (2*wordSize)) PORT MAP (
         inputs =>  muxInputs,
         selectionLines =>  pcSrcSelector,
-        output => muxOutput
+        output => pcMuxOutput
     );
 
     pcRegMap: ENTITY work.Reg GENERIC MAP ((2*wordSize)) PORT MAP (
-        D =>  muxOutput,
+        D =>  pcMuxOutput,
         en => pcEn, clk => clk , rst => '0' ,
         Q => pc
     );
 
+    addressSelected <= (OTHERS => '0') WHEN reset = '1'
+    ELSE pc(addressBits-1 downto 0);
+
     instructionMemMap: ENTITY work.InstructionMemory GENERIC MAP (addressBits, wordSize) PORT MAP (
         clk =>  clk ,
         we =>  '0',
-        address => pc(addressBits-1 downto 0) ,
+        address => addressSelected ,
         datain  =>  (OTHERS => '0' ),
-        M0 => M0, M1 => M1,
+        -- M0 => M0, M1 => M1,
         dataOut1 => dataOut1,
         dataOut2 => dataOut2
+    );
+
+    M0M1RegEn <= '1' WHEN resetCounterOut = "1"
+    ELSE '0';
+
+    M0RegMap: ENTITY work.Reg GENERIC MAP (wordSize)  PORT MAP(
+        D => dataOut1,
+        en => reset, clk => clk, rst =>'0' ,
+        Q => M0
+    );
+
+    M1RegMap: ENTITY work.Reg GENERIC MAP (wordSize)  PORT MAP(
+        D => dataOut2,
+        en => reset, clk => clk, rst =>'0' ,
+        Q => M1
     );
 
 

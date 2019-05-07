@@ -22,6 +22,7 @@ vcom Utilities\NbitSubtractor.vhd -2008
 vcom Utilities\DownCounter.vhd -2008
 vcom Utilities\Mux.vhd -2008
 vcom Utilities\OneBitReg.vhd -2008
+vcom Utilities\RigWithIntial.vhd -2008
 
 
 vcom InstructionMemory.vhd -2008

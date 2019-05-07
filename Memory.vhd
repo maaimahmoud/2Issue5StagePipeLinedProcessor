@@ -35,7 +35,7 @@ ARCHITECTURE MemoryArch OF Memory IS
     SIGNAL data: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
     -- Stack pointer
-    SIGNAL spEn, spPlusOneCarry, spMinusOneCarry: STD_LOGIC;
+    SIGNAL spEn, spMuxSel, spPlusOneCarry, spMinusOneCarry: STD_LOGIC;
     SIGNAL sp, spIn, spPlusOne, spMinusOne,spToBeUsed: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
 
     SIGNAL memoryOutTemp: std_logic_vector(wordSize-1 downto 0);
@@ -53,12 +53,14 @@ ARCHITECTURE MemoryArch OF Memory IS
         ELSE Dst2Data when decSP2 = '1'
         ELSE Src1Data WHEN Write1 = '1'
         ELSE Src2Data when Write2='1'
-        ELSE pc(2*wordSize-1 downto wordSize) when pushPC="00"
-        else pc(wordSize-1 downto 0) when pushPC="01";
+        ELSE pc(2*wordSize-1 downto wordSize) when pushPC="01"
+        else pc(wordSize-1 downto 0) when pushPC="10";
 
-        we <= Write1 OR Write2 OR decSP1 or decSP2;--decSP is added as it will be used when pushing the data to the stack
+        we <= '1' WHEN Write1 ='1' OR Write2 = '1' OR decSP1 ='1' or decSP2='1' OR pushPc = "01" OR pushPC = "10" OR pushFlags = '1' --decSP is added as it will be used when pushing the data to the stack
+        ELSE '0';
 
-        addressSelection <= incSP1 OR incSP2 OR decSP1 OR decSP2;
+        addressSelection <= '1' WHEN incSP1 = '1' OR incSP2 = '1' OR decSP1= '1' OR decSP2= '1' OR pushPc = "01" OR pushPC = "10" OR pushFlags = '1'
+        ELSE '0';
 
         operationAddress(wordSize-1 DOWNTO 0) <= Src1Data WHEN Read1 = '1'
         ELSE Src2Data WHEN Read2 = '1'
@@ -116,16 +118,21 @@ ARCHITECTURE MemoryArch OF Memory IS
         );
 
 
+        spMuxSel <= '1' WHEN decSP1='1' OR decSP2='1' OR pushPc = "01" OR pushPC = "10" OR pushFlags = '1'
+        ELSE '0';
+        
         spInputMuxMap: ENTITY work.Mux2 GENERIC MAP((2*wordSize)) PORT MAP(
             A => spPlusOne, B => spMinusOne ,
-			S => decSP1 OR decSP2,
+			S => spMuxSel,
 			C =>spIn
         );
 
-        spEn <= incSP1 OR decSP1 OR incSP2 OR decSP2;
+        spEn <= '1' WHEN incSP1= '1' OR decSP1= '1' OR incSP2= '1' OR decSP2 = '1' OR pushPc = "01" OR pushPC = "10" OR pushFlags = '1'
+        ELSE '0';
            
 
-        spMap: ENTITY work.Reg GENERIC MAP((2*wordSize)) PORT MAP(
+        spMap: ENTITY work.RigWithIntial GENERIC MAP((2*wordSize)) PORT MAP(
+            intialValue => (OTHERS => '1'),
             D =>  spIn,
             en => spEn, clk => clk , rst => reset ,
             Q => sp

@@ -9,7 +9,7 @@ ENTITY MotherBoard IS
 	Generic(regNum: integer := 3; addressBits: integer := 20; wordSize: integer :=16; pcInputsNum: integer := 6);
 
 	PORT(
-            clk, reset, resetBuffers, INTERRUPT : IN STD_LOGIC;
+            clk, reset, INTERRUPT : IN STD_LOGIC;
 
             inPort : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
             
@@ -24,13 +24,16 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
     -- General Parameters
         -- SIGNAL M0, M1 : STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+        SIGNAL start, resetBuffers: STD_LOGIC;
         SIGNAL notClk: STD_LOGIC;
-
+        -- Reset
+        SIGNAL resetCounterEn: STD_LOGIC;
+        SIGNAL resetCounterOut: STD_LOGIC_VECTOR(0 DOWNTO 0);
 
     -- Fetch Parameters
         SIGNAL pcEn: STD_LOGIC;
         SIGNAL pcSrcSelector: STD_LOGIC_VECTOR( integer(ceil(log2(real(pcInputsNum))))-1 DOWNTO 0);
-        SIGNAL fetch_pc: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+        SIGNAL fetch_pc, fetch_pcMuxOut: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
         SIGNAL fetch_instruction1, fetch_instruction2: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL stackOutput, branchAddress: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
 
@@ -52,13 +55,14 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL Decode_ImmVal: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         
     -- Control Unit Parameters
-        SIGNAL insertNOP: STD_LOGIC;
+        SIGNAL insertNOP, control_stopFetch: STD_LOGIC;
         SIGNAL control_incSP1, control_decSP1, control_incSP2, control_decSP2: STD_LOGIC;
         SIGNAL control_EX1, control_Read1, control_Write1, control_WB1, control_EX2, control_Read2, control_Write2, control_WB2: STD_LOGIC;
         SIGNAL control_WB1Selector, control_WB2Selector: STD_LOGIC_VECTOR(1 DOWNTO 0);
         SIGNAL control_pushPC,control_popPC: std_logic_vector(1 downto 0) ;
         SIGNAL control_pushFlags,control_popFlags: std_logic ;
         SIGNAL control_outRegEn, control_outRegSelect: STD_LOGIC;
+        SIGNAL loadUse: STD_LOGIC;
 
     -- Decode/Execute Parameters
         SIGNAL decodeExecute_En1, decodeExecute_En2:STD_LOGIC;
@@ -157,10 +161,40 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
         flush <= isBranch;
 
+        resetBuffers <= reset;
+
+    -- Reset Whole System
+        -- resetCounterEn <= '1' WHEN rising_edge(reset)
+        -- ELSE '0' WHEN resetCounterOut = "1";
+
+        -- resetCounterMap: ENTITY work.Counter GENERIC MAP (1) PORT MAP (
+        --     en => resetCounterEn, reset => reset, clk => notClk,
+        --     count => resetCounterOut
+        -- );
+
+        start <= '1' WHEN falling_edge(reset)
+        ELSE '0';
+
+        pcEn <= start AND (NOT control_stopFetch) AND (NOT loadUse);
+        fetchDecode_En <= start;
+
+        decodeExecute_En1 <= start;
+        decodeExecute_En2 <= start;
+
+        executeMem_En1 <= start;
+        executeMem_En2 <= start;
+
+        memWB_En1 <= start;
+        memWB_En2 <= start;
+
+
+
     -- ###########################################################################################
     -- Fetch Stage
         fetchMap: ENTITY work.Fetch GENERIC MAP (addressBits, wordSize, pcInputsNum) PORT MAP (
             clk => clk , reset => reset,
+            resetCounterOut => resetCounterOut,
+            
             pcEn => pcEn,
             pcSrcSelector => pcSrcSelector,
 
@@ -170,7 +204,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             dataOut1 => fetch_instruction1, dataOut2 => fetch_instruction2,
             
-            pc => fetch_pc
+            pc => fetch_pc, pcMuxOutput => fetch_pcMuxOut
         );
     -- ###########################################################################################
     -- Fetch/Decode Buffer
@@ -217,6 +251,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
                 reset => reset,
                 insertNOP => insertNOP,
                 isBranch => isBranch,
+                loadUse => loadUse,
                 ------------------------------------------------
 
                 Execute1 => control_EX1,Execute2 => control_EX2,
@@ -230,6 +265,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
                 wbMuxSelector1 => control_WB1Selector,wbMuxSelector2 => control_WB2Selector,
                 outPortPipe => control_outRegSelect,
                 pcSelector => pcSrcSelector,
+                stopFetch => control_stopFetch,
                 pushPC => control_pushPC,popPC => control_popPC,
                 pushFlags => control_pushFlags ,popFlags => control_popFlags
 
@@ -346,6 +382,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             Rdst1 => decodeExecute_RDst1, Rdst2 => decodeExecute_RDst2,
             Rsrc1 =>decodeExecute_RSrc1 , Rsrc2 => decodeExecute_RSrc2 ,--: in std_logic_vector(numRegister-1 downto 0) ;
 
+            opCode1 => decodeExecute_alu1Op, opCode2 => decodeExecute_alu2Op,
+
             ---------------------------------
             out1 => execute_Mux1Selector,
             out2 => execute_Mux2Selector,
@@ -395,7 +433,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
         -- Out Register
         outMuxMap: ENTITY work.mux2 GENERIC MAP(wordSize) PORT MAP(
-            A => execute_RSrc1Val, B =>  execute_RSrc2Val,
+            A => execute_RDst1Val, B =>  execute_RDst2Val,
             S => decodeExecute_outRegSelect,
             C => outRegInput
         );
@@ -474,7 +512,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             clk => clk, reset => reset,
 
             Read1 => executeMem_Read1 , Read2 => executeMem_Read2 , Write1 => executeMem_Write1 ,Write2 => executeMem_Write2,
-            pc => executeMem_pc , alu1Out => executeMem_alu1Out , alu2Out => executeMem_alu2Out, -- TODO: check if it's neccessary to pass alu1, alu2
+            pc => fetch_pcMuxOut , alu1Out => executeMem_alu1Out , alu2Out => executeMem_alu2Out, -- TODO: check if it's neccessary to pass alu1, alu2
 
             Src1Data => executeMem_RSrc1Val, Src2Data => executeMem_RSrc2Val,
             Dst1Data => executeMem_RDst1Val, Dst2Data => executeMem_RDst2Val,
