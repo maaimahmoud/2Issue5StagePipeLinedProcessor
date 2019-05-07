@@ -6,13 +6,14 @@ def setMC(test=False):
     selected = mc
 
 def getMachineCode(param):
-    if param.isdigit():
+    try:
         return Helper.strToBinary16(param)
-    mc = selected.get(param)
-    if(mc == None):
-        raise Exception(
-            f"Not valid param: {param}, can't find its machine code")
-    return mc
+    except ValueError:
+        mc = selected.get(param)
+        if(mc == None):
+            raise Exception(
+                f"Not valid param: {param}, can't find its machine code")
+        return mc
 
 
 mc = {
