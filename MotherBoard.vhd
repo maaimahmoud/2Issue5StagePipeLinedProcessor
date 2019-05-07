@@ -278,6 +278,24 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             insertNOP  => insertNOP
         );
 
+
+        hazardMap: ENTITY work.HazardDetectionUnit GENERIC MAP(5, 3) PORT MAP(
+            pip1FetchOp => Decode_alu1Op,
+            pip1DecodeOp => decodeExecute_alu1Op,
+            pip2FetchOp => Decode_alu2Op,
+            pip2DecodeOp => decodeExecute_alu1Op,
+            pip1FetchSrc => Decode_RSrc1,
+            pip1DecodeSrc => decodeExecute_RSrc1,
+            pip2FetchSrc => Decode_RSrc2,
+            pip2DecodeSrc => decodeExecute_RSrc2,
+            pip1FetchDst => Decode_RDst1,
+            pip1DecodeDst => decodeExecute_RDst1,
+            pip2FetchDst => Decode_RDst2,
+            pip2DecodeDst => decodeExecute_RDst2,
+            ---------------------------------------------
+            stall => loadUse
+        );
+
         
 
     -- ###########################################################################################
