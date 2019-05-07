@@ -6,7 +6,7 @@ sim:/motherboard/DecodeMap/myRegisters
 
 force -freeze sim:/motherboard/clk 0 0, 1 {50 ps} -r 100
 
-mem load -i ./RAMs/InstructionMemory.mem -format mti /motherboard/fetchMap/instructionMemMap/Ram
+mem load -i ./RAMs/TwoOperand.mem -format mti /motherboard/fetchMap/instructionMemMap/Ram
 mem load -i ./RAMs/DataMemory.mem -format mti /motherboard/MemoryMap/dataMemoryMap/Ram
 
 

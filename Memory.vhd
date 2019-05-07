@@ -131,10 +131,9 @@ ARCHITECTURE MemoryArch OF Memory IS
         ELSE '0';
            
 
-        spMap: ENTITY work.RigWithIntial GENERIC MAP((2*wordSize)) PORT MAP(
-            intialValue => (OTHERS => '1'),
+        spMap: ENTITY work.Reg GENERIC MAP((2*wordSize)) PORT MAP(
             D =>  spIn,
-            en => spEn, clk => clk , rst => reset ,
+            en => spEn, clk => clk , rst => reset,
             Q => sp
         );
 

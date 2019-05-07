@@ -64,6 +64,9 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL control_outRegEn, control_outRegSelect: STD_LOGIC;
         SIGNAL loadUse: STD_LOGIC;
 
+    -- hazard detection parameters 
+        SIGNAL pip2FetchOp, pip2DecodeOp: std_logic_vector(operationSize-1 downto 0) ;
+
     -- Decode/Execute Parameters
         SIGNAL decodeExecute_En1, decodeExecute_En2:STD_LOGIC;
         SIGNAL decodeExecute_incSP1, decodeExecute_incSP2, decodeExecute_decSP1, decodeExecute_decSP2:STD_LOGIC;
@@ -279,11 +282,17 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         );
 
 
+        pip2FetchOp <= "00000" when insertNOP = '1'
+        else Decode_alu2Op;
+
+        pip2DecodeOp <= "00000" when decodeExecute_EX2 = '0' and decodeExecute_Read2 = '0' and decodeExecute_Write2 = '0' and decodeExecute_WB2 = '0'
+        else decodeExecute_alu2Op;
+
         hazardMap: ENTITY work.HazardDetectionUnit GENERIC MAP(5, 3) PORT MAP(
             pip1FetchOp => Decode_alu1Op,
             pip1DecodeOp => decodeExecute_alu1Op,
-            pip2FetchOp => Decode_alu2Op,
-            pip2DecodeOp => decodeExecute_alu1Op,
+            pip2FetchOp => pip2FetchOp,
+            pip2DecodeOp => pip2DecodeOp,
             pip1FetchSrc => Decode_RSrc1,
             pip1DecodeSrc => decodeExecute_RSrc1,
             pip2FetchSrc => Decode_RSrc2,
