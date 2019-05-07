@@ -12,6 +12,7 @@ port(
     reset:IN std_logic;
     insertNOP:IN std_logic;
     isBranch: IN std_logic;
+    loadUse: IN std_logic;
     Execute1,Execute2:OUT std_logic;
     readFromMemory1,readFromMemory2:OUT std_logic;
     wrtieToMemory1,wrtieToMemory2:OUT std_logic;
@@ -42,7 +43,8 @@ architecture ControlUnitArch of ControlUnit is
     signal popOnRet: std_logic_vector(1 downto 0);
     signal incSP1Temp,incSP2Temp,decSP1Temp,decSP2Temp:std_logic;
      
-    signal Execute2Out,readFromMemory2Out,wrtieToMemory2Out,WB2Out,Branch2Out,incSP2TempOut,decSP2TempOut:STD_LOGIC;
+    signal Execute1Out,readFromMemory1Out,wrtieToMemory1Out,WB1Out,Branch1Out,incSP1TempOut,decSP1TempOut: STD_LOGIC;
+    signal Execute2Out,readFromMemory2Out,wrtieToMemory2Out,WB2Out,Branch2Out,incSP2TempOut,decSP2TempOut: STD_LOGIC;
 
 begin
     stall<= stallInterrupt or stallRTI or stallCALL or stallRET;
@@ -57,7 +59,7 @@ begin
     else '0';
     
     firstPipe:Entity work.OnePipeControlUnit PORT MAP(
-        opCode1,stall,Execute1,readFromMemory1,wrtieToMemory1,WB1,Branch1,incSP1Temp,decSP1Temp,wbMuxSelector1
+        opCode1,stall,Execute1Out,readFromMemory1Out,wrtieToMemory1Out,WB1Out,Branch1Out,incSP1TempOut,decSP1TempOut,wbMuxSelector1
     );
     seconedPipe:Entity work.OnePipeControlUnit PORT MAP(
         opCode2,stall,Execute2Out,readFromMemory2Out,wrtieToMemory2Out,WB2Out,Branch2Out,incSP2TempOut,decSP2TempOut,wbMuxSelector2
@@ -72,13 +74,22 @@ begin
     decSP2<='1' when decSP2Temp='1' or pushFlags='1'
     else '0';
 
-    Execute2 <=  Execute2Out AND (NOT insertNOP);
-    readFromMemory2 <=  readFromMemory2Out AND (NOT insertNOP);
-    wrtieToMemory2 <=  wrtieToMemory2Out AND (NOT insertNOP);
-    WB2 <=  WB2Out AND (NOT insertNOP);
-    Branch2 <=  Branch2Out AND (NOT insertNOP);
-    incSP2Temp <= incSP2TempOut  AND (NOT insertNOP);
-    decSP2Temp <= decSP2TempOut  AND (NOT insertNOP);
+    Execute1 <=  Execute1Out AND (NOT loadUse);
+    readFromMemory1 <=  readFromMemory1Out AND (NOT loadUse);
+    wrtieToMemory1 <=  wrtieToMemory1Out AND (NOT loadUse);
+    WB1 <=  WB1Out AND (NOT loadUse);
+    Branch1 <=  Branch1Out AND (NOT loadUse);
+    incSP1Temp <= incSP1TempOut  AND (NOT loadUse);
+    decSP1Temp <= decSP1TempOut  AND (NOT loadUse);
+    
+    
+    Execute2 <=  Execute2Out AND (NOT insertNOP) AND (NOT loadUse);
+    readFromMemory2 <=  readFromMemory2Out AND (NOT insertNOP) AND (NOT loadUse);
+    wrtieToMemory2 <=  wrtieToMemory2Out AND (NOT insertNOP) AND (NOT loadUse);
+    WB2 <=  WB2Out AND (NOT insertNOP) AND (NOT loadUse);
+    Branch2 <=  Branch2Out AND (NOT insertNOP) AND (NOT loadUse);
+    incSP2Temp <= incSP2TempOut  AND (NOT insertNOP) AND (NOT loadUse);
+    decSP2Temp <= decSP2TempOut  AND (NOT insertNOP) AND (NOT loadUse);
 
 
     inerruptHandler:Entity work.InterruptHandler port map(

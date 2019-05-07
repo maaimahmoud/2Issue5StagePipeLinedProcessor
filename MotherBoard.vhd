@@ -62,6 +62,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL control_pushPC,control_popPC: std_logic_vector(1 downto 0) ;
         SIGNAL control_pushFlags,control_popFlags: std_logic ;
         SIGNAL control_outRegEn, control_outRegSelect: STD_LOGIC;
+        SIGNAL loadUse: STD_LOGIC;
 
     -- Decode/Execute Parameters
         SIGNAL decodeExecute_En1, decodeExecute_En2:STD_LOGIC;
@@ -174,7 +175,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         start <= '1' WHEN falling_edge(reset)
         ELSE '0';
 
-        pcEn <= start AND (NOT control_stopFetch);
+        pcEn <= start AND (NOT control_stopFetch) AND (NOT loadUse);
         fetchDecode_En <= start;
 
         decodeExecute_En1 <= start;
@@ -250,6 +251,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
                 reset => reset,
                 insertNOP => insertNOP,
                 isBranch => isBranch,
+                loadUse => loadUse,
                 ------------------------------------------------
 
                 Execute1 => control_EX1,Execute2 => control_EX2,
