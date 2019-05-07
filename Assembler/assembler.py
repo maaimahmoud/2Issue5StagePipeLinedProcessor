@@ -16,7 +16,9 @@ class InstructionsLooper:
             instruction = self.util.cleanInstruction(instruction)
             if not instruction:
                 continue
-            parsed += self.parser(instruction).ljust(16, '0') + '\n'
+            lines = self.parser(instruction).split("\n")
+            lines = [line.ljust(16, '0') for line in lines]
+            parsed += "\n".join(lines) + '\n'
         return parsed
 
 
@@ -62,7 +64,7 @@ class Assembler:
     def _SHParser(self, operation, operand1, operand2):
         print(operand1, operand2)
         immediateBin = Helper.strToBinary16(operand2, fill=5)
-        return f"{mc(operation)}{immediateBin[0]}00{mc(operand1)}"
+        return f"{mc(operation)}{mc(operand1)}{mc(operand1)}{immediateBin}"
 
     def _ORGParser(self, operation, operand1, operand2):
         return operation + operand1  # return it like 'ORG100'
@@ -72,6 +74,5 @@ class Assembler:
         operation = "MOV"
         operand2 = '1'
         return self._defaultParser(operation, operand1, operand2)  # return it like 'ORG100'
-
 
 h = Helper()

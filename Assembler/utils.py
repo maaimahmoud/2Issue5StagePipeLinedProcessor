@@ -1,8 +1,6 @@
 class Helper:
     def __init__(self):
         pass
-    def parseInstr(self, instructionStr):
-        pass
 
     def cleanInstruction(self, instr):
         instr = instr.strip() # remove any spaces and \n in the end of the line
@@ -33,7 +31,7 @@ class Helper:
         # // sixtyFill = binary.zfill(fill)
         # // return sixtyFill'
         # fill -= 1
-        num = int(numStr)
+        num = int(numStr, 16)
         binary = format(num if num >= 0 else (1 << fill) + num, "0{}b".format(fill))
         return str(binary)
         if(int(numStr) >= 0):
