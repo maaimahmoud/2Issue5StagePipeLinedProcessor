@@ -23,7 +23,7 @@ ENTITY Fetch IS
             R1DstVal: IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
             -- M0, M1: IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
             ---------------------------------------------------
-            dataOut1, dataOut2: OUT STD_LOGIC_VECTOR (wordSize-1 DOWNTO 0);
+            instruction1,instruction2: OUT STD_LOGIC_VECTOR (wordSize-1 DOWNTO 0);
             pc, pcPlusOne: OUT STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0)
 
 		);
@@ -51,6 +51,8 @@ ARCHITECTURE FetchArch OF Fetch IS
 
     SIGNAL M0RegEn,M1RegEn:STD_LOGIC;
     -- SIGNAL M0In, M1In: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
+
+    SIGNAL dataOut1, dataOut2: STD_LOGIC_VECTOR (wordSize-1 DOWNTO 0);
 
 	BEGIN
 
@@ -139,7 +141,11 @@ ARCHITECTURE FetchArch OF Fetch IS
         Q => M1
     );
 
+    instruction1 <= dataOut1 WHEN resetCounterOut = "10"
+    ELSE (OTHERS=>'0');
 
+    instruction2 <= dataOut2 WHEN resetCounterOut = "10"
+    ELSE (OTHERS=>'0');
 		
 		
 END ARCHITECTURE;
