@@ -67,7 +67,7 @@ class Assembler:
         return f"{mc(operation)}{mc(operand1)}{mc(operand1)}{immediateBin}"
 
     def _ORGParser(self, operation, operand1, operand2):
-        return operation + operand1  # return it like 'ORG100'
+        return operation + operand1.rjust(16, '0')  # return it like 'ORG00000000100'
 
     def _SETParser(self, operation, operand1, operand2):
         print("[Warning]: the operation set is not supported for current processor, it will be converted to move")
