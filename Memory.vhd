@@ -1,6 +1,7 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.numeric_std.all;
+USE work.Constants.all;
 
 ENTITY Memory IS
 
@@ -9,7 +10,8 @@ ENTITY Memory IS
 	PORT(
 			clk, reset : IN STD_LOGIC;
             Read1, Read2, Write1,Write2: IN STD_LOGIC;
-            pc : IN STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+            pc, pcPlusOne : IN STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+            alu1Op,  alu2Op: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);
             alu1Out, alu2Out : IN  STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
             Src1Data, Src2Data: IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
             Dst1Data, Dst2Data : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
@@ -17,6 +19,7 @@ ENTITY Memory IS
             incSP1, decSP1, incSP2, decSP2: IN STD_LOGIC;
             ----------------------------------------------------------------------
             -- M0, M1,
+            finishPopping: OUT STD_LOGIC;
             memoryOut : OUT STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
             
             pushPC,popPc:IN std_logic_vector(1 downto 0) ;
@@ -36,7 +39,7 @@ ARCHITECTURE MemoryArch OF Memory IS
 
     -- Stack pointer
     SIGNAL spEn, spMuxSel, spPlusOneCarry, spMinusOneCarry: STD_LOGIC;
-    SIGNAL sp, spIn, spPlusOne, spMinusOne,spToBeUsed: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+    SIGNAL sp, spIn, spPlusOne, spMinusOne,spToBeUsed, pushedPC: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
 
     SIGNAL memoryOutTemp: std_logic_vector(wordSize-1 downto 0);
 	
@@ -48,18 +51,20 @@ ARCHITECTURE MemoryArch OF Memory IS
         -- ELSE Dst1Data WHEN Write1 = '1'
         -- ELSE Dst2Data;
 
+        pushedPC <= pcPlusOne WHEN alu1Op = opCall
+        ELSE pc;
 
         data <= Dst1Data when decSP1 = '1'
         ELSE Dst2Data when decSP2 = '1'
         ELSE Src1Data WHEN Write1 = '1'
         ELSE Src2Data when Write2='1'
-        ELSE pc(2*wordSize-1 downto wordSize) when pushPC="01"
-        else pc(wordSize-1 downto 0) when pushPC="10";
+        ELSE pushedPC(2*wordSize-1 downto wordSize) when pushPC="10"
+        ELSE pushedPC(wordSize-1 downto 0) when pushPC="01";
 
         we <= '1' WHEN Write1 ='1' OR Write2 = '1' OR decSP1 ='1' or decSP2='1' OR pushPc = "01" OR pushPC = "10" OR pushFlags = '1' --decSP is added as it will be used when pushing the data to the stack
         ELSE '0';
 
-        addressSelection <= '1' WHEN incSP1 = '1' OR incSP2 = '1' OR decSP1= '1' OR decSP2= '1' OR pushPc = "01" OR pushPC = "10" OR pushFlags = '1'
+        addressSelection <= '1' WHEN incSP1 = '1' OR incSP2 = '1' OR decSP1= '1' OR decSP2= '1' OR pushPc = "01" OR pushPC = "10" OR pushFlags = '1' OR popPC = "01" OR popPC = "10" OR popFlags = '1'
         ELSE '0';
 
         operationAddress(wordSize-1 DOWNTO 0) <= Src1Data WHEN Read1 = '1'
@@ -97,7 +102,7 @@ ARCHITECTURE MemoryArch OF Memory IS
         --and since SP is the output of the register that is enabled by inc SP and dec SP signals 
         --so spPlusOne will be sp+2 as the output of the register is input to adder ,also when
         --we want to use sp at decSP1 or decSP2 sp will be equal to sp-1 so we need to choose spPlusOne 
-        spToBeUsed<=sp when (incSP1='1' or incSP2='1')
+        spToBeUsed<=sp when (incSP1='1' or incSP2='1' or popPC = "01" or popPC = "10" or popFlags='1' )
         else spMinusOne;
         -- TODO: organize plus before execute or execute before minus
         adderOneMap: ENTITY work.NBitAdder GENERIC MAP( (2*wordSize) ) PORT MAP (
@@ -118,7 +123,7 @@ ARCHITECTURE MemoryArch OF Memory IS
         );
 
 
-        spMuxSel <= '1' WHEN decSP1='1' OR decSP2='1' OR pushPc = "01" OR pushPC = "10" OR pushFlags = '1'
+        spMuxSel <= '1' WHEN decSP1='1' OR decSP2='1' OR pushPc = "01" OR pushPC = "10" OR pushFlags = '1' 
         ELSE '0';
         
         spInputMuxMap: ENTITY work.Mux2 GENERIC MAP((2*wordSize)) PORT MAP(
@@ -127,7 +132,7 @@ ARCHITECTURE MemoryArch OF Memory IS
 			C =>spIn
         );
 
-        spEn <= '1' WHEN incSP1= '1' OR decSP1= '1' OR incSP2= '1' OR decSP2 = '1' OR pushPc = "01" OR pushPC = "10" OR pushFlags = '1'
+        spEn <= '1' WHEN incSP1= '1' OR decSP1= '1' OR incSP2= '1' OR decSP2 = '1' OR pushPc = "01" OR pushPC = "10" OR pushFlags = '1'OR popPC = "01" OR popPC = "10" OR popFlags = '1'
         ELSE '0';
            
 
@@ -137,5 +142,8 @@ ARCHITECTURE MemoryArch OF Memory IS
             en => spEn, clk => clk , rst => reset ,
             Q => sp
         );
+
+        finishPopping <= '1' WHEN popFlags = '0' AND popPC = "00"
+        ELSE '0';
 
 END ARCHITECTURE;

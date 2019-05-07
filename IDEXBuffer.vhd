@@ -23,7 +23,7 @@ ENTITY IDEXBuffer IS
 
             ------------------------------------------------
 
-            pcIn: in std_logic_vector((2*wordSize)-1 downto 0);
+            pcIn, pcPlusOneIn: in std_logic_vector((2*wordSize)-1 downto 0);
 
             inPortIn1, inPortIn2: in std_logic_vector(wordSize-1 downto 0);
 
@@ -55,7 +55,7 @@ ENTITY IDEXBuffer IS
 
             ----------------------------------------------------------------
 
-            pcOut: out std_logic_vector((2*wordSize)-1 downto 0);
+            pcOut, pcPlusOne: out std_logic_vector((2*wordSize)-1 downto 0);
 
             inPortOut1, inPortOut2: out std_logic_vector(wordSize-1 downto 0);
 
@@ -160,6 +160,11 @@ ARCHITECTURE IDEXBufferArch OF IDEXBuffer IS
         pcMap: ENTITY work.Reg GENERIC MAP(2*wordSize) PORT MAP
         (
             pcIn, enableRead2, notClk, rst, pcOut
+        );
+
+        pcPlusOneMap: ENTITY work.Reg GENERIC MAP(2*wordSize) PORT MAP
+        (
+            pcPlusOneIn, enableRead2, notClk, rst, pcPlusOne
         );
 
         inport1Map: ENTITY work.Reg GENERIC MAP(wordSize) PORT MAP

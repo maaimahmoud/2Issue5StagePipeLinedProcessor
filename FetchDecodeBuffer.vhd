@@ -9,9 +9,9 @@ ENTITY FetchDecodeBuffer IS
 	PORT(
 			clk, reset: IN STD_LOGIC;
 			bufferEn  : IN STD_LOGIC;
-			pcIn : IN STD_LOGIC_VECTOR((2*wordSize-1) DOWNTO 0);
+			pcIn, pcPlusOneIn : IN STD_LOGIC_VECTOR((2*wordSize-1) DOWNTO 0);
             instruction1In, instruction2In : IN  STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
-			pc : OUT STD_LOGIC_VECTOR((2*wordSize-1) DOWNTO 0);
+			pc, pcPlusOne : OUT STD_LOGIC_VECTOR((2*wordSize-1) DOWNTO 0);
             instruction1Out,instruction2Out : OUT STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0)
 		);
 
@@ -56,6 +56,11 @@ ARCHITECTURE FetchDecodeBufferArch OF FetchDecodeBuffer IS
 		pcMap: ENTITY work.Reg GENERIC MAP((2*wordSize)) PORT MAP
         (
             pcIn, bufferEn, clk, reset, pc
+        );
+
+		pcPlusOneMap: ENTITY work.Reg GENERIC MAP((2*wordSize)) PORT MAP
+        (
+            pcPlusOneIn, bufferEn, clk, reset, pcPlusOne
         );
 
 END ARCHITECTURE;
