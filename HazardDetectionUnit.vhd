@@ -5,10 +5,10 @@ USE work.constants.ALL;
 
 -- 
 --   ↓
--- F D E M W    ==> pip1decode
--- F D E M W    ==> pip2decode
---   F D E M W  ==> pip1fetch
---   F D E M W  ==> pip2fetch
+-- F D E M W    ==> pip1decode, [no data hazards]: first instruction
+-- F D E M W    ==> pip2decode, [no data hazards]: if there is a dependance, it will be detected  during previous fetch cycle
+--   F D E M W  ==> pip1fetch, may occur hazard due to instruction in pip2decode or pip1decode
+--   F D E M W  ==> pip2fetch, may occur hazard due to instruction in pip1fetch, pip2decode or pip1decode
 
 -- stall in all load use cases
 --  * pip1fetch src or dst = dst of pip2decode or pip1decode
@@ -55,16 +55,28 @@ pure function f_isLoadUse (
     lastOpcode: IN STD_LOGIC_VECTOR(g_opcodeSize - 1 DOWNTO 0);
     lastDst: IN STD_LOGIC_VECTOR(g_regSize - 1 DOWNTO 0);
     newInstructionSrc: IN STD_LOGIC_VECTOR(g_regSize - 1 DOWNTO 0);
-    newInstructionDst: IN STD_LOGIC_VECTOR(g_regSize - 1 DOWNTO 0)
+    newInstructionDst: IN STD_LOGIC_VECTOR(g_regSize - 1 DOWNTO 0);
+    newInstructionOp: IN STD_LOGIC_VECTOR(g_opcodeSize - 1 DOWNTO 0)
     )
     return STD_LOGIC is
+    variable newInstructionMode: STD_LOGIC_VECTOR(opModeSize - 1 DOWNTO 0);
     variable isInstructionLoad: BOOLEAN;
     variable isDataDependant: BOOLEAN;
     variable isLoad: BOOLEAN;
     variable result: STD_LOGIC;
 begin
+    newInstructionMode := newInstructionOp(g_opcodeSize - 1 DOWNTO g_opcodeSize - opModeSize);
     isInstructionLoad := lastOpcode = opPOP OR lastOpcode = opLDD;
-    isDataDependant := lastDst = newInstructionSrc OR lastDst = newInstructionDst;
+    isDataDependant := 
+        (
+            (newInstructionMode = twoOperand OR newInstructionOp = opLDD OR newInstructionOp = opSTD) AND
+            lastDst = newInstructionSrc
+        )
+        OR
+        (
+            newInstructionOp /= opNOP AND newInstructionOp /= opSETC AND newInstructionOp /= opCLRC AND 
+            lastDst = newInstructionDst
+        );
     isLoad := isDataDependant AND isInstructionLoad;
     result := '1' when isLoad else '0';
     return result;
@@ -73,13 +85,13 @@ end;
 SIGNAL pip1DuePip2decode, pip1DuePip1decode, pip1fetchLoad, pip2DuePip1fetch, pip2DuePip2decode, pip2DuePip1decode, pip2fetchLoad: STD_LOGIC;
 
 BEGIN
-    pip1DuePip2decode <= f_isLoadUse(pip2DecodeOp, pip2DecodeDst, pip1FetchSrc, pip1FetchDst);
-    pip1DuePip1decode <= f_isLoadUse(pip1DecodeOp, pip1DecodeDst, pip1FetchSrc, pip1FetchDst);
+    pip1DuePip2decode <= f_isLoadUse(pip2DecodeOp, pip2DecodeDst, pip1FetchSrc, pip1FetchDst, pip1FetchOp);
+    pip1DuePip1decode <= f_isLoadUse(pip1DecodeOp, pip1DecodeDst, pip1FetchSrc, pip1FetchDst, pip1FetchOp);
     pip1fetchLoad <= pip1DuePip2decode OR pip1DuePip1decode;
 
-    pip2DuePip1fetch <= f_isLoadUse(pip1FetchOp, pip1FetchDst, pip2FetchSrc, pip2FetchDst);
-    pip2DuePip2decode <= f_isLoadUse(pip2DecodeOp, pip2DecodeDst, pip2FetchSrc, pip2FetchDst);
-    pip2DuePip1decode <= f_isLoadUse(pip1DecodeOp, pip1DecodeDst, pip2FetchSrc, pip2FetchDst);
+    pip2DuePip1fetch <= f_isLoadUse(pip1FetchOp, pip1FetchDst, pip2FetchSrc, pip2FetchDst, pip2FetchOp);
+    pip2DuePip2decode <= f_isLoadUse(pip2DecodeOp, pip2DecodeDst, pip2FetchSrc, pip2FetchDst, pip2FetchOp);
+    pip2DuePip1decode <= f_isLoadUse(pip1DecodeOp, pip1DecodeDst, pip2FetchSrc, pip2FetchDst, pip2FetchOp);
     pip2fetchLoad <= pip2DuePip1fetch OR pip2DuePip2decode OR pip2DuePip1decode;
 
     stall <= pip1fetchLoad OR pip2fetchLoad;
