@@ -10,6 +10,7 @@ ENTITY Memory IS
 	PORT(
 			clk, reset : IN STD_LOGIC;
             Read1, Read2, Write1,Write2: IN STD_LOGIC;
+            flagValue: IN STD_LOGIC_VECTOR(flagSize-1 DOWNTO 0);
             pc, pcPlusOne : IN STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
             alu1Op,  alu2Op: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);
             alu1Out, alu2Out : IN  STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
@@ -42,6 +43,8 @@ ARCHITECTURE MemoryArch OF Memory IS
     SIGNAL sp, spIn, spPlusOne, spMinusOne,spToBeUsed, pushedPC: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
 
     SIGNAL memoryOutTemp: std_logic_vector(wordSize-1 downto 0);
+
+    SIGNAL completeflag: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 	
 	BEGIN
         -- address(addressBits-1 DOWNTO wordSize) <= (OTHERS => '0');
@@ -51,6 +54,9 @@ ARCHITECTURE MemoryArch OF Memory IS
         -- ELSE Dst1Data WHEN Write1 = '1'
         -- ELSE Dst2Data;
 
+        completeflag(flagSize-1 DOWNTO 0) <= flagValue;
+        completeflag(wordSize-1 DOWNTO flagSize) <= (OTHERS => '0');
+
         pushedPC <= pcPlusOne WHEN alu1Op = opCall
         ELSE pc;
 
@@ -58,6 +64,7 @@ ARCHITECTURE MemoryArch OF Memory IS
         ELSE Dst2Data when decSP2 = '1'
         ELSE Src1Data WHEN Write1 = '1'
         ELSE Src2Data when Write2='1'
+        ELSE completeflag when pushFlags = '1'
         ELSE pushedPC(2*wordSize-1 downto wordSize) when pushPC="10"
         ELSE pushedPC(wordSize-1 downto 0) when pushPC="01";
 

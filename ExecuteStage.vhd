@@ -8,7 +8,10 @@ ENTITY ExecuteStage IS
 
 	Generic(wordSize:integer :=16 ; addressSize: integer:=20);
 	PORT(
-            clk, reset: STD_LOGIC;
+            clk, reset: IN STD_LOGIC;
+
+            popFlag: IN STD_LOGIC;
+            MemflagIn: IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
             RSrcV1, RDstV1,
             RSrcV2, RDstV2,
@@ -122,9 +125,10 @@ ARCHITECTURE ExecuteStageArch of ExecuteStage is
 
         flagInput <= flag2Out when EX1 = '1' and EX2 = '1' and isBranch1 = '0'
         else flag2Out when EX1 = '0' and EX2 = '1'
+        else MemflagIn(flagSize-1 DOWNTO 0) when popFlag = '1'
         else flag1Out;
 
-        flagEn <= (EX1 OR (EX2 and not(isBranch1)));
+        flagEn <= (EX1 OR (EX2 and not(isBranch1))) OR popFlag;
 
         flagRegMap: ENTITY work.Reg GENERIC MAP(flagSize) PORT MAP(
             D =>  flagInput,

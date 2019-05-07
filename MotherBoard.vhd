@@ -35,7 +35,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL pcSrcSelector: STD_LOGIC_VECTOR( integer(ceil(log2(real(pcInputsNum))))-1 DOWNTO 0);
         SIGNAL fetch_pc, fetch_pcPlusOne: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
         SIGNAL fetch_instruction1, fetch_instruction2: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-        SIGNAL stackOutput, branchAddress: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+        SIGNAL branchAddress: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
 
     -- Fetch/Decode Buffer
         SIGNAL fetchDecode_En: STD_LOGIC;
@@ -439,6 +439,9 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         ExecuteMap: ENTITY work.ExecuteStage GENERIC MAP(wordSize) PORT MAP(
             clk, reset,
 
+            executeMem_popFlags,
+            mem_memoryOut,
+
             decodeExecute_RSrc1Val, decodeExecute_RDst1Val,
             decodeExecute_RSrc2Val, decodeExecute_RDst2Val,
 
@@ -561,6 +564,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             clk => clk, reset => reset,
 
             Read1 => executeMem_Read1 , Read2 => executeMem_Read2 , Write1 => executeMem_Write1 ,Write2 => executeMem_Write2,
+            flagValue => flagOut,
             pc => executeMem_pc ,pcPlusOne => executeMem_pcPlusOne,
             alu1Op => executeMem_alu1Op, alu2Op => executeMem_alu2Op,
             alu1Out => executeMem_alu1Out , alu2Out => executeMem_alu2Out, -- TODO: check if it's neccessary to pass alu1, alu2
