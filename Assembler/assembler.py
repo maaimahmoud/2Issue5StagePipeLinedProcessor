@@ -16,7 +16,7 @@ class InstructionsLooper:
             instruction = self.util.cleanInstruction(instruction)
             if not instruction:
                 continue
-            parsed += self.parser(instruction) + '\n'
+            parsed += self.parser(instruction).ljust(16, '0') + '\n'
         return parsed
 
 
