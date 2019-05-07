@@ -70,13 +70,13 @@ begin
         opCode2,stall,Execute2Out,readFromMemory2Out,wrtieToMemory2Out,WB2Out,Branch2Out,incSP2TempOut,decSP2TempOut,wbMuxSelector2
     );
 
-    incSP1 <='1' when incSP1Temp='1' or popFlags='1'
+    incSP1 <='1' when incSP1Temp='1' --or popFlags='1'
     else '0';
-    incSP2<='1' when incSP2Temp='1' or popFlags='1'
+    incSP2<='1' when incSP2Temp='1' --or popFlags='1'
     else '0';
-    decSP1<='1' when decSP1Temp='1' or pushFlags='1'
+    decSP1<='1' when decSP1Temp='1' --or pushFlags='1'
     else '0';
-    decSP2<='1' when decSP2Temp='1' or pushFlags='1'
+    decSP2<='1' when decSP2Temp='1' --or pushFlags='1'
     else '0';
 
     Execute1 <=  Execute1Out AND (NOT loadUse) AND (NOT stall);
