@@ -62,6 +62,10 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL control_pushPC,control_popPC: std_logic_vector(1 downto 0) ;
         SIGNAL control_pushFlags,control_popFlags: std_logic ;
         SIGNAL control_outRegEn, control_outRegSelect: STD_LOGIC;
+        SIGNAL loadUse: STD_LOGIC;
+
+    -- hazard detection parameters 
+        SIGNAL pip2FetchOp, pip2DecodeOp: std_logic_vector(operationSize-1 downto 0) ;
 
     -- Decode/Execute Parameters
         SIGNAL decodeExecute_En1, decodeExecute_En2:STD_LOGIC;
@@ -176,7 +180,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         start <= '1' WHEN resetCounterOut = "01" OR resetCounterOut = "10"
         ELSE '0';
 
-        pcEn <= start AND (NOT control_stopFetch) AND finishPopping;
+        pcEn <= start AND (NOT control_stopFetch) AND (NOT loadUse) AND finishPopping;
         fetchDecode_En <= start;
 
         decodeExecute_En1 <= start;
@@ -260,6 +264,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
                 reset => reset,
                 insertNOP => insertNOP,
                 isBranch => isBranch,
+                loadUse => loadUse,
                 ------------------------------------------------
 
                 Execute1 => control_EX1,Execute2 => control_EX2,
@@ -284,6 +289,30 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             Rdst1 => Decode_RDst1, Rsrc2 => Decode_RSrc2, Rdst2 =>  Decode_RDst2,
             instruction1OpCode => Decode_alu1Op, instruction2OpCode => Decode_alu2Op,
             insertNOP  => insertNOP
+        );
+
+
+        pip2FetchOp <= "00000" when insertNOP = '1'
+        else Decode_alu2Op;
+
+        pip2DecodeOp <= "00000" when decodeExecute_EX2 = '0' and decodeExecute_Read2 = '0' and decodeExecute_Write2 = '0' and decodeExecute_WB2 = '0'
+        else decodeExecute_alu2Op;
+
+        hazardMap: ENTITY work.HazardDetectionUnit GENERIC MAP(5, 3) PORT MAP(
+            pip1FetchOp => Decode_alu1Op,
+            pip1DecodeOp => decodeExecute_alu1Op,
+            pip2FetchOp => pip2FetchOp,
+            pip2DecodeOp => pip2DecodeOp,
+            pip1FetchSrc => Decode_RSrc1,
+            pip1DecodeSrc => decodeExecute_RSrc1,
+            pip2FetchSrc => Decode_RSrc2,
+            pip2DecodeSrc => decodeExecute_RSrc2,
+            pip1FetchDst => Decode_RDst1,
+            pip1DecodeDst => decodeExecute_RDst1,
+            pip2FetchDst => Decode_RDst2,
+            pip2DecodeDst => decodeExecute_RDst2,
+            ---------------------------------------------
+            stall => loadUse
         );
 
         
@@ -392,6 +421,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             Rdst1 => decodeExecute_RDst1, Rdst2 => decodeExecute_RDst2,
             Rsrc1 =>decodeExecute_RSrc1 , Rsrc2 => decodeExecute_RSrc2 ,--: in std_logic_vector(numRegister-1 downto 0) ;
 
+            opCode1 => decodeExecute_alu1Op, opCode2 => decodeExecute_alu2Op,
+
             ---------------------------------
             out1 => execute_Mux1Selector,
             out2 => execute_Mux2Selector,
@@ -441,7 +472,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
         -- Out Register
         outMuxMap: ENTITY work.mux2 GENERIC MAP(wordSize) PORT MAP(
-            A => execute_RSrc1Val, B =>  execute_RSrc2Val,
+            A => execute_RDst1Val, B =>  execute_RDst2Val,
             S => decodeExecute_outRegSelect,
             C => outRegInput
         );

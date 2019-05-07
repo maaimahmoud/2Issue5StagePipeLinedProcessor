@@ -21,6 +21,8 @@ ENTITY ForwardingUnit IS
             
             Rdst1,Rdst2,
             Rsrc1,Rsrc2: IN STD_LOGIC_VECTOR(numRegister-1 downto 0) ;
+
+            opCode1, opCode2: in std_logic_vector(operationSize-1 downto 0) ;
             ---------------------------------------------
             out1: OUT STD_LOGIC_VECTOR(2 downto 0) ;
             out2: OUT STD_LOGIC_VECTOR(2 downto 0) ;
@@ -40,10 +42,10 @@ BEGIN
     else "011" when (Rsrc1=Rdst1IMWB AND WB1 = '1')
     else "000";
  
-    out2<="010" when ( Rdst1=Rdst2IEIM AND MEM2='1' )
-    else "001" when ( Rdst1=Rdst1IEIM AND MEM1='1' )
-    else "100"when ( Rdst1=Rdst2IMWB AND WB2='1' )
-    else "011" when ( Rdst1=Rdst1IMWB AND WB1='1' )
+    out2<="010" when ( Rdst1=Rdst2IEIM AND MEM2='1' and opCode1 /= opSHL and opCode1 /= opSHR)
+    else "001" when ( Rdst1=Rdst1IEIM AND MEM1='1' and opCode1 /= opSHL and opCode1 /= opSHR )
+    else "100"when ( Rdst1=Rdst2IMWB AND WB2='1' and opCode1 /= opSHL and opCode1 /= opSHR )
+    else "011" when ( Rdst1=Rdst1IMWB AND WB1='1' and opCode1 /= opSHL and opCode1 /= opSHR )
     else "000";
 
 
@@ -53,10 +55,10 @@ BEGIN
     else "011" when ( Rsrc2=Rdst1IMWB AND WB1='1' )
     else "000";
 
-    out4<="010" when ( Rdst2=Rdst2IEIM AND MEM2='1' )
-    else "001" when ( Rdst2=Rdst1IEIM AND MEM1='1' )
-    else "100"when ( Rdst2=Rdst2IMWB AND WB2='1' )
-    else "011" when ( Rdst2=Rdst1IMWB AND WB1='1' )
+    out4<="010" when ( Rdst2=Rdst2IEIM AND MEM2='1' and opCode2 /= opSHL and opCode2 /= opSHR )
+    else "001" when ( Rdst2=Rdst1IEIM AND MEM1='1' and opCode2 /= opSHL and opCode2 /= opSHR )
+    else "100"when ( Rdst2=Rdst2IMWB AND WB2='1'  and opCode2 /= opSHL and opCode2 /= opSHR)
+    else "011" when ( Rdst2=Rdst1IMWB AND WB1='1' and opCode2 /= opSHL and opCode2 /= opSHR )
     else "000";
 
 END ForwardingUnitArch ; -- ForwardingUnitArch
