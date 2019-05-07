@@ -6,7 +6,7 @@ USE work.Constants.all;
 
 ENTITY MotherBoard IS
 
-	Generic(regNum: integer := 3; addressBits: integer := 20; wordSize: integer :=16; pcInputsNum: integer := 6);
+	Generic(regNum: integer := 3; addressBits: integer := 20; wordSize: integer :=16; pcInputsNum: integer := 7);
 
 	PORT(
             clk, reset, INTERRUPT : IN STD_LOGIC;
@@ -28,18 +28,18 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL notClk: STD_LOGIC;
         -- Reset
         SIGNAL resetCounterEn: STD_LOGIC;
-        SIGNAL resetCounterOut: STD_LOGIC_VECTOR(0 DOWNTO 0);
+        SIGNAL resetCounterOut: STD_LOGIC_VECTOR(1 DOWNTO 0);
 
     -- Fetch Parameters
         SIGNAL pcEn: STD_LOGIC;
         SIGNAL pcSrcSelector: STD_LOGIC_VECTOR( integer(ceil(log2(real(pcInputsNum))))-1 DOWNTO 0);
-        SIGNAL fetch_pc, fetch_pcMuxOut: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+        SIGNAL fetch_pc, fetch_pcPlusOne: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
         SIGNAL fetch_instruction1, fetch_instruction2: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL stackOutput, branchAddress: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
 
     -- Fetch/Decode Buffer
         SIGNAL fetchDecode_En: STD_LOGIC;
-        SIGNAL fetchDecode_pc: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+        SIGNAL fetchDecode_pc, fetchDecode_pcPlusOne: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
         SIGNAL fetchDecode_instruction1, fetchDecode_instruction2: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
 
@@ -75,7 +75,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL decodeExecute_EX1, decodeExecute_Read1, decodeExecute_Write1, decodeExecute_WB1, decodeExecute_EX2, decodeExecute_Read2, decodeExecute_Write2, decodeExecute_WB2: STD_LOGIC;
         SIGNAL decodeExecute_RSrc1Val, decodeExecute_RDst1Val, decodeExecute_RSrc2Val, decodeExecute_RDst2Val: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL decodeExecute_RSrc1, decodeExecute_RDst1, decodeExecute_RSrc2, decodeExecute_RDst2: STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
-        SIGNAL decodeExecute_pc: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+        SIGNAL decodeExecute_pc, decodeExecute_pcPlusOne: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
         SIGNAL decodeExecute_inPort1Val, decodeExecute_inPort2Val: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL decodeExecute_ImmVal: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
         SIGNAL decodeExecute_alu1Op, decodeExecute_alu2Op: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);
@@ -100,8 +100,9 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
     -- Execute/Memory Parameters
         SIGNAL executeMem_En1, executeMem_En2: STD_LOGIC;
+        SIGNAL executeMem_alu1Op,  executeMem_alu2Op: STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);
 
-        SIGNAL executeMem_pc: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+        SIGNAL executeMem_pc, executeMem_pcPlusOne: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
         SIGNAL executeMem_ImmVal: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
         SIGNAL executeMem_Read1, executeMem_Write1,executeMem_WB1:STD_LOGIC;--executeMem_MEM1, 
@@ -125,6 +126,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
 
     -- Memory Parameters
+        SIGNAL finishPopping: STD_LOGIC;
         SIGNAL mem_memoryOut: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
 
     -- Memory/WriteBack Parameters
@@ -167,18 +169,18 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         resetBuffers <= reset;
 
     -- Reset Whole System
-        -- resetCounterEn <= '1' WHEN rising_edge(reset)
-        -- ELSE '0' WHEN resetCounterOut = "1";
+        resetCounterEn <= '1' WHEN reset = '1'
+        ELSE '0' WHEN resetCounterOut = "10";
 
-        -- resetCounterMap: ENTITY work.Counter GENERIC MAP (1) PORT MAP (
-        --     en => resetCounterEn, reset => reset, clk => notClk,
-        --     count => resetCounterOut
-        -- );
+        resetCounterMap: ENTITY work.Counter GENERIC MAP (2) PORT MAP (
+            en => resetCounterEn, reset => reset, clk => clk,
+            count => resetCounterOut
+        );
 
-        start <= '1' WHEN falling_edge(reset)
+        start <= '1' WHEN resetCounterOut = "01" OR resetCounterOut = "10"
         ELSE '0';
 
-        pcEn <= start AND (NOT control_stopFetch) AND (NOT loadUse);
+        pcEn <= start AND (NOT control_stopFetch) AND (NOT loadUse) AND finishPopping;
         fetchDecode_En <= start;
 
         decodeExecute_En1 <= start;
@@ -201,13 +203,17 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             pcEn => pcEn,
             pcSrcSelector => pcSrcSelector,
 
-            stackOutput => stackOutput , branchAddress => branchAddress, -- TODO: Get get output from stack, calculated branch address
+            pcPopedPart => executeMem_popPC,
+
+            stackOutput => mem_memoryOut , branchAddress => branchAddress, -- TODO: Get get output from stack, calculated branch address
 
             -- M0 => M0 , M1 => M1 ,
 
+            R1DstVal => execute_RDst1Val,
+
             dataOut1 => fetch_instruction1, dataOut2 => fetch_instruction2,
             
-            pc => fetch_pc, pcMuxOutput => fetch_pcMuxOut
+            pc => fetch_pc, pcPlusOne => fetch_pcPlusOne
         );
     -- ###########################################################################################
     -- Fetch/Decode Buffer
@@ -215,8 +221,10 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             clk => notClk, reset => resetBuffers,
 			bufferEn  => fetchDecode_En,
 			pcIn => fetch_pc,
+            pcPlusOneIn => fetch_pcPlusOne,
             instruction1In =>fetch_instruction1 , instruction2In => fetch_instruction2,
 			pc => fetchDecode_pc,
+            pcPlusOne => fetchDecode_pcPlusOne,
             instruction1Out => fetchDecode_instruction1 ,instruction2Out => fetchDecode_instruction2
         );
     -- ###########################################################################################
@@ -249,6 +257,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
                 opCode1 =>fetchDecode_instruction1(wordSize-1 DOWNTO wordSize-operationSize) ,
                 opCode2 => fetchDecode_instruction2(wordSize-1 DOWNTO wordSize-operationSize),
+                popStageInMem => executeMem_popPC,
+                startProccessor => start,
                 clk => clk,
                 interrupt => INTERRUPT,
                 reset => reset,
@@ -350,6 +360,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             Decode_RSrc2, Decode_RDst2,
 
             fetchDecode_pc,
+            fetchDecode_pcPlusOne,
             inPort, inPort,
 
             control_WB1Selector, control_WB2Selector, -- from control 
@@ -379,6 +390,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             decodeExecute_RSrc2, decodeExecute_RDst2,
 
             decodeExecute_pc,
+            decodeExecute_pcPlusOne,
             decodeExecute_inPort1Val, decodeExecute_inPort2Val,
 
             decodeExecute_WB1Selector, decodeExecute_WB2Selector,
@@ -493,7 +505,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             WB1In =>  decodeExecute_WB1, WB2In =>  executeDecodeIn_WB2,
             inPort1In => decodeExecute_inPort1Val,  inPort2In => decodeExecute_inPort2Val,
 
-            pcIn => decodeExecute_pc, 
+            pcIn => decodeExecute_pc, pcPlusOneIn => decodeExecute_pcPlusOne,
+            alu1OpIn => decodeExecute_alu1Op, alu2OpIn => decodeExecute_alu2Op,
             alu1OutIn => execute_alu1Out, alu2OutIn => execute_alu2Out,
             
             Src1In => decodeExecute_RSrc1, Src2In => decodeExecute_RSrc2, Dst1In => decodeExecute_RDst1, Dst2In => decodeExecute_RDst2,
@@ -513,7 +526,9 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             WB1 => executeMem_WB1, WB2 =>  executeMem_WB2 ,
             inPort1 => executeMem_inPort1Val,  inPort2 => executeMem_inPort2Val,
 
-            pc => executeMem_pc , alu1Out => executeMem_alu1Out , alu2Out => executeMem_alu2Out,
+            pc => executeMem_pc , pcPlusOne => executeMem_pcPlusOne ,
+            alu1Op => executeMem_alu1Op, alu2Op => executeMem_alu2Op,
+            alu1Out => executeMem_alu1Out , alu2Out => executeMem_alu2Out,
 
             Src1 => executeMem_RSrc1, Src2 => executeMem_RSrc2, Dst1 => executeMem_RDst1, Dst2 => executeMem_RDst2,
 
@@ -539,7 +554,9 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             clk => clk, reset => reset,
 
             Read1 => executeMem_Read1 , Read2 => executeMem_Read2 , Write1 => executeMem_Write1 ,Write2 => executeMem_Write2,
-            pc => fetch_pcMuxOut , alu1Out => executeMem_alu1Out , alu2Out => executeMem_alu2Out, -- TODO: check if it's neccessary to pass alu1, alu2
+            pc => executeMem_pc ,pcPlusOne => executeMem_pcPlusOne,
+            alu1Op => executeMem_alu1Op, alu2Op => executeMem_alu2Op,
+            alu1Out => executeMem_alu1Out , alu2Out => executeMem_alu2Out, -- TODO: check if it's neccessary to pass alu1, alu2
 
             Src1Data => executeMem_RSrc1Val, Src2Data => executeMem_RSrc2Val,
             Dst1Data => executeMem_RDst1Val, Dst2Data => executeMem_RDst2Val,
@@ -547,8 +564,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
             incSP1 => executeMem_incSP1, decSP1 => executeMem_decSP1 ,
             incSP2 => executeMem_incSP2 , decSP2 => executeMem_decSP2, 
             --------------------------------------
-            -- M0 => M0, M1 => M1,
-            
+            finishPopping => finishPopping,
             memoryOut=> mem_memoryOut,
 
             pushPC => executeMem_pushPC, popPc => executeMem_popPC ,

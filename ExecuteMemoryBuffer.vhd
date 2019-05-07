@@ -1,6 +1,7 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.numeric_std.all;
+USE work.Constants.all;
 
 ENTITY ExecuteMemoryBuffer IS
 
@@ -13,7 +14,8 @@ ENTITY ExecuteMemoryBuffer IS
 
             Read1In, Read2In, Write1In,Write2In, WB1In,WB2In : IN STD_LOGIC;
             inPort1In, inPort2In : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-            pcIn: IN STD_LOGIC_VECTOR( (2*wordSize)-1 DOWNTO 0);
+            pcIn, pcPlusOneIn: IN STD_LOGIC_VECTOR( (2*wordSize)-1 DOWNTO 0);
+            alu1OpIn, alu2OpIn: IN STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);
             alu1OutIn, alu2OutIn : IN  STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
             Src1In, Src2In, Dst1In, Dst2In : IN STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
             Src1DataIn, Src2DataIn, Dst1DataIn, Dst2DataIn : IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
@@ -31,7 +33,8 @@ ENTITY ExecuteMemoryBuffer IS
 
             Read1, Read2, Write1,Write2, WB1, WB2 : OUT STD_LOGIC;
             inPort1, inPort2 : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
-            pc: OUT STD_LOGIC_VECTOR( (2*wordSize)-1 DOWNTO 0);
+            pc, pcPlusOne: OUT STD_LOGIC_VECTOR( (2*wordSize)-1 DOWNTO 0);
+            alu1Op, alu2Op: OUT STD_LOGIC_VECTOR(operationSize-1 DOWNTO 0);
             alu1Out, alu2Out : OUT  STD_LOGIC_VECTOR(wordSize - 1 DOWNTO 0);
             Src1, Src2, Dst1, Dst2 : OUT STD_LOGIC_VECTOR(regNum-1 DOWNTO 0);
             Src1Data, Src2Data, Dst1Data, Dst2Data : OUT STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
@@ -79,11 +82,17 @@ ARCHITECTURE ExecuteMemoryBufferArch OF ExecuteMemoryBuffer IS
         pcMap: ENTITY work.Reg GENERIC MAP ((2*wordSize)) PORT MAP (
             pcIn, bufferEn1, clk, reset, pc
         );
+        pcPlusOneMap: ENTITY work.Reg GENERIC MAP ((2*wordSize)) PORT MAP (
+            pcPlusOneIn, bufferEn1, clk, reset, pcPlusOne
+        );
 
         alu1Map: ENTITY work.Reg GENERIC MAP (wordSize) PORT MAP (
             alu1OutIn, bufferEn1, clk, reset, alu1Out
         );
 
+        alu1OpMap: ENTITY work.Reg GENERIC MAP (operationSize) PORT MAP (
+            alu1OpIn, bufferEn1, clk, reset, alu1Op
+        );
         
 
         src1Map: ENTITY work.Reg GENERIC MAP (regNum) PORT MAP (
@@ -135,6 +144,11 @@ ARCHITECTURE ExecuteMemoryBufferArch OF ExecuteMemoryBuffer IS
         alu2Map: ENTITY work.Reg GENERIC MAP (wordSize) PORT MAP (
             alu2OutIn, bufferEn2, clk, reset, alu2Out
         );
+
+        alu2OpMap: ENTITY work.Reg GENERIC MAP (operationSize) PORT MAP (
+            alu2OpIn, bufferEn1, clk, reset, alu2Op
+        );
+        
 
         
 

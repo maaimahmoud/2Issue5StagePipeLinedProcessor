@@ -19,7 +19,7 @@ end entity InterruptHandler;
 
 architecture InterruptHandlerArch of InterruptHandler is
 
-signal currentCount:std_logic_vector(1 downto 0) ;
+signal currentCount:std_logic_vector(2 downto 0) ;
 signal enableInterruptRegister:std_logic;
 signal enableCounter:std_logic;
 signal interruptOut:std_logic;
@@ -27,30 +27,37 @@ signal resetCounter:std_logic;
 begin
     --enableCounter<= '1' when interrupt='1' or currentCount="00" or currentCount="01" 
     --else '0';
-    enableInterruptRegister<='1' when interrupt='1' or currentCount="11"
-    else '0';
-    enableCounter<='1' when interruptOut='1' and currentCount/="11"
-    else '0';
-    resetCounter<=reset or interrupt;
-    interruptCounter: Entity work.counter generic map(2) port map(
+
+    -- enableInterruptRegister<='1' when interrupt='1' or currentCount="11"
+    -- else '0';
+
+    enableCounter<='1' when (interrupt = '1' or reset = '1')
+    else '0' when currentCount="100" or falling_edge(reset);
+
+    resetCounter<='1' WHEN (currentCount = "100" or reset ='1')
+    ELSE '0';
+
+    interruptCounter: Entity work.counter generic map(3) port map(
         en=>enableCounter,
         reset=>resetCounter,
         clk=>clk,
         count=>currentCount
     );
-    interruptLatch:Entity work.OneBitReg port map(
-        D=>interrupt,
-        en =>enableInterruptRegister,
-        clk =>clk,
-        rst =>reset,
-        Q=>interruptOut
-    );
-    push <= "00" when currentCount="00" and interruptOut='1' 
-    else "01" when currentCount="01"
-    else "10" when currentCount="10"
-    else "11";
+    -- interruptLatch:Entity work.OneBitReg port map(
+    --     D=>interrupt,
+    --     en =>enableInterruptRegister,
+    --     clk =>clk,
+    --     rst =>reset,
+    --     Q=>interruptOut
+    -- );
 
-    interruptToControlUnit<='1' when (currentCount="00" or currentCount="01" or currentCount="10")and interruptOut='1' 
+    push <= currentCount(1 downto 0);
+    -- push <= "00" when currentCount(1 downto 0)="00" and interruptOut='1' 
+    -- else "01" when currentCount(1 downto 0)="01"
+    -- else "10" when currentCount(1 downto 0)="10"
+    -- else "11";
+
+    interruptToControlUnit<='1' when (push="01" or push="10" or push="11")--and interruptOut='1' 
     else '0';
 
 end InterruptHandlerArch ; -- InterruptHandlerArch
