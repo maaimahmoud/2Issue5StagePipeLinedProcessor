@@ -57,7 +57,7 @@ begin
     -- else "10" when currentCount(1 downto 0)="10"
     -- else "11";
 
-    interruptToControlUnit<='1' when (push="01" or push="10" or push="11")--and interruptOut='1' 
+    interruptToControlUnit<='1' when (push="01" or push="10" or push="11" or interrupt = '1')--and interruptOut='1' 
     else '0';
 
 end InterruptHandlerArch ; -- InterruptHandlerArch

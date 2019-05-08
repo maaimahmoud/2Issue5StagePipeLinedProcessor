@@ -1,8 +1,23 @@
 vsim -gui work.MotherBoard
-add wave sim:/MotherBoard/*
+#add wave sim:/MotherBoard/*
 
-add wave -position insertpoint sim:/motherboard/hazardMap/*
+#add wave -position insertpoint  \
+#sim:/motherboard/DecodeMap/myRegisters
 
+add wave -position insertpoint  \
+sim:/motherboard/clk \
+sim:/motherboard/reset \
+sim:/motherboard/INTERRUPT \
+sim:/motherboard/inPort \
+sim:/motherboard/outPort
+add wave -position insertpoint  \
+sim:/motherboard/fetch_pc
+add wave -position insertpoint  \
+sim:/motherboard/MemoryMap/sp
+add wave -position insertpoint  \
+sim:/motherboard/ExecuteMap/flagOut \
+sim:/motherboard/ExecuteMap/flag1Out \
+sim:/motherboard/ExecuteMap/flag2Out
 add wave -position insertpoint  \
 sim:/motherboard/DecodeMap/myRegisters
 

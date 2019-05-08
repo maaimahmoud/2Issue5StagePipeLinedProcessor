@@ -20,4 +20,4 @@ AND R6,R4    #R4= 0000 , C-->no change, N-->0, Z-->1
 OR  R2,R1    #R1=1D  , C--> no change, N-->0, Z--> 0
 SHL R2,2     #R2=64  , C--> 0, N -->0 , Z -->0
 SHR R2,3     #R2=0C  , C -->1, N-->0 , Z-->0
-Add R2,R3    #R3=0C  (C,N,Z =0)
+Add R2,R3    #R3=0B  (C --> 1,N,Z =0)
