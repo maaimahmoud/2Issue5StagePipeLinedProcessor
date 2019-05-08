@@ -31,7 +31,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
         SIGNAL resetCounterOut: STD_LOGIC_VECTOR(1 DOWNTO 0);
 
     -- Fetch Parameters
-        SIGNAL pcEn: STD_LOGIC;
+        SIGNAL pcEn, intStall: STD_LOGIC;
         SIGNAL pcSrcSelector: STD_LOGIC_VECTOR( integer(ceil(log2(real(pcInputsNum))))-1 DOWNTO 0);
         SIGNAL fetch_pc, fetch_pcPlusOne: STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
         SIGNAL fetch_instruction1, fetch_instruction2: STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
@@ -213,7 +213,8 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
 
             instruction1 => fetch_instruction1, instruction2 => fetch_instruction2,
             
-            pc => fetch_pc, pcPlusOne => fetch_pcPlusOne
+            pc => fetch_pc, pcPlusOne => fetch_pcPlusOne,
+            intStall => intStall
         );
     -- ###########################################################################################
     -- Fetch/Decode Buffer
@@ -265,6 +266,7 @@ ARCHITECTURE MotherBoardArch OF MotherBoard IS
                 insertNOP => insertNOP,
                 isBranch => isBranch,
                 loadUse => loadUse,
+                intStall => intStall,
                 ------------------------------------------------
 
                 Execute1 => control_EX1,Execute2 => control_EX2,

@@ -15,6 +15,7 @@ port(
     insertNOP:IN std_logic;
     isBranch: IN std_logic;
     loadUse: IN std_logic;
+    intStall: IN std_logic;
     Execute1,Execute2:OUT std_logic;
     readFromMemory1,readFromMemory2:OUT std_logic;
     wrtieToMemory1,wrtieToMemory2:OUT std_logic;
@@ -49,8 +50,9 @@ architecture ControlUnitArch of ControlUnit is
     signal Execute2Out,readFromMemory2Out,wrtieToMemory2Out,WB2Out,Branch2Out,incSP2TempOut,decSP2TempOut: STD_LOGIC;
 
 begin
-    stall<= stallInterrupt or stallRTI or stallCALL or stallRET;
-    
+    stall<= '1' WHEN stallInterrupt='1' or stallRTI='1' or stallCALL='1' or stallRET='1' or intStall = '1'
+    else '0';
+
     rtiSignal<='1' when opCode1=opRTI
     else '0';
     

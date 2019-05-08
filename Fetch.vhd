@@ -24,7 +24,8 @@ ENTITY Fetch IS
             -- M0, M1: IN STD_LOGIC_VECTOR(wordSize-1 DOWNTO 0);
             ---------------------------------------------------
             instruction1,instruction2: OUT STD_LOGIC_VECTOR (wordSize-1 DOWNTO 0);
-            pc, pcPlusOne: OUT STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0)
+            pc, pcPlusOne: OUT STD_LOGIC_VECTOR((2*wordSize)-1 DOWNTO 0);
+            intStall: out std_logic
 
 		);
 
@@ -146,6 +147,10 @@ ARCHITECTURE FetchArch OF Fetch IS
 
     instruction2 <= dataOut2 WHEN resetCounterOut = "10"
     ELSE (OTHERS=>'0');
+
+
+    intStall <= '1' when pc = M1
+    else '0';
 		
 		
 END ARCHITECTURE;
